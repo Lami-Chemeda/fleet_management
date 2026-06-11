@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_employee_form_fleet_driver" model="ir.ui.view">
+        <field name="name">hr.employee.form.fleet.driver</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='coach_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//div[hasclass('oe_title')]" position="before">
+                <group invisible="not context.get('create_driver_from_employee') or id">
+                    <field name="driver_source_employee_id"
+                           string="Select Employee Created by Admin With No Role"
+                           required="context.get('create_driver_from_employee') and not id"
+                           placeholder="Select employee created by admin with no fleet role"
+                           options="{'no_create': True, 'no_create_edit': True}"/>
+                </group>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="readonly">context.get('create_driver_from_employee') and not id</attribute>
+                <attribute name="invisible">context.get('create_driver_from_employee') and not id</attribute>
+            </xpath>
+            <xpath expr="//field[@name='parent_id']" position="after">
+                <field name="fleet_role" string="Fleet Management Role"/>
+            </xpath>
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="Fleet Management">
+                    <group string="Driver Information" invisible="fleet_role != 'driver'">
+                        <group>
+                            <field name="is_fleet_driver" readonly="1"/>
+                            <field name="driver_license_number"/>
+                            <field name="driver_license_category"/>
+                            <field name="driver_license_suspended"/>
+                        </group>
+                        <group>
+                            <field name="driver_license_issue_date"/>
+                            <field name="driver_license_expiry_date"/>
+                            <field name="driver_license_status"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_fleet_driver_list" model="ir.ui.view">
+        <field name="name">hr.employee.fleet.driver.list</field>
+        <field name="model">hr.employee</field>
+        <field name="arch" type="xml">
+            <list string="Drivers">
+                <field name="name"/>
+                <field name="department_id"/>
+                <field name="work_phone"/>
+                <field name="driver_license_number"/>
+                <field name="driver_license_category"/>
+                <field name="driver_license_expiry_date"/>
+                <field name="driver_license_status"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_fleet_drivers" model="ir.actions.act_window">
+        <field name="name">Drivers</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_fleet_driver', '=', True)]</field>
+        <field name="context">{'default_is_fleet_driver': True, 'default_fleet_role': 'driver', 'create_driver_from_employee': True}</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_fleet_garage_vendors" model="ir.actions.act_window">
+        <field name="name">Garage Vendors</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_garage_vendor', '=', True)]</field>
+        <field name="context">{'default_is_company': True, 'default_is_garage_vendor': True}</field>
+    </record>
+
+    <menuitem id="menu_fleet_management_vehicles"
+              name="Vehicles"
+              parent="menu_fleet_management_root"
+              groups="fleet_management.group_fleet_manager,fleet_management.group_fleet_driver"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_vehicle_records"
+              name="Vehicles"
+              parent="menu_fleet_management_vehicles"
+              action="action_fleet_management_vehicle"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_vehicle_history"
+              name="Vehicle History"
+              parent="menu_fleet_management_vehicles"
+              action="action_fleet_vehicle_history"
+              groups="fleet_management.group_fleet_manager,fleet_management.group_fleet_driver"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_drivers"
+              name="Drivers"
+              parent="menu_fleet_management_root"
+              action="action_fleet_drivers"
+              groups="fleet_management.group_fleet_manager"
+              sequence="15"/>
+
+    <menuitem id="menu_fleet_management_trip"
+              name="Trip Management"
+              parent="menu_fleet_management_root"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_trip_requests"
+              name="Vehicle Requests"
+              parent="menu_fleet_management_trip"
+              action="action_fleet_trip_request"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_assignments"
+              name="Vehicle Assignments"
+              parent="menu_fleet_management_trip"
+              action="action_fleet_vehicle_assignment"
+              groups="fleet_management.group_fleet_manager,fleet_management.group_department_manager,fleet_management.group_fleet_driver"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_fuel"
+              name="Fuel Management"
+              parent="menu_fleet_management_root"
+              groups="fleet_management.group_fleet_manager,fleet_management.group_fleet_driver"
+              sequence="30"/>
+
+    <menuitem id="menu_fleet_management_fuel_requests"
+              name="Fuel Requests"
+              parent="menu_fleet_management_fuel"
+              action="action_fleet_fuel_request"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_fuel_issues"
+              name="Fuel Issues"
+              parent="menu_fleet_management_fuel"
+              action="action_fleet_fuel_issue"
+              groups="fleet_management.group_fleet_manager"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_maintenance"
+              name="Maintenance"
+              parent="menu_fleet_management_root"
+              groups="fleet_management.group_fleet_manager,fleet_management.group_fleet_driver"
+              sequence="40"/>
+
+    <menuitem id="menu_fleet_management_maintenance_requests"
+              name="Maintenance Requests"
+              parent="menu_fleet_management_maintenance"
+              action="action_fleet_maintenance_request"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_service_records"
+              name="Service Records"
+              parent="menu_fleet_management_maintenance"
+              action="action_fleet_maintenance_service"
+              groups="fleet_management.group_fleet_manager"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_vendors"
+              name="Vendors"
+              parent="menu_fleet_management_root"
+              action="action_fleet_garage_vendors"
+              groups="fleet_management.group_fleet_manager"
+              sequence="50"/>
+</odoo>

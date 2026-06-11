@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_fleet_fuel_request_list" model="ir.ui.view">
+        <field name="name">fleet.fuel.request.list</field>
+        <field name="model">fleet.fuel.request</field>
+        <field name="arch" type="xml">
+            <list string="Fuel Requests">
+                <field name="name"/>
+                <field name="vehicle_id"/>
+                <field name="driver_id"/>
+                <field name="fuel_type"/>
+                <field name="requested_quantity"/>
+                <field name="request_date"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fleet_fuel_request_form" model="ir.ui.view">
+        <field name="name">fleet.fuel.request.form</field>
+        <field name="model">fleet.fuel.request</field>
+        <field name="arch" type="xml">
+            <form string="Fuel Request">
+                <header>
+                    <button name="action_submit" type="object" string="Submit" class="btn-primary" groups="fleet_management.group_fleet_driver" invisible="state != 'draft'"/>
+                    <button name="action_approve" type="object" string="Approve" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'submitted'"/>
+                    <button name="action_issue" type="object" string="Mark Issued" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'approved'"/>
+                    <button name="action_complete" type="object" string="Complete" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'issued'"/>
+                    <button name="action_reject" type="object" string="Reject" groups="fleet_management.group_fleet_manager" invisible="state in ['completed', 'rejected']"/>
+                    <button name="action_reset_to_draft" type="object" string="Reset To Draft" groups="fleet_management.group_fleet_manager" invisible="state != 'rejected'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,issued,completed"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="vehicle_id"/>
+                            <field name="driver_id"/>
+                            <field name="fuel_type"/>
+                        </group>
+                        <group>
+                            <field name="requested_quantity"/>
+                            <field name="total_issued_quantity"/>
+                            <field name="total_fuel_cost"/>
+                            <field name="currency_id"/>
+                            <field name="request_date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Issues" groups="fleet_management.group_fleet_manager">
+                            <field name="issue_ids">
+                                <list editable="bottom">
+                                    <field name="issued_quantity"/>
+                                    <field name="issue_date"/>
+                                    <field name="issuer_id"/>
+                                    <field name="cost"/>
+                                    <field name="currency_id"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fleet_fuel_request" model="ir.actions.act_window">
+        <field name="name">Fuel Requests</field>
+        <field name="res_model">fleet.fuel.request</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

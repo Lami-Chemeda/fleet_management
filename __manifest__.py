@@ -1,0 +1,38 @@
+{
+    'name': 'Fleet Management',
+    'version': '18.0.1.0.0',
+    'summary': 'Vehicle, driver, trip, fuel, and maintenance management',
+    'description': """
+Fleet Management module for managing vehicles, drivers, trip requests,
+fuel requests, maintenance requests, external garages, and fleet reports.
+    """,
+    'category': 'Operations/Fleet',
+    'author': 'Pcalami',
+    'depends': [
+        'base',
+        'mail',
+        'hr',
+        'contacts',
+        'fleet',
+    ],
+    'data': [
+        'security/security.xml',
+        'security/ir.model.access.csv',
+        'data/sequence_data.xml',
+        'views/fleet_vehicle_views.xml',
+        'views/hr_employee_views.xml',
+        'views/res_partner_views.xml',
+        'views/fleet_vehicle_history_views.xml',
+        'views/fleet_trip_request_views.xml',
+        'views/fleet_vehicle_assignment_views.xml',
+        'views/fleet_fuel_request_views.xml',
+        'views/fleet_fuel_issue_views.xml',
+        'views/fleet_maintenance_request_views.xml',
+        'views/fleet_maintenance_service_views.xml',
+        'views/fleet_report_views.xml',
+        'views/fleet_menu_views.xml',
+    ],
+    'application': True,
+    'installable': True,
+    'license': 'LGPL-3',
+}

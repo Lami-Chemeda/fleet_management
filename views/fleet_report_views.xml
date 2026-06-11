@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_vehicle_status" model="ir.actions.act_window">
+        <field name="name">Vehicle Status Report</field>
+        <field name="res_model">fleet.vehicle</field>
+        <field name="view_mode">list,pivot,graph,form</field>
+        <field name="context">{'group_by': ['fleet_status']}</field>
+    </record>
+
+    <record id="action_report_fuel_consumption" model="ir.actions.act_window">
+        <field name="name">Fuel Consumption Report</field>
+        <field name="res_model">fleet.fuel.issue</field>
+        <field name="view_mode">list,pivot,graph,form</field>
+        <field name="context">{'group_by': ['vehicle_id']}</field>
+    </record>
+
+    <record id="action_report_maintenance_history" model="ir.actions.act_window">
+        <field name="name">Maintenance History Report</field>
+        <field name="res_model">fleet.maintenance.service</field>
+        <field name="view_mode">list,pivot,graph,form</field>
+        <field name="context">{'group_by': ['vehicle_id']}</field>
+    </record>
+
+    <record id="action_report_driver_utilization" model="ir.actions.act_window">
+        <field name="name">Driver Utilization Report</field>
+        <field name="res_model">fleet.vehicle.assignment</field>
+        <field name="view_mode">list,pivot,graph,form</field>
+        <field name="context">{'group_by': ['driver_id']}</field>
+    </record>
+
+    <record id="action_report_vendor_performance" model="ir.actions.act_window">
+        <field name="name">Vendor Performance Report</field>
+        <field name="res_model">fleet.maintenance.service</field>
+        <field name="view_mode">list,pivot,graph,form</field>
+        <field name="context">{'group_by': ['vendor_id']}</field>
+    </record>
+
+    <record id="action_report_driver_license" model="ir.actions.act_window">
+        <field name="name">Driver License Validity Report</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_fleet_driver', '=', True)]</field>
+        <field name="context">{'group_by': ['driver_license_status']}</field>
+    </record>
+
+    <record id="action_report_vehicle_lifecycle" model="ir.actions.act_window">
+        <field name="name">Vehicle Lifecycle History Report</field>
+        <field name="res_model">fleet.vehicle.history</field>
+        <field name="view_mode">list,pivot,graph,form</field>
+        <field name="context">{'group_by': ['vehicle_id']}</field>
+    </record>
+
+    <menuitem id="menu_fleet_management_reports"
+              name="Reports"
+              parent="menu_fleet_management_root"
+              groups="fleet_management.group_fleet_manager"
+              sequence="60"/>
+
+    <menuitem id="menu_report_vehicle_status"
+              name="Vehicle Status"
+              parent="menu_fleet_management_reports"
+              action="action_report_vehicle_status"
+              sequence="10"/>
+
+    <menuitem id="menu_report_vehicle_lifecycle"
+              name="Vehicle Lifecycle History"
+              parent="menu_fleet_management_reports"
+              action="action_report_vehicle_lifecycle"
+              sequence="15"/>
+
+    <menuitem id="menu_report_fuel_consumption"
+              name="Fuel Consumption"
+              parent="menu_fleet_management_reports"
+              action="action_report_fuel_consumption"
+              sequence="20"/>
+
+    <menuitem id="menu_report_maintenance_history"
+              name="Maintenance History"
+              parent="menu_fleet_management_reports"
+              action="action_report_maintenance_history"
+              sequence="30"/>
+
+    <menuitem id="menu_report_driver_utilization"
+              name="Driver Utilization"
+              parent="menu_fleet_management_reports"
+              action="action_report_driver_utilization"
+              sequence="40"/>
+
+    <menuitem id="menu_report_vendor_performance"
+              name="Vendor Performance"
+              parent="menu_fleet_management_reports"
+              action="action_report_vendor_performance"
+              sequence="50"/>
+
+    <menuitem id="menu_report_driver_license"
+              name="Driver License Validity"
+              parent="menu_fleet_management_reports"
+              action="action_report_driver_license"
+              sequence="60"/>
+</odoo>

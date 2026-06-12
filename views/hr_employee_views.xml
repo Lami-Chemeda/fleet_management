@@ -6,9 +6,6 @@
         <field name="inherit_id" ref="hr.view_employee_form"/>
         <field name="priority">100</field>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='coach_id']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
             <xpath expr="//div[hasclass('oe_title')]" position="before">
                 <group invisible="not context.get('create_driver_from_employee') or id">
                     <field name="driver_source_employee_id"
@@ -22,14 +19,17 @@
                 <attribute name="readonly">context.get('create_driver_from_employee') and not id</attribute>
                 <attribute name="invisible">context.get('create_driver_from_employee') and not id</attribute>
             </xpath>
-            <xpath expr="//field[@name='parent_id']" position="after">
-                <field name="fleet_role" string="Fleet Management Role"/>
-            </xpath>
             <xpath expr="//sheet/notebook" position="inside">
                 <page string="Fleet Management">
-                    <group string="Driver Information" invisible="fleet_role != 'driver'">
+                    <group string="Fleet Management Role">
+                        <field name="fleet_role" invisible="1"/>
+                        <field name="is_fleet_user"/>
+                        <field name="is_fleet_driver"/>
+                        <field name="is_department_manager"/>
+                        <field name="is_fleet_manager"/>
+                    </group>
+                    <group string="Driver Information" invisible="not is_fleet_driver">
                         <group>
-                            <field name="is_fleet_driver" readonly="1"/>
                             <field name="driver_license_number"/>
                             <field name="driver_license_category"/>
                             <field name="driver_license_suspended"/>
@@ -49,7 +49,7 @@
         <field name="name">hr.employee.fleet.driver.list</field>
         <field name="model">hr.employee</field>
         <field name="arch" type="xml">
-            <list string="Drivers">
+            <list string="Drivers" create="0">
                 <field name="name"/>
                 <field name="department_id"/>
                 <field name="work_phone"/>
@@ -66,7 +66,7 @@
         <field name="res_model">hr.employee</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[('is_fleet_driver', '=', True)]</field>
-        <field name="context">{'default_is_fleet_driver': True, 'default_fleet_role': 'driver', 'create_driver_from_employee': True}</field>
+        <field name="context">{'create': False, 'default_is_fleet_user': True, 'default_is_fleet_driver': True, 'default_fleet_role': 'driver', 'create_driver_from_employee': True}</field>
     </record>
 
 </odoo>

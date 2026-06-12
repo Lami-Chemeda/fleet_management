@@ -31,6 +31,7 @@ fuel requests, maintenance requests, external garages, and fleet reports.
         'views/fleet_maintenance_service_views.xml',
         'views/fleet_report_views.xml',
         'views/fleet_menu_views.xml',
+        'views/login_branding_views.xml',
     ],
     'application': True,
     'installable': True,

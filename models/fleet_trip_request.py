@@ -41,6 +41,29 @@ class FleetTripRequest(models.Model):
     assignment_ids = fields.One2many('fleet.vehicle.assignment', 'trip_request_id', string='Vehicle Assignments')
     requester_executed = fields.Boolean(string='Requester Executed', copy=False, tracking=True)
     driver_executed = fields.Boolean(string='Driver Executed', copy=False, tracking=True)
+    can_execute_current_user = fields.Boolean(
+        string='Can Execute',
+        compute='_compute_can_execute_current_user',
+    )
+
+    @api.depends('state', 'requester_id', 'assignment_ids.status', 'assignment_ids.driver_id')
+    @api.depends_context('uid')
+    def _compute_can_execute_current_user(self):
+        current_employee = self.env.user.employee_id
+        is_fleet_manager = self.env.user.has_group('fleet_management.group_fleet_manager')
+        for request in self:
+            assigned_drivers = request.assignment_ids.filtered(
+                lambda assignment: assignment.status == 'assigned'
+            ).mapped('driver_id')
+            request.can_execute_current_user = bool(
+                request.state == 'allocated'
+                and current_employee
+                and not is_fleet_manager
+                and (
+                    request.requester_id == current_employee
+                    or current_employee in assigned_drivers
+                )
+            )
 
     @api.constrains('start_date', 'end_date')
     def _check_trip_dates(self):

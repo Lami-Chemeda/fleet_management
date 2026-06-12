@@ -5,7 +5,7 @@ from odoo.exceptions import AccessError
 class FleetVehicle(models.Model):
     _inherit = 'fleet.vehicle'
 
-    chassis_number = fields.Char(string='VIN / Chassis Number', copy=False, index=True)
+    chassis_number = fields.Char(string='VIN / Chassis Number', required=True, copy=False, index=True)
     engine_number = fields.Char(string='Engine Number', copy=False)
     ownership_type = fields.Selection(
         [
@@ -33,6 +33,14 @@ class FleetVehicle(models.Model):
     )
     current_driver_id = fields.Many2one('hr.employee', string='Current Driver', tracking=True)
     current_odometer = fields.Float(string='Current Odometer')
+
+    _sql_constraints = [
+        (
+            'fleet_vehicle_chassis_number_unique',
+            'unique(chassis_number)',
+            'The VIN / Chassis Number must be unique for each vehicle.',
+        ),
+    ]
 
     def _check_fleet_vehicle_manager_access(self):
         if self.env.is_superuser():

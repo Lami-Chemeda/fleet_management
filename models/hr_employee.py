@@ -11,6 +11,15 @@ class HrEmployee(models.Model):
     is_fleet_driver = fields.Boolean(
         string='Fleet Driver',
     )
+    is_fleet_user = fields.Boolean(
+        string='Fleet User',
+    )
+    is_fleet_manager = fields.Boolean(
+        string='Fleet Manager',
+    )
+    is_department_manager = fields.Boolean(
+        string='Department Manager',
+    )
     fleet_role = fields.Selection(
         selection=[
             ('employee', 'No Fleet Role'),
@@ -26,7 +35,7 @@ class HrEmployee(models.Model):
         comodel_name='hr.employee',
         string='Employee',
         copy=False,
-        domain="[('fleet_role', '=', 'employee'), ('is_fleet_driver', '=', False)]",
+        domain="[('is_fleet_user', '=', False), ('is_fleet_driver', '=', False), ('is_fleet_manager', '=', False), ('is_department_manager', '=', False)]",
     )
     current_vehicle_ids = fields.One2many(
         comodel_name='fleet.vehicle',
@@ -82,7 +91,12 @@ class HrEmployee(models.Model):
     @api.onchange('fleet_role')
     def _onchange_fleet_role(self):
         for employee in self:
-            employee.is_fleet_driver = employee.fleet_role == 'driver'
+            employee._apply_fleet_role_selection()
+
+    @api.onchange('is_fleet_user', 'is_fleet_driver', 'is_fleet_manager', 'is_department_manager')
+    def _onchange_fleet_role_flags(self):
+        for employee in self:
+            employee.fleet_role = employee._get_primary_fleet_role_from_flags()
 
     @api.onchange('driver_source_employee_id')
     def _onchange_driver_source_employee_id(self):
@@ -108,6 +122,7 @@ class HrEmployee(models.Model):
                 employee[field_name] = source_employee[field_name]
             employee.fleet_role = 'driver'
             employee.is_fleet_driver = True
+            employee.is_fleet_user = True
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -121,8 +136,7 @@ class HrEmployee(models.Model):
                     driver_employee.write(self._prepare_driver_source_employee_vals(vals))
                     driver_employees |= driver_employee
                     continue
-            if vals.get('fleet_role'):
-                vals['is_fleet_driver'] = vals['fleet_role'] == 'driver'
+            self._normalize_fleet_role_vals(vals, set_selection_from_flags=True)
             vals_to_create.append(vals)
         employees = super().create(vals_to_create) if vals_to_create else self.browse()
         employees_to_sync = employees.browse()
@@ -133,27 +147,26 @@ class HrEmployee(models.Model):
         return employees | driver_employees
 
     def write(self, vals):
-        if 'fleet_role' in vals:
-            vals['is_fleet_driver'] = vals['fleet_role'] == 'driver'
+        self._normalize_fleet_role_vals(vals)
         result = super().write(vals)
-        if 'fleet_role' in vals:
+        if self._has_fleet_role_vals(vals):
+            if 'fleet_role' not in vals and {
+                'is_fleet_user',
+                'is_fleet_driver',
+                'is_department_manager',
+                'is_fleet_manager',
+            }.intersection(vals):
+                self._update_fleet_role_selection_from_flags()
             self._sync_fleet_role_to_user()
         elif 'user_id' in vals:
-            self.filtered(lambda employee: employee.fleet_role != 'employee')._sync_fleet_role_to_user()
+            self.filtered(lambda employee: employee._has_any_fleet_role())._sync_fleet_role_to_user()
         return result
 
     def _sync_fleet_role_to_user(self):
-        role_group_xmlids = {
-            'fleet_user': 'fleet_management.group_fleet_user',
-            'driver': 'fleet_management.group_fleet_driver',
-            'department_manager': 'fleet_management.group_department_manager',
-            'fleet_manager': 'fleet_management.group_fleet_manager',
-        }
         managed_groups = self._get_managed_fleet_groups()
         for employee in self.filtered('user_id'):
             commands = [(3, group.id) for group in managed_groups]
-            group_xmlid = role_group_xmlids.get(employee.fleet_role)
-            if group_xmlid:
+            for group_xmlid in employee._get_fleet_role_group_xmlids():
                 role_group = self.env.ref(group_xmlid, raise_if_not_found=False)
                 if role_group:
                     commands.append((4, role_group.id))
@@ -191,9 +204,108 @@ class HrEmployee(models.Model):
         }
         driver_vals.update({
             'fleet_role': 'driver',
+            'is_fleet_user': True,
             'is_fleet_driver': True,
         })
         return driver_vals
+
+    def _apply_fleet_role_selection(self):
+        self.ensure_one()
+        role_flag_by_selection = {
+            'fleet_user': 'is_fleet_user',
+            'driver': 'is_fleet_driver',
+            'department_manager': 'is_department_manager',
+            'fleet_manager': 'is_fleet_manager',
+        }
+        flag_name = role_flag_by_selection.get(self.fleet_role)
+        if flag_name:
+            self[flag_name] = True
+            if flag_name != 'is_fleet_user':
+                self.is_fleet_user = True
+        elif self.fleet_role == 'employee':
+            self.is_fleet_user = False
+            self.is_fleet_driver = False
+            self.is_department_manager = False
+            self.is_fleet_manager = False
+
+    def _get_primary_fleet_role_from_flags(self):
+        self.ensure_one()
+        if self.is_fleet_manager:
+            return 'fleet_manager'
+        if self.is_department_manager:
+            return 'department_manager'
+        if self.is_fleet_driver:
+            return 'driver'
+        if self.is_fleet_user:
+            return 'fleet_user'
+        return 'employee'
+
+    def _has_any_fleet_role(self):
+        self.ensure_one()
+        return any((
+            self.is_fleet_user,
+            self.is_fleet_driver,
+            self.is_department_manager,
+            self.is_fleet_manager,
+        ))
+
+    def _get_fleet_role_group_xmlids(self):
+        self.ensure_one()
+        group_xmlids = []
+        if self.is_fleet_user:
+            group_xmlids.append('fleet_management.group_fleet_user')
+        if self.is_fleet_driver:
+            group_xmlids.append('fleet_management.group_fleet_driver')
+        if self.is_department_manager:
+            group_xmlids.append('fleet_management.group_department_manager')
+        if self.is_fleet_manager:
+            group_xmlids.append('fleet_management.group_fleet_manager')
+        return group_xmlids
+
+    def _has_fleet_role_vals(self, vals):
+        return bool({
+            'fleet_role',
+            'is_fleet_user',
+            'is_fleet_driver',
+            'is_department_manager',
+            'is_fleet_manager',
+        }.intersection(vals))
+
+    def _normalize_fleet_role_vals(self, vals, set_selection_from_flags=False):
+        if not self._has_fleet_role_vals(vals):
+            return
+        if vals.get('fleet_role') and not {
+            'is_fleet_user',
+            'is_fleet_driver',
+            'is_department_manager',
+            'is_fleet_manager',
+        }.intersection(vals):
+            role = vals['fleet_role']
+            vals.update({
+                'is_fleet_user': role in ('fleet_user', 'driver', 'department_manager', 'fleet_manager'),
+                'is_fleet_driver': role == 'driver',
+                'is_department_manager': role == 'department_manager',
+                'is_fleet_manager': role == 'fleet_manager',
+            })
+        if vals.get('is_fleet_driver') or vals.get('is_department_manager') or vals.get('is_fleet_manager'):
+            vals.setdefault('is_fleet_user', True)
+        if set_selection_from_flags and any(field in vals for field in ('is_fleet_user', 'is_fleet_driver', 'is_department_manager', 'is_fleet_manager')):
+            if vals.get('is_fleet_manager'):
+                vals['fleet_role'] = 'fleet_manager'
+            elif vals.get('is_department_manager'):
+                vals['fleet_role'] = 'department_manager'
+            elif vals.get('is_fleet_driver'):
+                vals['fleet_role'] = 'driver'
+            elif vals.get('is_fleet_user'):
+                vals['fleet_role'] = 'fleet_user'
+            else:
+                vals['fleet_role'] = 'employee'
+
+    def _update_fleet_role_selection_from_flags(self):
+        for employee in self:
+            primary_role = employee._get_primary_fleet_role_from_flags()
+            if employee.fleet_role != primary_role:
+                super(HrEmployee, employee).write({'fleet_role': primary_role})
 
     @api.constrains('work_phone', 'mobile_phone')
     def _check_ethiopian_phone_numbers(self):

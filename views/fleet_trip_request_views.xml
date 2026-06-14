@@ -28,18 +28,21 @@
                     <button name="action_fleet_approve" type="object" string="Fleet Approve" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'department_approved'"/>
                     <button name="action_allocate" type="object" string="Mark Allocated" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'fleet_approved'"/>
                     <button name="action_execute" type="object" string="Execute" class="btn-primary" groups="fleet_management.group_fleet_user,fleet_management.group_fleet_driver" invisible="not can_execute_current_user"/>
-                    <button name="action_reject" type="object" string="Reject" groups="fleet_management.group_department_manager,fleet_management.group_fleet_manager" invisible="state in ['completed', 'cancelled', 'rejected']"/>
+                    <button name="action_open_reject_wizard" type="object" string="Reject" groups="fleet_management.group_department_manager,fleet_management.group_fleet_manager" invisible="state in ['completed', 'cancelled', 'rejected']"/>
                     <button name="action_reset_to_draft" type="object" string="Reset To Draft" groups="fleet_management.group_fleet_manager" invisible="state not in ['cancelled', 'rejected']"/>
                     <field name="can_execute_current_user" invisible="1"/>
+                    <field name="can_edit_requester" invisible="1"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,submitted,department_approved,fleet_approved,allocated,completed"/>
                 </header>
                 <sheet>
                     <group>
                         <group>
                             <field name="name"/>
-                            <field name="requester_id"/>
+                            <field name="requester_id" readonly="not can_edit_requester"/>
                             <field name="department_id"/>
+                            <field name="start_place"/>
                             <field name="destination"/>
+                            <field name="number_of_people"/>
                         </group>
                         <group>
                             <field name="request_date"/>
@@ -51,6 +54,7 @@
                     </group>
                     <group>
                         <field name="purpose"/>
+                        <field name="rejection_reason" readonly="1" invisible="state != 'rejected'"/>
                     </group>
                     <notebook>
                         <page string="Assignments">

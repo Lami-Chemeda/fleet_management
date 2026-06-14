@@ -49,6 +49,7 @@ class FleetFuelRequest(models.Model):
         required=True,
         tracking=True,
     )
+    rejection_reason = fields.Text(string='Rejection Reason', readonly=True, copy=False, tracking=True)
     issue_ids = fields.One2many('fleet.fuel.issue', 'fuel_request_id', string='Fuel Issues')
     total_issued_quantity = fields.Float(
         string='Total Issued Quantity',
@@ -132,6 +133,20 @@ class FleetFuelRequest(models.Model):
             if request.state != 'issued':
                 raise ValidationError('Only issued requests can be completed.')
             request.state = 'completed'
+
+    def action_open_reject_wizard(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Reject Request',
+            'res_model': 'fleet.reject.reason.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_request_model': self._name,
+                'default_request_id': self.id,
+            },
+        }
 
     def action_reject(self):
         self._check_fleet_manager()

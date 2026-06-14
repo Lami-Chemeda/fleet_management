@@ -1,12 +1,8 @@
 from odoo import api, fields, models
-from odoo.exceptions import ValidationError
-import re
 
 
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
-
-    _ethiopian_phone_regex = re.compile(r'^(\+251|0)[1-9]\d{8}$')
 
     is_fleet_driver = fields.Boolean(
         string='Fleet Driver',
@@ -306,20 +302,3 @@ class HrEmployee(models.Model):
             primary_role = employee._get_primary_fleet_role_from_flags()
             if employee.fleet_role != primary_role:
                 super(HrEmployee, employee).write({'fleet_role': primary_role})
-
-    @api.constrains('work_phone', 'mobile_phone')
-    def _check_ethiopian_phone_numbers(self):
-        for employee in self:
-            employee._validate_ethiopian_phone_number(employee.work_phone, 'Work Phone')
-            employee._validate_ethiopian_phone_number(employee.mobile_phone, 'Work Mobile')
-
-    def _validate_ethiopian_phone_number(self, phone_number, field_label):
-        if not phone_number:
-            return
-
-        clean_phone_number = re.sub(r'[\s\-\(\)]', '', phone_number)
-        if not self._ethiopian_phone_regex.match(clean_phone_number):
-            raise ValidationError(
-                '%s must be a valid Ethiopian phone number format (e.g., +251911234567 or 0911234567).'
-                % field_label
-            )

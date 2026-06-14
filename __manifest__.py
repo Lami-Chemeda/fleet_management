@@ -20,6 +20,7 @@ fuel requests, maintenance requests, external garages, and fleet reports.
         'security/security.xml',
         'security/ir.model.access.csv',
         'data/sequence_data.xml',
+        'views/fleet_reject_reason_wizard_views.xml',
         'views/fleet_vehicle_views.xml',
         'views/hr_employee_views.xml',
         'views/res_partner_views.xml',

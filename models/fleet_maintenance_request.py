@@ -45,6 +45,7 @@ class FleetMaintenanceRequest(models.Model):
         required=True,
         tracking=True,
     )
+    rejection_reason = fields.Text(string='Rejection Reason', readonly=True, copy=False, tracking=True)
     service_ids = fields.One2many('fleet.maintenance.service', 'maintenance_request_id', string='Maintenance Services')
     total_service_cost = fields.Monetary(
         string='Total Service Cost',
@@ -140,6 +141,20 @@ class FleetMaintenanceRequest(models.Model):
                 'description': 'Maintenance completed and request closed.',
                 'odometer': request.vehicle_id.current_odometer,
             })
+
+    def action_open_reject_wizard(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Reject Request',
+            'res_model': 'fleet.reject.reason.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_request_model': self._name,
+                'default_request_id': self.id,
+            },
+        }
 
     def action_reject(self):
         self._check_fleet_manager()

@@ -20,15 +20,9 @@
                 <attribute name="invisible">context.get('create_driver_from_employee') and not id</attribute>
             </xpath>
             <xpath expr="//sheet/notebook" position="inside">
-                <page string="Fleet Management">
-                    <group string="Fleet Management Role">
-                        <field name="fleet_role" invisible="1"/>
-                        <field name="is_fleet_user"/>
-                        <field name="is_fleet_driver"/>
-                        <field name="is_department_manager"/>
-                        <field name="is_fleet_manager"/>
-                    </group>
-                    <group string="Driver Information" invisible="not is_fleet_driver">
+                <page string="Driver Information" invisible="not is_fleet_driver">
+                    <field name="is_fleet_driver" invisible="1"/>
+                    <group string="Driver Information">
                         <group>
                             <field name="driver_license_number"/>
                             <field name="driver_license_category"/>

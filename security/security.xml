@@ -12,6 +12,11 @@
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
 
+    <!-- Every internal user (any employee registered by admin) is automatically a Fleet User. -->
+    <record id="base.group_user" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('group_fleet_user'))]"/>
+    </record>
+
     <record id="group_fleet_driver" model="res.groups">
         <field name="name">Driver</field>
         <field name="category_id" ref="module_category_fleet_management"/>

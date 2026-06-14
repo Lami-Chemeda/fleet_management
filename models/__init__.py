@@ -8,3 +8,4 @@ from . import fleet_fuel_request
 from . import fleet_fuel_issue
 from . import fleet_maintenance_request
 from . import fleet_maintenance_service
+from . import fleet_reject_reason_wizard

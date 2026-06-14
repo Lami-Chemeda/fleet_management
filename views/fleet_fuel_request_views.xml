@@ -26,7 +26,7 @@
                     <button name="action_approve" type="object" string="Approve" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'submitted'"/>
                     <button name="action_issue" type="object" string="Mark Issued" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'approved'"/>
                     <button name="action_complete" type="object" string="Complete" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'issued'"/>
-                    <button name="action_reject" type="object" string="Reject" groups="fleet_management.group_fleet_manager" invisible="state in ['completed', 'rejected']"/>
+                    <button name="action_open_reject_wizard" type="object" string="Reject" groups="fleet_management.group_fleet_manager" invisible="state in ['completed', 'rejected']"/>
                     <button name="action_reset_to_draft" type="object" string="Reset To Draft" groups="fleet_management.group_fleet_manager" invisible="state != 'rejected'"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,issued,completed"/>
                 </header>
@@ -45,6 +45,9 @@
                             <field name="currency_id"/>
                             <field name="request_date"/>
                         </group>
+                    </group>
+                    <group>
+                        <field name="rejection_reason" readonly="1" invisible="state != 'rejected'"/>
                     </group>
                     <notebook>
                         <page string="Issues" groups="fleet_management.group_fleet_manager">

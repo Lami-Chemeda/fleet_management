@@ -18,10 +18,13 @@ class FleetTripRequest(models.Model):
     )
     department_id = fields.Many2one('hr.department', string='Department', related='requester_id.department_id', store=True, readonly=True)
     purpose = fields.Text(string='Purpose', required=True)
+    start_place = fields.Char(string='Start Place', tracking=True)
     destination = fields.Char(string='Destination', required=True)
+    number_of_people = fields.Integer(string='Number of People', tracking=True)
     request_date = fields.Datetime(string='Request Date', default=fields.Datetime.now, required=True)
     start_date = fields.Datetime(string='Start Date', required=True, tracking=True)
     end_date = fields.Datetime(string='End Date', required=True, tracking=True)
+    rejection_reason = fields.Text(string='Rejection Reason', readonly=True, copy=False, tracking=True)
     state = fields.Selection(
         [
             ('draft', 'Draft'),
@@ -45,6 +48,19 @@ class FleetTripRequest(models.Model):
         string='Can Execute',
         compute='_compute_can_execute_current_user',
     )
+    can_edit_requester = fields.Boolean(
+        string='Can Edit Requester',
+        compute='_compute_can_edit_requester',
+    )
+
+    @api.depends_context('uid')
+    def _compute_can_edit_requester(self):
+        can_edit = (
+            self.env.user.has_group('fleet_management.group_department_manager')
+            or self.env.user.has_group('fleet_management.group_fleet_manager')
+        )
+        for request in self:
+            request.can_edit_requester = can_edit
 
     @api.depends('state', 'requester_id', 'assignment_ids.status', 'assignment_ids.driver_id')
     @api.depends_context('uid')
@@ -172,6 +188,20 @@ class FleetTripRequest(models.Model):
             assigned_assignments = request.assignment_ids.filtered(lambda assignment: assignment.status == 'assigned')
             if assigned_assignments:
                 assigned_assignments.sudo().action_return_vehicle()
+
+    def action_open_reject_wizard(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Reject Request',
+            'res_model': 'fleet.reject.reason.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_request_model': self._name,
+                'default_request_id': self.id,
+            },
+        }
 
     def action_reject(self):
         for request in self:

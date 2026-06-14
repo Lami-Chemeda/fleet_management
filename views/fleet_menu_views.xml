@@ -27,12 +27,13 @@
               groups="fleet_management.group_fleet_manager,fleet_management.group_fleet_driver"
               sequence="20"/>
 
-    <menuitem id="menu_fleet_management_drivers"
+        <menuitem id="menu_fleet_management_drivers"
               name="Drivers"
               parent="menu_fleet_management_root"
               action="action_fleet_drivers"
-              groups="fleet_management.group_fleet_manager"
+              groups="fleet_management.group_fleet_manager" 
               sequence="15"/>
+
 
     <menuitem id="menu_fleet_management_trip"
               name="Trip Management"

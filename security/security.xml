@@ -78,7 +78,9 @@
             <field name="name">Department managers see department vehicle requests</field>
             <field name="model_id" ref="model_fleet_trip_request"/>
             <field name="groups" eval="[(4, ref('group_department_manager'))]"/>
-            <field name="domain_force">[('department_id', '=', user.employee_id.department_id.id)]</field>
+            <field name="domain_force">[
+                ('requester_id.department_id.manager_id.user_id', '=', user.id)
+            ]</field>
         </record>
 
         <record id="rule_trip_request_driver" model="ir.rule">
@@ -113,7 +115,9 @@
             <field name="name">Department managers see department vehicle assignments</field>
             <field name="model_id" ref="model_fleet_vehicle_assignment"/>
             <field name="groups" eval="[(4, ref('group_department_manager'))]"/>
-            <field name="domain_force">[('trip_request_id.department_id', '=', user.employee_id.department_id.id)]</field>
+            <field name="domain_force">[
+                ('trip_request_id.requester_id.department_id.manager_id.user_id', '=', user.id)
+            ]</field>
         </record>
 
         <record id="rule_assignment_manager" model="ir.rule">
@@ -130,6 +134,15 @@
             <field name="domain_force">[('driver_id.user_id', '=', user.id)]</field>
         </record>
 
+        <record id="rule_fuel_request_department" model="ir.rule">
+            <field name="name">Department managers see department fuel requests</field>
+            <field name="model_id" ref="model_fleet_fuel_request"/>
+            <field name="groups" eval="[(4, ref('group_department_manager'))]"/>
+            <field name="domain_force">[
+                ('driver_id.department_id.manager_id.user_id', '=', user.id)
+            ]</field>
+        </record>
+
         <record id="rule_fuel_request_manager" model="ir.rule">
             <field name="name">Fleet managers see all fuel requests</field>
             <field name="model_id" ref="model_fleet_fuel_request"/>
@@ -142,6 +155,15 @@
             <field name="model_id" ref="model_fleet_fuel_issue"/>
             <field name="groups" eval="[(4, ref('group_fleet_driver'))]"/>
             <field name="domain_force">[('driver_id.user_id', '=', user.id)]</field>
+        </record>
+
+        <record id="rule_fuel_issue_department" model="ir.rule">
+            <field name="name">Department managers see department fuel issues</field>
+            <field name="model_id" ref="model_fleet_fuel_issue"/>
+            <field name="groups" eval="[(4, ref('group_department_manager'))]"/>
+            <field name="domain_force">[
+                ('driver_id.department_id.manager_id.user_id', '=', user.id)
+            ]</field>
         </record>
 
         <record id="rule_fuel_issue_manager" model="ir.rule">
@@ -158,6 +180,17 @@
             <field name="domain_force">['|', ('requested_by_id.user_id', '=', user.id), ('vehicle_id.current_driver_id.user_id', '=', user.id)]</field>
         </record>
 
+        <record id="rule_maintenance_request_department" model="ir.rule">
+            <field name="name">Department managers see department maintenance requests</field>
+            <field name="model_id" ref="model_fleet_maintenance_request"/>
+            <field name="groups" eval="[(4, ref('group_department_manager'))]"/>
+            <field name="domain_force">[
+                '|',
+                ('requested_by_id.department_id.manager_id.user_id', '=', user.id),
+                ('vehicle_id.current_driver_id.department_id.manager_id.user_id', '=', user.id)
+            ]</field>
+        </record>
+
         <record id="rule_maintenance_request_manager" model="ir.rule">
             <field name="name">Fleet managers see all maintenance requests</field>
             <field name="model_id" ref="model_fleet_maintenance_request"/>
@@ -170,6 +203,15 @@
             <field name="model_id" ref="model_fleet_maintenance_service"/>
             <field name="groups" eval="[(4, ref('group_fleet_driver'))]"/>
             <field name="domain_force">[('vehicle_id.current_driver_id.user_id', '=', user.id)]</field>
+        </record>
+
+        <record id="rule_maintenance_service_department" model="ir.rule">
+            <field name="name">Department managers see department maintenance services</field>
+            <field name="model_id" ref="model_fleet_maintenance_service"/>
+            <field name="groups" eval="[(4, ref('group_department_manager'))]"/>
+            <field name="domain_force">[
+                ('vehicle_id.current_driver_id.department_id.manager_id.user_id', '=', user.id)
+            ]</field>
         </record>
 
         <record id="rule_maintenance_service_manager" model="ir.rule">
@@ -193,11 +235,36 @@
             <field name="domain_force">['|', ('driver_id.user_id', '=', user.id), ('vehicle_id.current_driver_id.user_id', '=', user.id)]</field>
         </record>
 
+        <record id="rule_vehicle_history_department" model="ir.rule">
+            <field name="name">Department managers see history for department vehicles</field>
+            <field name="model_id" ref="model_fleet_vehicle_history"/>
+            <field name="groups" eval="[(4, ref('group_department_manager'))]"/>
+            <field name="domain_force">[
+                '|',
+                ('driver_id.department_id.manager_id.user_id', '=', user.id),
+                ('vehicle_id.current_driver_id.department_id.manager_id.user_id', '=', user.id)
+            ]</field>
+        </record>
+
         <record id="rule_vehicle_history_manager" model="ir.rule">
             <field name="name">Fleet managers see all vehicle history</field>
             <field name="model_id" ref="model_fleet_vehicle_history"/>
             <field name="groups" eval="[(4, ref('group_fleet_manager'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <!-- Record rule to control rejection reason visibility -->
+        <record id="rule_trip_request_rejection_reason" model="ir.rule">
+            <field name="name">Users see rejection reason based on role</field>
+            <field name="model_id" ref="model_fleet_trip_request"/>
+            <field name="groups" eval="[(4, ref('group_fleet_user'))]"/>
+            <field name="domain_force">[
+                '|', ('state', '!=', 'rejected'),
+                '&amp;', ('state', '=', 'rejected'),
+                '|', ('requester_id.user_id', '=', user.id),
+                '|', ('rejected_by_role', '=', 'department_manager'),
+                ('rejected_by_role', '=', 'fleet_manager')
+            ]</field>
         </record>
     </data>
 </odoo>

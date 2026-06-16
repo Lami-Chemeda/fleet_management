@@ -4,14 +4,14 @@
         <field name="name">fleet.trip.request.list</field>
         <field name="model">fleet.trip.request</field>
         <field name="arch" type="xml">
-            <list string="Vehicle Requests">
+            <list string="Vehicle Requests" decoration-info="state in ('submitted', 'department_approved', 'fleet_approved')" decoration-warning="state == 'allocated'" decoration-success="state == 'completed'" decoration-danger="state in ('rejected', 'cancelled')">
                 <field name="name"/>
                 <field name="requester_id"/>
                 <field name="department_id"/>
                 <field name="destination"/>
                 <field name="start_date"/>
                 <field name="end_date"/>
-                <field name="state"/>
+                <field name="state" widget="badge"/>
             </list>
         </field>
     </record>
@@ -27,7 +27,7 @@
                     <button name="action_department_approve" type="object" string="Department Approve" class="btn-primary" groups="fleet_management.group_department_manager" invisible="state != 'submitted'"/>
                     <button name="action_fleet_approve" type="object" string="Fleet Approve" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'department_approved'"/>
                     <button name="action_allocate" type="object" string="Mark Allocated" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'fleet_approved'"/>
-                    <button name="action_execute" type="object" string="Execute" class="btn-primary" groups="fleet_management.group_fleet_user,fleet_management.group_fleet_driver" invisible="not can_execute_current_user"/>
+                    <button name="action_finish_trip" type="object" string="Finish Trip" class="btn-primary" groups="fleet_management.group_fleet_user,fleet_management.group_fleet_driver" invisible="not can_execute_current_user"/>
                     <button name="action_open_reject_wizard" type="object" string="Reject" groups="fleet_management.group_department_manager,fleet_management.group_fleet_manager" invisible="state in ['completed', 'cancelled', 'rejected']"/>
                     <button name="action_reset_to_draft" type="object" string="Reset To Draft" groups="fleet_management.group_fleet_manager" invisible="state not in ['cancelled', 'rejected']"/>
                     <field name="can_execute_current_user" invisible="1"/>
@@ -35,6 +35,10 @@
                     <field name="state" widget="statusbar" statusbar_visible="draft,submitted,department_approved,fleet_approved,allocated,completed"/>
                 </header>
                 <sheet>
+                    <!-- NEW: Rejection Details Display Section - Fixed for Odoo 17+ -->
+                    <group name="rejection_details" invisible="state != 'rejected'">
+                        <field name="rejection_details_display" widget="html" colspan="2"/>
+                    </group>
                     <group>
                         <group>
                             <field name="name"/>
@@ -54,11 +58,12 @@
                     </group>
                     <group>
                         <field name="purpose"/>
-                        <field name="rejection_reason" readonly="1" invisible="state != 'rejected'"/>
+                        <!-- Keep existing rejection_reason field but hide it as we now use rejection_details_display -->
+                        <field name="rejection_reason" readonly="1" invisible="1"/>
                     </group>
                     <notebook>
                         <page string="Assignments">
-                            <field name="assignment_ids" groups="fleet_management.group_fleet_manager">
+                            <field name="assignment_ids" groups="fleet_management.group_fleet_manager" readonly="state in ['allocated', 'completed', 'cancelled', 'rejected']">
                                 <list editable="bottom">
                                     <field name="vehicle_driver_id" column_invisible="1"/>
                                     <field name="vehicle_id" domain="[('fleet_status', '=', 'available'), ('current_driver_id', '!=', False)]" options="{'no_create': True, 'no_create_edit': True}"/>

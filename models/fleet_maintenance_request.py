@@ -1,5 +1,6 @@
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, ValidationError
+from odoo.osv import expression
 
 
 class FleetMaintenanceRequest(models.Model):
@@ -63,6 +64,23 @@ class FleetMaintenanceRequest(models.Model):
     def _compute_total_service_cost(self):
         for request in self:
             request.total_service_cost = sum(request.service_ids.mapped('cost'))
+
+    @api.model
+    def _search(self, domain, offset=0, limit=None, order=None):
+        """
+        Override search to implement visibility rules:
+        - Fleet Manager: All requests.
+        - Dept Manager: Requests from employees in their department.
+        - Regular User: Own maintenance requests only.
+        """
+        if not self.env.su and not self.env.user.has_group('fleet_management.group_fleet_manager'):
+            user_employee = self.env.user.employee_id
+            if self.env.user.has_group('fleet_management.group_department_manager') and user_employee.department_id:
+                domain = expression.AND([domain, [('requested_by_id.department_id', '=', user_employee.department_id.id)]])
+            else:
+                domain = expression.AND([domain, [('requested_by_id.user_id', '=', self.env.uid)]])
+        
+        return super()._search(domain, offset=offset, limit=limit, order=order)
 
     @api.model_create_multi
     def create(self, vals_list):

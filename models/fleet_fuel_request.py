@@ -1,5 +1,6 @@
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, ValidationError
+from odoo.osv import expression
 
 
 class FleetFuelRequest(models.Model):
@@ -73,6 +74,23 @@ class FleetFuelRequest(models.Model):
         for request in self:
             request.total_issued_quantity = sum(request.issue_ids.mapped('issued_quantity'))
             request.total_fuel_cost = sum(request.issue_ids.mapped('cost'))
+
+    @api.model
+    def _search(self, domain, offset=0, limit=None, order=None):
+        """
+        Override search to implement visibility rules:
+        - Fleet Manager: All requests.
+        - Dept Manager: Requests from drivers in their department.
+        - Regular User: Own fuel requests only.
+        """
+        if not self.env.su and not self.env.user.has_group('fleet_management.group_fleet_manager'):
+            user_employee = self.env.user.employee_id
+            if self.env.user.has_group('fleet_management.group_department_manager') and user_employee.department_id:
+                domain = expression.AND([domain, [('driver_id.department_id', '=', user_employee.department_id.id)]])
+            else:
+                domain = expression.AND([domain, [('driver_id.user_id', '=', self.env.uid)]])
+        
+        return super()._search(domain, offset=offset, limit=limit, order=order)
 
     @api.constrains('requested_quantity')
     def _check_requested_quantity(self):

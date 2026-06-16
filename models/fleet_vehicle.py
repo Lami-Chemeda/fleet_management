@@ -1,5 +1,5 @@
 from odoo import api, fields, models
-from odoo.exceptions import AccessError
+from odoo.exceptions import AccessError, ValidationError
 
 
 class FleetVehicle(models.Model):
@@ -41,6 +41,12 @@ class FleetVehicle(models.Model):
             'The VIN / Chassis Number must be unique for each vehicle.',
         ),
     ]
+
+    @api.constrains('registration_date', 'create_date')
+    def _check_registration_dates(self):
+        for vehicle in self:
+            if vehicle.registration_date and vehicle.create_date and vehicle.registration_date < vehicle.create_date.date():
+                raise ValidationError('The Official Registration Date must be on or after the date the vehicle was registered in the system.')
 
     def _check_fleet_vehicle_manager_access(self):
         if self.env.is_superuser():

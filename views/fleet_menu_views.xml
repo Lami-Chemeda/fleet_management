@@ -11,7 +11,7 @@
     <menuitem id="menu_fleet_management_vehicles"
               name="Vehicles"
               parent="menu_fleet_management_root"
-              groups="fleet_management.group_fleet_manager,fleet_management.group_fleet_driver"
+              groups="fleet_management.group_fleet_manager"
               sequence="10"/>
 
     <menuitem id="menu_fleet_management_vehicle_records"
@@ -24,14 +24,14 @@
               name="Vehicle History"
               parent="menu_fleet_management_vehicles"
               action="action_fleet_vehicle_history"
-              groups="fleet_management.group_fleet_manager,fleet_management.group_fleet_driver"
+              groups="fleet_management.group_fleet_manager"
               sequence="20"/>
 
         <menuitem id="menu_fleet_management_drivers"
               name="Drivers"
               parent="menu_fleet_management_root"
               action="action_fleet_drivers"
-              groups="fleet_management.group_fleet_manager" 
+              groups="base.group_system" 
               sequence="15"/>
 
 
@@ -71,6 +71,18 @@
               action="action_fleet_fuel_issue"
               groups="fleet_management.group_fleet_manager"
               sequence="20"/>
+
+    <menuitem id="menu_fleet_management_fuel_configuration"
+              name="Configuration"
+              parent="menu_fleet_management_fuel"
+              groups="fleet_management.group_fleet_manager"
+              sequence="30"/>
+
+    <menuitem id="menu_fleet_management_fuel_quotas"
+              name="Fuel Quotas"
+              parent="menu_fleet_management_fuel_configuration"
+              action="action_fleet_fuel_quota"
+              sequence="10"/>
 
     <menuitem id="menu_fleet_management_maintenance"
               name="Maintenance"

@@ -33,11 +33,12 @@
                     <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,sent_to_garage,completed,closed"/>
                 </header>
                 <sheet>
+                    <field name="is_manager" invisible="1"/>
                     <group>
                         <group>
                             <field name="name"/>
-                            <field name="vehicle_id"/>
-                            <field name="requested_by_id"/>
+                            <field name="vehicle_id" domain="is_manager and [] or [('current_driver_id.user_id', '=', uid)]" readonly="not is_manager"/>
+                            <field name="requested_by_id" readonly="not is_manager"/>
                             <field name="priority"/>
                         </group>
                         <group>

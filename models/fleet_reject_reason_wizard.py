@@ -23,12 +23,16 @@ class FleetRejectReasonWizard(models.TransientModel):
         elif is_fleet_manager:
             rejection_role = 'fleet_manager'
         
-        # Write rejection reason and who rejected
-        record.write({
+        # Write rejection reason and other fields if they exist on the model
+        vals = {
             'rejection_reason': self.reason,
-            'rejected_by': self.env.user.name,
-            'rejected_by_role': rejection_role,
-        })
+        }
+        if 'rejected_by' in record._fields:
+            vals['rejected_by'] = self.env.user.name
+        if 'rejected_by_role' in record._fields:
+            vals['rejected_by_role'] = rejection_role
+            
+        record.write(vals)
 
         # action_reject will now just handle the state change and extra validation
         record.action_reject()

@@ -10,6 +10,7 @@ class FleetMaintenanceRequest(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(string='Request Number', required=True, copy=False, readonly=True, default='New')
+    is_manager = fields.Boolean(compute='_compute_is_manager')
     vehicle_id = fields.Many2one('fleet.vehicle', string='Vehicle', required=True, tracking=True)
     requested_by_id = fields.Many2one(
         'hr.employee',
@@ -181,3 +182,19 @@ class FleetMaintenanceRequest(models.Model):
     def action_reset_to_draft(self):
         self._check_fleet_manager()
         self.write({'state': 'draft'})
+
+    @api.depends_context('uid')
+    def _compute_is_manager(self):
+        for request in self:
+            request.is_manager = self.env.user.has_group('fleet_management.group_fleet_manager')
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        employee = self.env.user.employee_id
+        if employee:
+            vehicle = self.env['fleet.vehicle'].search([('current_driver_id', '=', employee.id)], limit=1)
+            if vehicle:
+                if 'vehicle_id' in fields_list and not res.get('vehicle_id'):
+                    res['vehicle_id'] = vehicle.id
+        return res

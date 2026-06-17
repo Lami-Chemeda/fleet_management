@@ -33,6 +33,7 @@ class FleetVehicle(models.Model):
     )
     current_driver_id = fields.Many2one('hr.employee', string='Current Driver', tracking=True)
     current_odometer = fields.Float(string='Current Odometer')
+    special_case = fields.Boolean(string='Special Case', default=False, tracking=True)
 
     _sql_constraints = [
         (
@@ -84,6 +85,7 @@ class FleetVehicle(models.Model):
             'fleet_status',
             'current_driver_id',
             'current_odometer',
+            'special_case',
         }
         if protected_fields.intersection(vals):
             self._check_fleet_vehicle_manager_access()

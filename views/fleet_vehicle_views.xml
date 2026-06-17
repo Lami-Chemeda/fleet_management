@@ -33,6 +33,7 @@
                             <field name="fuel_type"/>
                             <field name="ownership_type"/>
                             <field name="fleet_status"/>
+                            <field name="special_case"/>
                         </group>
                         <group string="Registration">
                             <field name="vin_sn"/>

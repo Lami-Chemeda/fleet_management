@@ -1,0 +1,64 @@
+# Odoo specific ignores
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.log
+*.backup
+*.bak
+*.sql
+*.dump
+*.zip
+*.tar.gz
+*.tgz
+*.tmp
+*.temp
+*.swp
+*.swo
+*.swn
+*.sublime-project
+*.sublime-workspace
+
+# Odoo configuration files
+odoo.conf
+odoo-server.conf
+*.conf
+
+# Static directories
+/static/*/cache/
+/static/*/tmp/
+
+# Session and filestore
+/sessions/
+/filestore/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.code-workspace
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Testing and development
+/tests/*/data/
+/tests/*/test_data/
+/tests/*/test_files/
+
+# Odoo module specific
+*.egg-info/
+build/
+dist/
+*.cache
+*.pid
+*.session
+*.lock
+
+# MacOS specific
+.DS_Store
+
+# Windows specific
+Thumbs.db

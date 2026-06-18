@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- VENDORS SECTION (Commented out completely) -->
+    <!-- 
+    <record id="action_fleet_garage_vendors" model="ir.actions.act_window">
+        ...
+    </record>
+    -->
+
+    <!-- ======================================================== -->
+    <!-- FORCE OVERWRITE VEHICLES PERMISSIONS IN DATABASE DATABASE -->
+    <!-- ======================================================== -->
+    <record id="menu_fleet_management_vehicles" model="ir.ui.menu">
+        <!-- Clear all historical groups (5,0,0) and attach ONLY the fleet manager group -->
+        <field name="groups_id" eval="[(5, 0, 0), (4, ref('fleet_management.group_fleet_manager'))]"/>
+    </record>
+
+    <record id="menu_fleet_management_vehicle_records" model="ir.ui.menu">
+        <field name="groups_id" eval="[(5, 0, 0), (4, ref('fleet_management.group_fleet_manager'))]"/>
+    </record>
+
+    <record id="menu_fleet_management_vehicle_history" model="ir.ui.menu">
+        <field name="groups_id" eval="[(5, 0, 0), (4, ref('fleet_management.group_fleet_manager'))]"/>
+    </record>
+
+    <!-- ======================================================== -->
+    <!-- FORCE OVERWRITE DRIVERS PERMISSIONS IN DATABASE         -->
+    <!-- ======================================================== -->
+    <record id="menu_fleet_management_drivers" model="ir.ui.menu">
+        <!-- Clear all historical groups (5,0,0) and attach ONLY the fleet manager group -->
+        <field name="groups_id" eval="[(5, 0, 0), (4, ref('fleet_management.group_fleet_manager'))]"/>
+    </record>
+
+
+    <!-- ======================================================== -->
+    <!-- RETAIN STANDARD DECLARATIONS FOR THE REST OF THE MENUS  -->
+    <!-- ======================================================== -->
+    <menuitem id="menu_fleet_management_trip"
+              name="Trip Management"
+              parent="menu_fleet_management_root"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_trip_requests"
+              name="Vehicle Requests"
+              parent="menu_fleet_management_trip"
+              action="action_fleet_trip_request"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_assignments"
+              name="Vehicle Assignments"
+              parent="menu_fleet_management_trip"
+              action="action_fleet_vehicle_assignment"
+              groups="fleet_management.group_fleet_manager,fleet_management.group_department_manager,fleet_management.group_fleet_driver"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_fuel"
+              name="Fuel Management"
+              parent="menu_fleet_management_root"
+              groups="fleet_management.group_fleet_manager,fleet_management.group_fleet_driver"
+              sequence="30"/>
+
+    <menuitem id="menu_fleet_management_fuel_requests"
+              name="Fuel Requests"
+              parent="menu_fleet_management_fuel"
+              action="action_fleet_fuel_request"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_fuel_issues"
+              name="Fuel Issues"
+              parent="menu_fleet_management_fuel"
+              action="action_fleet_fuel_issue"
+              groups="fleet_management.group_fleet_manager"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_fuel_configuration"
+              name="Configuration"
+              parent="menu_fleet_management_fuel"
+              groups="fleet_management.group_fleet_manager"
+              sequence="30"/>
+
+    <menuitem id="menu_fleet_management_fuel_quotas"
+              name="Fuel Quotas"
+              parent="menu_fleet_management_fuel_configuration"
+              action="action_fleet_fuel_quota"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_maintenance"
+              name="Maintenance"
+              parent="menu_fleet_management_root"
+              groups="fleet_management.group_fleet_manager,fleet_management.group_fleet_driver"
+              sequence="40"/>
+
+    <menuitem id="menu_fleet_management_maintenance_requests"
+              name="Maintenance Requests"
+              parent="menu_fleet_management_maintenance"
+              action="action_fleet_maintenance_request"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_service_records"
+              name="Service Records"
+              parent="menu_fleet_management_maintenance"
+              action="action_fleet_maintenance_service"
+              groups="fleet_management.group_fleet_manager"
+              sequence="20"/>
+</odoo>

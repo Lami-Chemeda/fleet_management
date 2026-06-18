@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_garage_vendor" model="ir.ui.view">
+        <field name="name">res.partner.form.garage.vendor</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="Garage Vendor">
+                    <group>
+                        <group>
+                            <field name="is_garage_vendor"/>
+                            <field name="garage_approval_status"/>
+                            <field name="garage_service_type"/>
+                        </group>
+                        <group>
+                            <field name="garage_contact_person"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="garage_notes"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_garage_vendor_list" model="ir.ui.view">
+        <field name="name">res.partner.garage.vendor.list</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <list string="Garage Vendors">
+                <field name="name"/>
+                <field name="phone"/>
+                <field name="email"/>
+                <field name="garage_approval_status"/>
+                <field name="garage_service_type"/>
+                <field name="garage_contact_person"/>
+            </list>
+        </field>
+    </record>
+</odoo>

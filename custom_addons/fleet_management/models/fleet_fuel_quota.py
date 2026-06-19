@@ -3,27 +3,35 @@ from odoo.exceptions import AccessError, ValidationError
 
 class FleetFuelQuota(models.Model):
     _name = 'fleet.fuel.quota'
-    _description = 'Vehicle Fuel Quota Configuration'
-    _rec_name = 'vehicle_id'
+    _description = 'Fuel Type Quota Configuration'
+    _rec_name = 'fuel_type'
 
-    vehicle_id = fields.Many2one(
-        'fleet.vehicle',
-        string='Vehicle',
+    fuel_type = fields.Selection(
+        [
+            ('diesel', 'Diesel'),
+            ('gasoline', 'Gasoline'),
+            ('full_hybrid', 'Full Hybrid'),
+            ('plug_in_hybrid_diesel', 'Plug-in Hybrid Diesel'),
+            ('plug_in_hybrid_gasoline', 'Plug-in Hybrid Gasoline'),
+            ('cng', 'CNG'),
+            ('lpg', 'LPG'),
+            ('hydrogen', 'Hydrogen'),
+            ('electric', 'Electric'),
+        ],
+        string='Fuel Type',
         required=True,
-        ondelete='cascade',
-        domain="[('current_driver_id', '!=', False)]"
+        help="Select the fuel type for which this quota applies"
     )
-    driver_id = fields.Many2one(
-        'hr.employee',
-        string='Driver',
-        related='vehicle_id.current_driver_id',
-        readonly=True,
-        store=True,
+    
+    fuel_quota = fields.Float(
+        string='Monthly Fuel Quota Per Vehicle (Liters)', 
+        required=True, 
+        default=0.0,
+        help="Maximum monthly fuel quota per vehicle for this fuel type. Set to 0 for unlimited."
     )
-    fuel_quota = fields.Float(string='Monthly Fuel Quota (Liters)', required=True, default=0.0)
 
     _sql_constraints = [
-        ('vehicle_unique', 'unique(vehicle_id)', 'A fuel quota configuration already exists for this vehicle.')
+        ('fuel_type_unique', 'unique(fuel_type)', 'A quota configuration already exists for this fuel type.')
     ]
 
     @api.constrains('fuel_quota')
@@ -31,6 +39,13 @@ class FleetFuelQuota(models.Model):
         for record in self:
             if record.fuel_quota < 0:
                 raise ValidationError('Fuel Quota cannot be negative.')
+
+    @api.constrains('fuel_type')
+    def _check_electric_quota(self):
+        """Prevent setting quota for electric vehicles as they don't use fuel"""
+        for record in self:
+            if record.fuel_type == 'electric':
+                raise ValidationError('Electric vehicles do not require fuel quota as they do not use fuel.')
 
     def _check_fleet_manager_access(self):
         if self.env.is_superuser():

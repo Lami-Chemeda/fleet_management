@@ -4,7 +4,7 @@
         <field name="name">fleet.vehicle.assignment.list</field>
         <field name="model">fleet.vehicle.assignment</field>
         <field name="arch" type="xml">
-            <list string="Vehicle Assignments">
+            <list string="Vehicle Assignments" create="0" edit="0" delete="0">
                 <field name="trip_request_id"/>
                 <field name="vehicle_id"/>
                 <field name="driver_id"/>
@@ -19,7 +19,7 @@
         <field name="name">fleet.vehicle.assignment.form</field>
         <field name="model">fleet.vehicle.assignment</field>
         <field name="arch" type="xml">
-            <form string="Vehicle Assignment">
+            <form string="Vehicle Assignment" create="0" edit="0" delete="0">
                 <header>
                     <button name="action_assign_vehicle" type="object" string="Assign Vehicle" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="status != 'draft'"/>
                     <button name="action_return_vehicle" type="object" string="Return Vehicle" class="btn-primary" groups="fleet_management.group_fleet_driver,fleet_management.group_fleet_manager" invisible="status != 'assigned'"/>
@@ -29,19 +29,19 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="trip_request_id"/>
+                            <field name="trip_request_id" readonly="1"/>
                             <field name="vehicle_driver_id" invisible="1"/>
-                            <field name="vehicle_id" domain="[('fleet_status', '=', 'available'), ('current_driver_id', '!=', False)]" options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="vehicle_id" readonly="1" domain="[('fleet_status', '=', 'available'), ('current_driver_id', '!=', False)]" options="{'no_create': True, 'no_create_edit': True}"/>
                             <field name="driver_id" readonly="1" force_save="1" domain="[('id', '=', vehicle_driver_id)]"/>
                         </group>
                         <group>
-                            <field name="assignment_date"/>
-                            <field name="return_date"/>
-                            <field name="status"/>
+                            <field name="assignment_date" readonly="1"/>
+                            <field name="return_date" readonly="1"/>
+                            <field name="status" readonly="1"/>
                         </group>
                     </group>
                     <group>
-                        <field name="notes"/>
+                        <field name="notes" readonly="1"/>
                     </group>
                 </sheet>
                 <chatter/>
@@ -56,6 +56,8 @@
         <field name="arch" type="xml">
             <xpath expr="//list" position="attributes" groups="fleet_management.group_fleet_manager">
                 <attribute name="create">0</attribute>
+                <attribute name="edit">0</attribute>
+                <attribute name="delete">0</attribute>
             </xpath>
         </field>
     </record>
@@ -67,6 +69,8 @@
         <field name="arch" type="xml">
             <xpath expr="//form" position="attributes" groups="fleet_management.group_fleet_manager">
                 <attribute name="create">0</attribute>
+                <attribute name="edit">0</attribute>
+                <attribute name="delete">0</attribute>
             </xpath>
         </field>
     </record>

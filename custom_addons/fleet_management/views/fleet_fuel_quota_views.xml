@@ -4,8 +4,8 @@
         <field name="name">fleet.fuel.quota.list</field>
         <field name="model">fleet.fuel.quota</field>
         <field name="arch" type="xml">
-            <list string="Fuel Quota Configurations" editable="bottom">
-                <field name="vehicle_id"/>
+            <list string="Fuel Type Quota Configurations" editable="bottom">
+                <field name="fuel_type"/>
                 <field name="fuel_quota"/>
             </list>
         </field>
@@ -15,11 +15,22 @@
         <field name="name">fleet.fuel.quota.form</field>
         <field name="model">fleet.fuel.quota</field>
         <field name="arch" type="xml">
-            <form string="Fuel Quota Configuration">
+            <form string="Fuel Type Quota Configuration">
                 <sheet>
                     <group>
-                        <field name="vehicle_id"/>
-                        <field name="fuel_quota"/>
+                        <group>
+                            <field name="fuel_type" options="{'no_create': True}"/>
+                            <field name="fuel_quota" string="Monthly Quota Per Vehicle (Liters)"/>
+                            <label for="fuel_quota" string="Set 0 for unlimited quota"/>
+                        </group>
+                    </group>
+                    <group string="Information">
+                        <p class="oe_grey">
+                            <em>This quota applies to EACH vehicle using this fuel type. 
+                            Example: If Gasoline quota is 60L, each gasoline vehicle can use 60L per month.
+                            Vehicles marked as "Special Case" have unlimited quota regardless of this setting.
+                            Electric vehicles do not require fuel quotas as they do not use fuel.</em>
+                        </p>
                     </group>
                 </sheet>
             </form>

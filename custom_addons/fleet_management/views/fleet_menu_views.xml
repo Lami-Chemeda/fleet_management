@@ -72,16 +72,19 @@
               groups="fleet_management.group_fleet_manager"
               sequence="20"/>
 
+    <!-- ONLY CHANGE: Added groups="base.group_system" here -->
     <menuitem id="menu_fleet_management_fuel_configuration"
               name="Configuration"
               parent="menu_fleet_management_fuel"
-              groups="fleet_management.group_fleet_manager"
+              groups="base.group_system"
               sequence="30"/>
 
+    <!-- ONLY CHANGE: Added groups="base.group_system" here -->
     <menuitem id="menu_fleet_management_fuel_quotas"
               name="Fuel Quotas"
               parent="menu_fleet_management_fuel_configuration"
               action="action_fleet_fuel_quota"
+              groups="base.group_system"
               sequence="10"/>
 
     <menuitem id="menu_fleet_management_maintenance"

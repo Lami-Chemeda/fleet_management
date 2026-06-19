@@ -8,7 +8,7 @@
                 <field name="name"/>
                 <field name="vehicle_id"/>
                 <field name="driver_id"/>
-                <field name="fuel_type"/>
+                <field name="vehicle_fuel_type" string="Vehicle Fuel Type"/>
                 <field name="requested_quantity" string="Qty (L)"/>
                 <field name="priority" widget="badge"/>
                 <field name="state"/>
@@ -27,12 +27,9 @@
                     <button name="action_approve" type="object" string="Approve" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'submitted'"/>
                     <button name="action_issue" type="object" string="Mark Issued" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'approved'"/>
                     <button name="action_complete" type="object" string="Complete" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'issued'"/>
-                    
-                    <!-- Reject button - Hidden after approval (only visible in submitted state) -->
                     <button name="action_open_reject_wizard" type="object" string="Reject" 
                             groups="fleet_management.group_fleet_manager" 
                             invisible="state not in ['submitted']"/>
-                    
                     <button name="action_reset_to_draft" type="object" string="Reset To Draft" groups="fleet_management.group_fleet_manager" invisible="state != 'rejected'"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,issued,completed"/>
                 </header>
@@ -45,46 +42,39 @@
                         <group>
                             <field name="name"/>
                             
-                            <!-- Vehicle - Always readonly and shown as label -->
+                            <!-- Vehicle - Locked and visible -->
                             <label for="vehicle_id" string="Vehicle"/>
                             <div>
                                 <field name="vehicle_id" readonly="1" class="oe_inline"/>
                             </div>
                             
-                            <!-- Driver - Always readonly and shown as label -->
+                            <!-- Driver - Locked and visible -->
                             <label for="driver_id" string="Driver"/>
                             <div>
                                 <field name="driver_id" readonly="1" class="oe_inline"/>
                             </div>
                             
-                            <!-- Fuel Type - Always readonly and shown as label -->
-                            <label for="fuel_type" string="Fuel Type"/>
+                            <!-- Vehicle Fuel Type - Display from vehicle registration -->
+                            <label for="vehicle_fuel_type" string="Vehicle Fuel Type"/>
                             <div>
-                                <field name="fuel_type" readonly="1" class="oe_inline"/>
+                                <field name="vehicle_fuel_type" readonly="1" class="oe_inline"/>
                             </div>
                             
-                            <!-- Request Date - Always readonly, auto-set from PC -->
+                            <!-- Request Date -->
                             <label for="request_date" string="Request Date"/>
                             <div>
                                 <field name="request_date" readonly="1" class="oe_inline"/>
                             </div>
                         </group>
                         <group>
-                            <!-- Priority - Dropdown, editable in draft state -->
-                            <field name="priority" 
-                                   readonly="not is_editable"/>
-                            
-                            <!-- Quantity - Editable in draft state -->
-                            <field name="requested_quantity" string="Requested Quantity (Liters)"
-                                   readonly="not is_editable"/>
-                            
+                            <field name="priority" readonly="not is_editable"/>
+                            <field name="requested_quantity" string="Requested Quantity (Liters)" readonly="not is_editable"/>
                             <field name="total_issued_quantity" invisible="1"/>
                             <field name="total_fuel_cost" invisible="1"/>
                             <field name="currency_id" invisible="1"/>
                         </group>
                     </group>
                     
-                    <!-- Reason field - Clearly visible with label -->
                     <group string="Request Details">
                         <field name="reason" 
                                placeholder="Please provide the reason for this fuel request..."
@@ -97,9 +87,26 @@
                     </group>
                     
                     <notebook>
-                        <page string="Issues" groups="fleet_management.group_fleet_manager">
-                            <field name="issue_ids">
+                        <!-- Page 1: Editable Issues (for draft, submitted, approved states) -->
+                        <page string="Issues" groups="fleet_management.group_fleet_manager" 
+                              invisible="state in ['issued', 'completed']">
+                            <field name="issue_ids" editable="bottom">
                                 <list editable="bottom">
+                                    <field name="issued_quantity"/>
+                                    <field name="issue_date"/>
+                                    <field name="issuer_id"/>
+                                    <field name="cost"/>
+                                    <field name="currency_id"/>
+                                    <field name="fuel_request_id" invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        
+                        <!-- Page 2: Readonly Issues (for issued, completed states) -->
+                        <page string="Issues" groups="fleet_management.group_fleet_manager" 
+                              invisible="state not in ['issued', 'completed']">
+                            <field name="issue_ids" readonly="1">
+                                <list>
                                     <field name="issued_quantity"/>
                                     <field name="issue_date"/>
                                     <field name="issuer_id"/>

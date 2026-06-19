@@ -11,6 +11,9 @@ class FleetMaintenanceRequest(models.Model):
 
     name = fields.Char(string='Request Number', required=True, copy=False, readonly=True, default='New')
     is_manager = fields.Boolean(compute='_compute_is_manager')
+    is_editable = fields.Boolean(compute='_compute_is_editable', store=False)
+    show_as_label = fields.Boolean(compute='_compute_show_as_label', store=False)
+    
     vehicle_id = fields.Many2one('fleet.vehicle', string='Vehicle', required=True, tracking=True)
     requested_by_id = fields.Many2one(
         'hr.employee',
@@ -19,7 +22,12 @@ class FleetMaintenanceRequest(models.Model):
         tracking=True,
     )
     problem_description = fields.Text(string='Problem Description', required=True)
-    request_date = fields.Datetime(string='Request Date', default=fields.Datetime.now, required=True)
+    request_date = fields.Datetime(
+        string='Request Date', 
+        default=fields.Datetime.now, 
+        required=True,
+        readonly=True  # Always readonly, auto-set from PC
+    )
     priority = fields.Selection(
         [
             ('low', 'Low'),
@@ -61,6 +69,29 @@ class FleetMaintenanceRequest(models.Model):
         required=True,
     )
 
+    @api.depends('state')
+    def _compute_is_editable(self):
+        """
+        Determine if fields should be editable:
+        - Only problem_description and priority are editable
+        - And only in draft state
+        - vehicle_id, requested_by_id, request_date are ALWAYS locked
+        """
+        for request in self:
+            # Only editable in draft state
+            request.is_editable = request.state == 'draft'
+
+    @api.depends('state')
+    def _compute_show_as_label(self):
+        """
+        Determine if fields should show as labels (readonly text) instead of dropdowns
+        - vehicle_id, requested_by_id, request_date ALWAYS show as labels
+        - problem_description and priority show as editable in draft, labels after submission
+        """
+        for request in self:
+            # vehicle, requested_by, request_date always show as labels
+            request.show_as_label = True
+
     @api.depends('service_ids.cost')
     def _compute_total_service_cost(self):
         for request in self:
@@ -88,6 +119,27 @@ class FleetMaintenanceRequest(models.Model):
         for vals in vals_list:
             if vals.get('name', 'New') == 'New':
                 vals['name'] = self.env['ir.sequence'].next_by_code('fleet.maintenance.request') or 'New'
+            
+            # Auto-set request_date to current time
+            vals['request_date'] = fields.Datetime.now()
+            
+            # Auto-set requested_by from current user if not provided
+            if not vals.get('requested_by_id'):
+                employee = self.env.user.employee_id
+                if employee:
+                    vals['requested_by_id'] = employee.id
+            
+            # Auto-set vehicle from current driver if not provided
+            if not vals.get('vehicle_id') and vals.get('requested_by_id'):
+                employee = self.env['hr.employee'].browse(vals['requested_by_id'])
+                vehicle = self.env['fleet.vehicle'].search([('current_driver_id', '=', employee.id)], limit=1)
+                if vehicle:
+                    vals['vehicle_id'] = vehicle.id
+            
+            # Auto-set priority if not provided
+            if not vals.get('priority'):
+                vals['priority'] = 'normal'
+        
         return super().create(vals_list)
 
     def _check_fleet_manager(self):
@@ -197,4 +249,30 @@ class FleetMaintenanceRequest(models.Model):
             if vehicle:
                 if 'vehicle_id' in fields_list and not res.get('vehicle_id'):
                     res['vehicle_id'] = vehicle.id
+            # Set default priority
+            if 'priority' in fields_list and not res.get('priority'):
+                res['priority'] = 'normal'
         return res
+
+    @api.model
+    def write(self, vals):
+        # Block editing of request_date (always readonly)
+        if 'request_date' in vals:
+            raise AccessError('Request Date cannot be modified. It is auto-set when the request is created.')
+        
+        # Block editing of vehicle_id and requested_by_id (ALWAYS locked)
+        restricted_fields = ['vehicle_id', 'requested_by_id']
+        if any(field in vals for field in restricted_fields):
+            raise AccessError('Vehicle and Requested By cannot be modified. They are auto-assigned.')
+        
+        # Check if user is a driver (not manager)
+        is_driver = not self.env.user.has_group('fleet_management.group_fleet_manager')
+        
+        # Only allow problem_description and priority edits in draft state
+        editable_fields = ['problem_description', 'priority']
+        if any(field in vals for field in editable_fields):
+            non_draft_records = self.filtered(lambda r: r.state != 'draft')
+            if non_draft_records:
+                raise AccessError('You can only modify fields when the request is in Draft state.')
+        
+        return super().write(vals)

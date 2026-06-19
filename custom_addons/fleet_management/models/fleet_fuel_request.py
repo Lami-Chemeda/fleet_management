@@ -11,6 +11,9 @@ class FleetFuelRequest(models.Model):
 
     name = fields.Char(string='Request Number', required=True, copy=False, readonly=True, default='New')
     is_manager = fields.Boolean(compute='_compute_is_manager')
+    is_editable = fields.Boolean(compute='_compute_is_editable', store=False)
+    show_as_label = fields.Boolean(compute='_compute_show_as_label', store=False)
+    
     vehicle_id = fields.Many2one('fleet.vehicle', string='Vehicle', required=True, tracking=True)
     driver_id = fields.Many2one(
         'hr.employee',
@@ -37,7 +40,35 @@ class FleetFuelRequest(models.Model):
     )
     requester_number = fields.Char(string='Requester Number', compute='_compute_requester_number', store=True)
     requested_quantity = fields.Float(string='Requested Quantity (Liters)', required=True, tracking=True)
-    request_date = fields.Datetime(string='Request Date', default=fields.Datetime.now, required=True)
+    request_date = fields.Datetime(
+        string='Request Date', 
+        default=fields.Datetime.now, 
+        required=True,
+        readonly=True  # Always readonly, auto-set from PC
+    )
+    
+    # Priority field with dropdown values
+    priority = fields.Selection(
+        [
+            ('low', 'Low'),
+            ('medium', 'Medium'),
+            ('high', 'High'),
+            ('urgent', 'Urgent'),
+        ],
+        string='Priority',
+        default='medium',
+        required=True,
+        tracking=True,
+    )
+    
+    # Reason field - visible text area
+    reason = fields.Text(
+        string='Reason for Request',
+        required=True,
+        tracking=True,
+        help='Please provide the reason for this fuel request'
+    )
+    
     state = fields.Selection(
         [
             ('draft', 'Draft'),
@@ -71,6 +102,27 @@ class FleetFuelRequest(models.Model):
         required=True,
     )
 
+    @api.depends('state')
+    def _compute_is_editable(self):
+        """
+        Determine if fields should be editable:
+        - Only editable in draft state
+        - After submission, ALL fields are locked
+        """
+        for request in self:
+            # Only editable in draft state
+            request.is_editable = request.state == 'draft'
+
+    @api.depends('state')
+    def _compute_show_as_label(self):
+        """
+        Determine if fields should show as labels (readonly text) instead of dropdowns
+        - In draft state: Show as editable fields
+        - After submission: Show as labels
+        """
+        for request in self:
+            request.show_as_label = request.state != 'draft'
+
     @api.depends('issue_ids.issued_quantity', 'issue_ids.cost')
     def _compute_issue_totals(self):
         for request in self:
@@ -100,11 +152,50 @@ class FleetFuelRequest(models.Model):
             if request.requested_quantity <= 0:
                 raise ValidationError('Requested Quantity must be greater than zero.')
 
+    @api.constrains('reason')
+    def _check_reason(self):
+        for request in self:
+            if request.reason and len(request.reason.strip()) < 5:
+                raise ValidationError('Please provide a detailed reason (minimum 5 characters).')
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             if vals.get('name', 'New') == 'New':
                 vals['name'] = self.env['ir.sequence'].next_by_code('fleet.fuel.request') or 'New'
+            
+            # Auto-set request_date to current time
+            vals['request_date'] = fields.Datetime.now()
+            
+            # Auto-set driver from current user if not provided
+            if not vals.get('driver_id'):
+                employee = self.env.user.employee_id
+                if employee and employee.is_fleet_driver:
+                    vals['driver_id'] = employee.id
+            
+            # Auto-set vehicle from current driver if not provided
+            if not vals.get('vehicle_id') and vals.get('driver_id'):
+                driver = self.env['hr.employee'].browse(vals['driver_id'])
+                vehicle = self.env['fleet.vehicle'].search([('current_driver_id', '=', driver.id)], limit=1)
+                if vehicle:
+                    vals['vehicle_id'] = vehicle.id
+                    # Auto-set fuel type
+                    vehicle_fuel = vehicle.fuel_type
+                    if vehicle_fuel == 'diesel':
+                        vals['fuel_type'] = 'diesel'
+                    elif vehicle_fuel == 'gasoline':
+                        vals['fuel_type'] = 'petrol'
+                    elif vehicle_fuel in ['full_hybrid', 'plug_in_hybrid_diesel', 'plug_in_hybrid_gasoline']:
+                        vals['fuel_type'] = 'hybrid'
+                    elif vehicle_fuel == 'electric':
+                        vals['fuel_type'] = 'electric'
+                    elif vehicle_fuel in ['cng', 'lpg', 'hydrogen']:
+                        vals['fuel_type'] = 'other'
+            
+            # Auto-set priority if not provided
+            if not vals.get('priority'):
+                vals['priority'] = 'medium'
+        
         return super().create(vals_list)
 
     def _check_fleet_manager(self):
@@ -181,7 +272,7 @@ class FleetFuelRequest(models.Model):
 
     @api.onchange('vehicle_id')
     def _onchange_vehicle_id(self):
-        if self.vehicle_id:
+        if self.vehicle_id and self.state == 'draft':
             vehicle_fuel = self.vehicle_id.fuel_type
             if vehicle_fuel == 'diesel':
                 self.fuel_type = 'diesel'
@@ -313,4 +404,46 @@ class FleetFuelRequest(models.Model):
                         res['fuel_type'] = 'electric'
                     elif vehicle_fuel in ['cng', 'lpg', 'hydrogen']:
                         res['fuel_type'] = 'other'
+            # Set default priority
+            if 'priority' in fields_list and not res.get('priority'):
+                res['priority'] = 'medium'
         return res
+
+    @api.model
+    def write(self, vals):
+        # Block editing of request_date (always readonly)
+        if 'request_date' in vals:
+            raise AccessError('Request Date cannot be modified. It is auto-set when the request is created.')
+        
+        # Check if user is a driver (not manager)
+        is_driver = not self.env.user.has_group('fleet_management.group_fleet_manager')
+        
+        # 1. Drivers can only edit in draft state
+        if is_driver:
+            # Block editing of vehicle, driver, fuel_type (ALWAYS locked)
+            restricted_fields = ['vehicle_id', 'driver_id', 'fuel_type']
+            if any(field in vals for field in restricted_fields):
+                raise AccessError('Vehicle, Driver, and Fuel Type cannot be modified. They are auto-assigned.')
+            
+            # Only allow quantity, priority, reason edits in draft state
+            editable_fields = ['requested_quantity', 'priority', 'reason']
+            if any(field in vals for field in editable_fields):
+                non_draft_records = self.filtered(lambda r: r.state != 'draft')
+                if non_draft_records:
+                    raise AccessError('You can only modify fields when the request is in Draft state.')
+        
+        # 2. Managers can edit more fields, but still only in draft state
+        else:
+            # Block editing of vehicle, driver, fuel_type (ALWAYS readonly for everyone)
+            restricted_fields = ['vehicle_id', 'driver_id', 'fuel_type']
+            if any(field in vals for field in restricted_fields):
+                raise AccessError('Vehicle, Driver, and Fuel Type cannot be modified. They are auto-assigned.')
+            
+            # Only allow edits in draft state
+            editable_fields = ['requested_quantity', 'priority', 'reason']
+            if any(field in vals for field in editable_fields):
+                non_draft_records = self.filtered(lambda r: r.state != 'draft')
+                if non_draft_records:
+                    raise AccessError('You can only modify fields when the request is in Draft state.')
+        
+        return super().write(vals)

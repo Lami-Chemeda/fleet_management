@@ -1,6 +1,9 @@
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 from odoo.exceptions import AccessError, ValidationError
 from odoo.osv import expression
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class FleetTripRequest(models.Model):
@@ -27,7 +30,6 @@ class FleetTripRequest(models.Model):
     end_date = fields.Datetime(string='End Date', required=True, tracking=True)
     rejection_reason = fields.Text(string='Rejection Reason', readonly=True, copy=False, tracking=True)
     
-    # NEW FIELDS FOR REJECTION TRACKING
     rejected_by = fields.Char(
         string='Rejected By',
         readonly=True,
@@ -59,6 +61,7 @@ class FleetTripRequest(models.Model):
             ('department_approved', 'Department Approved'),
             ('fleet_approved', 'Fleet Approved'),
             ('allocated', 'Allocated'),
+            ('awaiting_confirmation', 'Awaiting Confirmation'),
             ('completed', 'Completed'),
             ('cancelled', 'Cancelled'),
             ('rejected', 'Rejected'),
@@ -71,6 +74,10 @@ class FleetTripRequest(models.Model):
     assignment_ids = fields.One2many('fleet.vehicle.assignment', 'trip_request_id', string='Vehicle Assignments')
     requester_executed = fields.Boolean(string='Requester Executed', copy=False, tracking=True)
     driver_executed = fields.Boolean(string='Driver Executed', copy=False, tracking=True)
+    
+    driver_confirmed = fields.Boolean(string='Driver Confirmed', default=False, tracking=True)
+    requester_confirmed = fields.Boolean(string='Requester Confirmed', default=False, tracking=True)
+    
     can_execute_current_user = fields.Boolean(
         string='Can Finish Trip',
         compute='_compute_can_execute_current_user',
@@ -118,7 +125,6 @@ class FleetTripRequest(models.Model):
     def _compute_can_edit_attachments(self):
         """Allow attachment editing only in draft state for all users"""
         for request in self:
-            # Only editable when in draft state, regardless of user role
             request.can_edit_attachments = request.state == 'draft'
 
     @api.depends('assignment_ids.driver_id', 'assignment_ids.status')
@@ -138,10 +144,7 @@ class FleetTripRequest(models.Model):
     @api.depends('state')
     @api.depends_context('uid')
     def _compute_show_reject_button(self):
-        """Show reject button based on state and user role:
-        - Department Manager: Show in 'submitted' state only
-        - Fleet Manager: Show in 'department_approved' state only
-        """
+        """Show reject button based on state and user role"""
         is_dept_manager = self.env.user.has_group('fleet_management.group_department_manager')
         is_fleet_manager = self.env.user.has_group('fleet_management.group_fleet_manager')
         
@@ -155,26 +158,14 @@ class FleetTripRequest(models.Model):
 
     @api.model
     def _search(self, domain, offset=0, limit=None, order=None):
-        """
-        Override search to implement visibility rules:
-        - Fleet Manager: All requests.
-        - Dept Manager: Requests in their department.
-        - Regular User: Own requests only.
-        - Driver: Trips assigned to them.
-        """
+        """Override search to implement visibility rules"""
         if not self.env.su and not self.env.user.has_group('fleet_management.group_fleet_manager'):
             user_employee = self.env.user.employee_id
-            
-            # Check if user is a department manager
             is_dept_manager = self.env.user.has_group('fleet_management.group_department_manager')
             
             if is_dept_manager and user_employee.department_id:
-                # Department manager sees requests in their department
                 domain = expression.AND([domain, [('department_id', '=', user_employee.department_id.id)]])
             else:
-                # Regular users see:
-                # 1. Their own requests
-                # 2. Trips where they are assigned as driver
                 combined_domain = [
                     '|',
                     ('requester_id.user_id', '=', self.env.uid),
@@ -190,11 +181,12 @@ class FleetTripRequest(models.Model):
         current_employee = self.env.user.employee_id
         is_fleet_manager = self.env.user.has_group('fleet_management.group_fleet_manager')
         for request in self:
+            allowed_states = ['allocated', 'awaiting_confirmation']
             assigned_drivers = request.assignment_ids.filtered(
                 lambda assignment: assignment.status == 'assigned'
             ).mapped('driver_id')
             request.can_execute_current_user = bool(
-                request.state == 'allocated'
+                request.state in allowed_states
                 and current_employee
                 and not is_fleet_manager
                 and (
@@ -203,7 +195,6 @@ class FleetTripRequest(models.Model):
                 )
             )
 
-    # NEW COMPUTE METHOD FOR REJECTION DETAILS DISPLAY
     @api.depends('rejection_reason', 'rejected_by', 'rejected_by_role', 'state')
     def _compute_rejection_details_display(self):
         for request in self:
@@ -228,10 +219,8 @@ class FleetTripRequest(models.Model):
             if request.start_date and request.request_date and request.start_date < request.request_date:
                 raise ValidationError('Start Date must be after the Request Date.')
 
-    # NEW CONSTRAINT FOR NUMBER OF PEOPLE
     @api.constrains('number_of_people')
     def _check_number_of_people(self):
-        """Ensure number of people is greater than 0"""
         for request in self:
             if request.number_of_people <= 0:
                 raise ValidationError('Number of people must be greater than 0.')
@@ -244,32 +233,31 @@ class FleetTripRequest(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
-        # Define fields that should ALWAYS be allowed to be updated (system/state fields)
+        # CRITICAL FIX: Check if we're in a completion flow to prevent recursion
+        if self.env.context.get('_skip_completion_flow'):
+            return super().write(vals)
+        
         always_allowed_fields = {
             'state', 'requester_executed', 'driver_executed', 
             'rejection_reason', 'rejected_by', 'rejected_by_role',
-            'attachment_file', 'attachment_filename'
+            'attachment_file', 'attachment_filename',
+            'driver_confirmed', 'requester_confirmed'
         }
         
-        # Define fields that are allowed for Fleet Managers to edit after submission
         fleet_manager_allowed_fields = {
-            'assignment_ids',  # Allow assignment management
+            'assignment_ids',
         }
         
         if not self.env.context.get('skip_state_check', False):
             for request in self:
                 if request.state != 'draft':
-                    # Check if trying to modify any field
                     field_names = set(vals.keys())
-                    
-                    # Check for requester fields (fields that should not be edited after submission)
                     requester_fields = {
                         'name', 'requester_id', 'purpose', 'start_place', 
                         'destination', 'number_of_people', 'start_date', 'end_date',
                         'request_date'
                     }
                     
-                    # Check if any requester fields are being modified
                     requester_field_changes = field_names & requester_fields
                     if requester_field_changes:
                         raise ValidationError(
@@ -277,12 +265,9 @@ class FleetTripRequest(models.Model):
                             f'Fields: {", ".join(requester_field_changes)} cannot be modified.'
                         )
                     
-                    # Check if any other non-allowed fields are being modified
                     other_fields = field_names - always_allowed_fields - fleet_manager_allowed_fields - requester_fields
                     if other_fields:
-                        # Check if user is fleet manager for assignment fields
                         if 'assignment_ids' in other_fields and self.env.user.has_group('fleet_management.group_fleet_manager'):
-                            # Fleet manager can edit assignments, remove from other_fields
                             other_fields.remove('assignment_ids')
                         
                         if other_fields:
@@ -293,11 +278,12 @@ class FleetTripRequest(models.Model):
         
         if 'assignment_ids' in vals:
             for request in self:
-                if request.state in ['allocated', 'completed', 'cancelled', 'rejected']:
+                if request.state in ['allocated', 'awaiting_confirmation', 'completed', 'cancelled', 'rejected']:
                     raise ValidationError('You cannot add or modify vehicle assignments once the trip has been allocated or finished.')
         
         result = super().write(vals)
         
+        # IMPORTANT: When state changes to completed, return the vehicle
         if vals.get('state') == 'completed':
             self._return_completed_trip_assignments()
         
@@ -317,8 +303,6 @@ class FleetTripRequest(models.Model):
             if not request.purpose or not request.destination:
                 raise ValidationError('Purpose and Destination are required before submitting.')
             request.state = 'submitted'
-            
-            # Send notification to department manager
             request._notify_department_manager('submitted')
 
     def action_department_approve(self):
@@ -327,8 +311,6 @@ class FleetTripRequest(models.Model):
             'Only Department Managers can approve vehicle requests at department level.',
         )
         self.write({'state': 'department_approved'})
-        
-        # Send notification to fleet managers
         for request in self:
             request._notify_fleet_managers('department_approved')
 
@@ -350,10 +332,14 @@ class FleetTripRequest(models.Model):
             draft_assignments = request.assignment_ids.filtered(lambda assignment: assignment.status == 'draft')
             if draft_assignments:
                 draft_assignments.with_context(skip_trip_allocate=True).action_assign_vehicle()
+            
+            # Reset confirmation flags when allocating
             request.write({
                 'state': 'allocated',
                 'requester_executed': False,
                 'driver_executed': False,
+                'requester_confirmed': False,
+                'driver_confirmed': False,
             })
 
     def action_complete(self):
@@ -362,18 +348,20 @@ class FleetTripRequest(models.Model):
             'Only Fleet Managers can manually complete a trip.',
         )
         self._complete_trip()
-        
 
     def action_finish_trip(self):
+        """Handles the Finish Trip button with two-confirmation flow"""
         current_employee = self.env.user.employee_id
         if not current_employee:
             raise AccessError('Your user must be linked to an employee to finish a trip.')
 
         for request in self:
-            if request.state != 'allocated':
+            if request.state not in ['allocated', 'awaiting_confirmation']:
                 raise ValidationError('Only allocated trips can be finished.')
 
-            vals = {}
+            if request.state == 'completed':
+                raise ValidationError('This trip is already completed.')
+            
             is_requester = request.requester_id == current_employee
             
             assigned_drivers = request.assignment_ids.filtered(
@@ -382,79 +370,204 @@ class FleetTripRequest(models.Model):
             
             is_driver = current_employee in assigned_drivers
 
-            if is_requester:
-                vals['requester_executed'] = True
-            if is_driver:
-                vals['driver_executed'] = True
-            if not vals:
+            if not is_requester and not is_driver:
                 raise AccessError('Only the requester or assigned Driver can finish this trip.')
+
+            if is_requester and request.requester_confirmed:
+                raise ValidationError('You have already confirmed this trip.')
+            if is_driver and request.driver_confirmed:
+                raise ValidationError('You have already confirmed this trip.')
+
+            vals = {}
+            if is_requester:
+                vals['requester_confirmed'] = True
+                vals['requester_executed'] = True
+                actor = 'requester'
+            if is_driver:
+                vals['driver_confirmed'] = True
+                vals['driver_executed'] = True
+                actor = 'driver'
 
             request.write(vals)
 
-            # Send notification to the other party
-            if is_requester and assigned_drivers:
-                # Notify all assigned drivers that requester executed
-                for driver in assigned_drivers:
-                    if driver.user_id:
-                        request._create_notification(
-                            driver.user_id,
-                            f'Requester {current_employee.name} has confirmed execution of trip {request.name}.',
-                            request.id,
-                            request._name
-                        )
-            
-            if is_driver and request.requester_id and request.requester_id.user_id:
-                # Notify requester that driver executed
-                request._create_notification(
-                    request.requester_id.user_id,
-                    f'Driver {current_employee.name} has confirmed execution of trip {request.name}.',
-                    request.id,
-                    request._name
-                )
-
-            if request.requester_executed and request.driver_executed:
+            if request.requester_confirmed and request.driver_confirmed:
                 request._complete_trip()
+            else:
+                request.state = 'awaiting_confirmation'
+                request._notify_awaiting_confirmation(actor)
 
-    def _create_notification(self, user, message, res_id, res_model):
-        """Helper method to create notification"""
-        if user:
-            # Create the mail message first
-            mail_message = self.env['mail.message'].create({
-                'body': message,
-                'subject': 'Trip Status Update',
-                'model': res_model,
-                'res_id': res_id,
-                'message_type': 'notification',
-                'subtype_id': self.env.ref('mail.mt_note').id,
-            })
+    def _notify_awaiting_confirmation(self, actor):
+        """Send notifications when one party confirms and waiting for the other"""
+        self.ensure_one()
+        
+        assigned_drivers = self.assignment_ids.filtered(
+            lambda a: a.status == 'assigned'
+        ).mapped('driver_id')
+        
+        current_user = self.env.user
+        current_employee = current_user.employee_id
+        
+        if actor == 'driver':
+            # Case 1: Driver finishes first
+            driver_name = current_employee.name if current_employee else 'Driver'
+            
+            # 1. Driver receives: "You have successfully confirmed completion of Trip TRIP-001. Waiting for the requester to confirm."
+            driver_message = f"You have successfully confirmed completion of Trip {self.name}.\nWaiting for the requester to confirm."
+            self._send_notification(current_user, driver_message)
+            
+            # 2. Requester receives: "Driver John has confirmed execution of Trip TRIP-001. Please confirm the trip to complete it."
+            if self.requester_id and self.requester_id.user_id:
+                requester_message = f"Driver {driver_name} has confirmed execution of Trip {self.name}.\nPlease confirm the trip to complete it."
+                self._send_notification(self.requester_id.user_id, requester_message)
+                
+        else:  # requester confirmed first
+            # Case 2: Requester finishes first
+            requester_name = current_employee.name if current_employee else 'Requester'
+            
+            # 1. Requester receives: "You have successfully confirmed completion of Trip TRIP-001. Waiting for the assigned driver."
+            requester_message = f"You have successfully confirmed completion of Trip {self.name}.\nWaiting for the assigned driver."
+            self._send_notification(current_user, requester_message)
+            
+            # 2. Driver receives: "Requester John has confirmed execution of Trip TRIP-001. Please confirm the trip."
+            for driver in assigned_drivers:
+                if driver.user_id:
+                    driver_message = f"Requester {requester_name} has confirmed execution of Trip {self.name}.\nPlease confirm the trip."
+                    self._send_notification(driver.user_id, driver_message)
 
-            # Create the custom notification with the required message field
-            self.env['custom.notification'].create({
-                'title': 'Trip Status Update',
-                'user_id': user.id,
-                'message': message,  # Added to fulfill the mandatory field requirement
-                'is_read': False,
-            })
-
+    def _send_notification(self, user, message):
+        """Helper method to send notification to a specific user"""
+        if not user:
+            return
+        
+        try:
+            # Replace newlines with HTML line breaks for chatter
+            html_message = message.replace('\n', '<br/>')
+            
+            # Post to chatter
+            self.message_post(
+                body="<b>Trip Status Update</b><br/>" + html_message,
+                subject=f"Trip {self.name} - Status Update",
+                partner_ids=[user.partner_id.id],
+            )
+            
+            # Create custom notification
+            try:
+                self.env['custom.notification'].create({
+                    'title': f'Trip {self.name} - Status Update',
+                    'user_id': user.id,
+                    'message': message,
+                    'is_read': False,
+                })
+            except Exception:
+                pass
+        except Exception as e:
+            _logger.error(f"Error sending notification to {user.name}: {str(e)}")
 
     def _complete_trip(self):
-     for request in self:
-        request.state = 'completed'
-        # Notify requester and driver about completion
-        request._notify_completion()
-        # Return vehicle assignments to make vehicle available for next trip
-        request._return_completed_trip_assignments()  # <-- ONLY THIS LINE ADDED
+        """Complete the trip and send completion notifications"""
+        for request in self:
+            if request.state == 'completed':
+                return
+            
+            _logger.info(f"=== _complete_trip called for {request.name} ===")
+            
+            # Use context flag to prevent recursion
+            request.with_context(_skip_completion_flow=True).write({
+                'state': 'completed'
+            })
+            
+            # CRITICAL: Immediately return the vehicle assignment
+            request._return_completed_trip_assignments()
+            
+            # Notify both parties about completion
+            request._notify_completion()
+
+    def _notify_completion(self):
+        """Send completion notifications to both parties with exact messages"""
+        self.ensure_one()
+        
+        assigned_drivers = self.assignment_ids.filtered(
+            lambda a: a.status == 'assigned'
+        ).mapped('driver_id')
+        
+        # Notify requester
+        if self.requester_id and self.requester_id.user_id:
+            # Requester receives: "Trip TRIP-001 has been completed successfully."
+            requester_message = f"Trip {self.name} has been completed successfully."
+            self._send_notification(self.requester_id.user_id, requester_message)
+            
+            # Requester also receives: "Driver has confirmed. Trip TRIP-001 is now completed."
+            requester_second_message = f"Driver has confirmed.\nTrip {self.name} is now completed."
+            self._send_notification(self.requester_id.user_id, requester_second_message)
+        
+        # Notify assigned drivers
+        for driver in assigned_drivers:
+            if driver.user_id:
+                # Driver receives: "Trip TRIP-001 has been completed successfully."
+                driver_message = f"Trip {self.name} has been completed successfully."
+                self._send_notification(driver.user_id, driver_message)
+                
+                # Driver also receives: "Requester has confirmed. Trip TRIP-001 is now completed."
+                driver_second_message = f"Requester has confirmed.\nTrip {self.name} is now completed."
+                self._send_notification(driver.user_id, driver_second_message)
 
     def _return_completed_trip_assignments(self):
+        """Return vehicle assignments and make vehicles available"""
+        _logger.info("=== _return_completed_trip_assignments called ===")
+        
         for request in self.filtered(lambda trip: trip.state == 'completed'):
-            assigned_assignments = request.assignment_ids.filtered(lambda assignment: assignment.status == 'assigned')
-            if assigned_assignments:
-                assigned_assignments.sudo().action_return_vehicle()
+            _logger.info(f"Processing completed trip: {request.name}")
+            
+            # Get all assigned assignments for this trip
+            assigned_assignments = request.assignment_ids.filtered(
+                lambda assignment: assignment.status == 'assigned'
+            )
+            
+            _logger.info(f"Found {len(assigned_assignments)} assigned assignments")
+            
+            if not assigned_assignments:
+                _logger.warning(f"No assigned assignments found for trip {request.name}")
+                continue
+            
+            for assignment in assigned_assignments:
+                try:
+                    _logger.info(f"Processing assignment {assignment.id}")
+                    
+                    # Step 1: Update vehicle status to 'available'
+                    if assignment.vehicle_id:
+                        assignment.vehicle_id.sudo().write({
+                            'fleet_status': 'available'
+                        })
+                        _logger.info(f"Updated vehicle {assignment.vehicle_id.name} status to 'available'")
+                    
+                    # Step 2: Update assignment status to 'returned'
+                    assignment.sudo().write({
+                        'status': 'returned',
+                        'return_date': fields.Datetime.now()
+                    })
+                    _logger.info(f"Updated assignment {assignment.id} status to 'returned'")
+                    
+                    # Step 3: Create vehicle history entry
+                    try:
+                        self.env['fleet.vehicle.history'].sudo().create({
+                            'vehicle_id': assignment.vehicle_id.id,
+                            'event_type': 'returned',
+                            'event_date': fields.Datetime.now(),
+                            'driver_id': assignment.driver_id.id if assignment.driver_id else False,
+                            'description': f'Vehicle returned from completed trip {request.name}.',
+                            'odometer': assignment.vehicle_id.current_odometer if assignment.vehicle_id else 0,
+                        })
+                        _logger.info(f"Created vehicle history entry")
+                    except Exception as e:
+                        _logger.warning(f"Could not create vehicle history entry: {str(e)}")
+                    
+                except Exception as e:
+                    _logger.error(f"Error returning vehicle assignment {assignment.id}: {str(e)}")
+                    # Continue with next assignment even if one fails
 
     def action_open_reject_wizard(self):
         self.ensure_one()
         
-        # Check if current state allows rejection based on user role
         if self.state == 'submitted':
             self._check_group(
                 'fleet_management.group_department_manager',
@@ -481,7 +594,6 @@ class FleetTripRequest(models.Model):
         }
 
     def action_reject(self):
-        """Handles the rejection of a trip request based on its current state."""
         for request in self:
             if request.state == 'submitted':
                 request._check_group(
@@ -500,14 +612,11 @@ class FleetTripRequest(models.Model):
             
             request.rejected_by = self.env.user.name
             request.state = 'rejected'
-            
-            # Send notification to requester about rejection
             request._notify_requester('rejected')
 
     def action_cancel(self):
-        """Cancels the request, restricted to the requester or department manager."""
         for request in self:
-            if request.state not in ['draft']:  # Only cancel in draft state
+            if request.state not in ['draft']:
                 raise ValidationError('Vehicle requests can only be cancelled in draft state.')
             is_requester = (
                 request.requester_id.user_id == self.env.user
@@ -529,11 +638,11 @@ class FleetTripRequest(models.Model):
             'rejection_reason': False,
             'rejected_by': False,
             'rejected_by_role': False,
+            'requester_confirmed': False,
+            'driver_confirmed': False,
         })
     
-    # NOTIFICATION METHODS
     def _notify_department_manager(self, action):
-        """Notify department manager about the request"""
         for request in self:
             if request.department_id and request.department_id.manager_id:
                 manager_user = request.department_id.manager_id.user_id
@@ -550,8 +659,6 @@ class FleetTripRequest(models.Model):
                     )
 
     def _notify_fleet_managers(self, action):
-        """Notify fleet managers about department approval"""
-        # Find all fleet managers
         fleet_manager_group = self.env.ref('fleet_management.group_fleet_manager')
         fleet_managers = fleet_manager_group.users
         
@@ -572,7 +679,6 @@ class FleetTripRequest(models.Model):
                 )
 
     def _notify_requester(self, action):
-        """Notify requester about rejection"""
         for request in self:
             if request.requester_id and request.requester_id.user_id:
                 requester_partner = request.requester_id.user_id.partner_id
@@ -584,54 +690,20 @@ class FleetTripRequest(models.Model):
                     subject=f"Vehicle Request {request.name} - Rejected",
                     partner_ids=[requester_partner.id],
                 )
-
-    def _notify_completion(self):
-        """Notify requester and driver about trip completion"""
-        for request in self:
-            # Notify requester
-            if request.requester_id and request.requester_id.user_id:
-                requester_partner = request.requester_id.user_id.partner_id
-                request.message_post(
-                    body=f"<b>Trip Completed</b><br/>"
-                         f"Trip <b>{request.name}</b> has been completed.<br/>"
-                         f"<b>Destination:</b> {request.destination}",
-                    subject=f"Trip {request.name} - Completed",
-                    partner_ids=[requester_partner.id],
-                )
-            
-            # Notify assigned drivers
-            assigned_drivers = request.assignment_ids.filtered(
-                lambda a: a.status == 'assigned'
-            ).mapped('driver_id')
-            for driver in assigned_drivers:
-                if driver.user_id:
-                    request.message_post(
-                        body=f"<b>Trip Completed</b><br/>"
-                             f"Trip <b>{request.name}</b> has been completed.<br/>"
-                             f"<b>Destination:</b> {request.destination}",
-                        subject=f"Trip {request.name} - Completed",
-                        partner_ids=[driver.user_id.partner_id.id],
-                    )
     
-    # NEW HELPER METHODS FOR REJECTION VISIBILITY
     def can_see_rejection_reason(self):
-        """Check if current user can see the rejection reason"""
         self.ensure_one()
         current_employee = self.env.user.employee_id
         
-        # Requester can always see rejection reason
         if self.requester_id == current_employee:
             return True
         
-        # Department manager can see rejection reason (even if rejected by fleet manager)
         if self.env.user.has_group('fleet_management.group_department_manager'):
             return True
         
-        # Fleet manager can see all rejection reasons
         if self.env.user.has_group('fleet_management.group_fleet_manager'):
             return True
         
-        # Driver assigned to this trip can see rejection reason
         assigned_drivers = self.assignment_ids.filtered(
             lambda a: a.status == 'assigned'
         ).mapped('driver_id')
@@ -641,7 +713,6 @@ class FleetTripRequest(models.Model):
         return False
 
     def get_rejection_details(self):
-        """Get formatted rejection details"""
         self.ensure_one()
         if not self.rejection_reason:
             return False

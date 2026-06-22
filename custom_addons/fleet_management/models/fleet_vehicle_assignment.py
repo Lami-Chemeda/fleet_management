@@ -148,6 +148,21 @@ class FleetVehicleAssignment(models.Model):
                 raise ValidationError('Selected vehicle is already assigned to another active trip.')
             if assignment.vehicle_id.fleet_status != 'available':
                 raise ValidationError('Selected vehicle is not available.')
+                
+            active_maintenance = self.env['fleet.maintenance.request'].search([
+                ('vehicle_id', '=', assignment.vehicle_id.id),
+                ('state', 'not in', ['draft', 'completed', 'closed', 'rejected'])
+            ], limit=1)
+            if active_maintenance:
+                raise ValidationError('Selected vehicle has an active maintenance request and cannot be assigned until it is completed.')
+                
+            active_fuel = self.env['fleet.fuel.request'].search([
+                ('vehicle_id', '=', assignment.vehicle_id.id),
+                ('state', 'not in', ['draft', 'completed', 'rejected'])
+            ], limit=1)
+            if active_fuel:
+                raise ValidationError('Selected vehicle has an active fuel request and cannot be assigned until it is completed.')
+
             if not assignment.vehicle_id.current_driver_id:
                 raise ValidationError('Selected vehicle must have an assigned driver before it can be allocated.')
             if assignment.vehicle_id.current_driver_id and assignment.driver_id != assignment.vehicle_id.current_driver_id:

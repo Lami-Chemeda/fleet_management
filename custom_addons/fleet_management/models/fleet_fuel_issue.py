@@ -40,7 +40,7 @@ class FleetFuelIssue(models.Model):
                 'driver_id': issue.driver_id.id,
                 'description': 'Issued %s of %s.' % (
                     issue.issued_quantity,
-                    issue.fuel_request_id.fuel_type,
+                    issue.fuel_request_id.fuel_type_id.name,
                 ),
                 'odometer': issue.vehicle_id.current_odometer,
             })

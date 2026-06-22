@@ -312,6 +312,12 @@ class FleetTripRequest(models.Model):
         )
         self.write({'state': 'department_approved'})
         for request in self:
+            # Notify requester and department manager
+            users = request._get_department_managers()
+            if request.requester_id and request.requester_id.user_id:
+                users |= request.requester_id.user_id
+            if users:
+                request._notify_users(users, "Your request is approved by department")
             request._notify_fleet_managers('department_approved')
 
     def action_fleet_approve(self):
@@ -320,6 +326,13 @@ class FleetTripRequest(models.Model):
             'Only Fleet Managers can approve vehicle requests for fleet allocation.',
         )
         self.write({'state': 'fleet_approved'})
+        for request in self:
+            # Notify requester and department manager
+            users = request._get_department_managers()
+            if request.requester_id and request.requester_id.user_id:
+                users |= request.requester_id.user_id
+            if users:
+                request._notify_users(users, "Your request is fully approved!")
 
     def action_allocate(self):
         self._check_group(
@@ -341,6 +354,24 @@ class FleetTripRequest(models.Model):
                 'requester_confirmed': False,
                 'driver_confirmed': False,
             })
+            
+            # Notify requester and department manager
+            req_users = request._get_department_managers()
+            if request.requester_id and request.requester_id.user_id:
+                req_users |= request.requester_id.user_id
+            if req_users:
+                request._notify_users(req_users, "Trip allocated with vehicle/driver details")
+            
+            # Notify assigned drivers
+            assigned_drivers = request.assignment_ids.filtered(
+                lambda assignment: assignment.status == 'assigned'
+            ).mapped('driver_id')
+            driver_users = self.env['res.users']
+            for driver in assigned_drivers:
+                if driver.user_id:
+                    driver_users |= driver.user_id
+            if driver_users:
+                request._notify_users(driver_users, "You are assigned as driver for this trip")
 
     def action_complete(self):
         self._check_group(
@@ -406,51 +437,67 @@ class FleetTripRequest(models.Model):
         
         current_user = self.env.user
         current_employee = current_user.employee_id
+        actor_name = current_employee.name if current_employee else ('Driver' if actor == 'driver' else 'Requester')
         
         if actor == 'driver':
             # Case 1: Driver finishes first
-            driver_name = current_employee.name if current_employee else 'Driver'
-            
-            # 1. Driver receives: "You have successfully confirmed completion of Trip TRIP-001. Waiting for the requester to confirm."
+            # 1. Driver receives confirmation feedback
             driver_message = f"You have successfully confirmed completion of Trip {self.name}.\nWaiting for the requester to confirm."
-            self._send_notification(current_user, driver_message)
+            self._notify_users(current_user, driver_message)
             
-            # 2. Requester receives: "Driver John has confirmed execution of Trip TRIP-001. Please confirm the trip to complete it."
+            # 2. Requester & Department Manager receive target notification
+            other_users = self._get_department_managers()
             if self.requester_id and self.requester_id.user_id:
-                requester_message = f"Driver {driver_name} has confirmed execution of Trip {self.name}.\nPlease confirm the trip to complete it."
-                self._send_notification(self.requester_id.user_id, requester_message)
+                other_users |= self.requester_id.user_id
+            if other_users:
+                requester_message = f"{actor_name} has confirmed, waiting for you"
+                self._notify_users(other_users, requester_message)
                 
         else:  # requester confirmed first
             # Case 2: Requester finishes first
-            requester_name = current_employee.name if current_employee else 'Requester'
-            
-            # 1. Requester receives: "You have successfully confirmed completion of Trip TRIP-001. Waiting for the assigned driver."
+            # 1. Requester receives confirmation feedback
             requester_message = f"You have successfully confirmed completion of Trip {self.name}.\nWaiting for the assigned driver."
-            self._send_notification(current_user, requester_message)
+            self._notify_users(current_user, requester_message)
             
-            # 2. Driver receives: "Requester John has confirmed execution of Trip TRIP-001. Please confirm the trip."
+            # 2. Driver receives target notification
+            driver_users = self.env['res.users']
             for driver in assigned_drivers:
                 if driver.user_id:
-                    driver_message = f"Requester {requester_name} has confirmed execution of Trip {self.name}.\nPlease confirm the trip."
-                    self._send_notification(driver.user_id, driver_message)
+                    driver_users |= driver.user_id
+            if driver_users:
+                driver_message = f"{actor_name} has confirmed, waiting for you"
+                self._notify_users(driver_users, driver_message)
 
-    def _send_notification(self, user, message):
-        """Helper method to send notification to a specific user"""
-        if not user:
-            return
+    def _get_department_managers(self):
+        managers = self.env['res.users']
+        if self.department_id and self.department_id.manager_id and self.department_id.manager_id.user_id:
+            managers |= self.department_id.manager_id.user_id
+        if self.requester_id and self.requester_id.parent_id and self.requester_id.parent_id.user_id:
+            managers |= self.requester_id.parent_id.user_id
         
+        dept_manager_group = self.env.ref('fleet_management.group_department_manager', raise_if_not_found=False)
+        if dept_manager_group:
+            managers |= dept_manager_group.users.filtered(lambda u: u.active)
+        return managers
+
+    def _notify_users(self, users, message):
+        """Helper to notify users. It posts the message to the record's chatter once, 
+           and creates a custom.notification record for each user."""
+        if not self or not users:
+            return
+        self.ensure_one()
+        
+        # Post to chatter once (displays on itself page)
         try:
-            # Replace newlines with HTML line breaks for chatter
-            html_message = message.replace('\n', '<br/>')
-            
-            # Post to chatter
             self.message_post(
-                body="<b>Trip Status Update</b><br/>" + html_message,
-                subject=f"Trip {self.name} - Status Update",
-                partner_ids=[user.partner_id.id],
+                body=message,
+                partner_ids=users.mapped('partner_id').ids,
             )
+        except Exception as e:
+            _logger.error(f"Error posting chatter to {self.name}: {str(e)}")
             
-            # Create custom notification
+        # Create custom notification for each user
+        for user in users:
             try:
                 self.env['custom.notification'].create({
                     'title': f'Trip {self.name} - Status Update',
@@ -458,10 +505,12 @@ class FleetTripRequest(models.Model):
                     'message': message,
                     'is_read': False,
                 })
-            except Exception:
-                pass
-        except Exception as e:
-            _logger.error(f"Error sending notification to {user.name}: {str(e)}")
+            except Exception as e:
+                _logger.error(f"Error creating custom notification for {user.name}: {str(e)}")
+
+    def _send_notification(self, user, message):
+        """Wrapper to support existing single user notifications"""
+        self._notify_users(user, message)
 
     def _complete_trip(self):
         """Complete the trip and send completion notifications"""
@@ -477,7 +526,7 @@ class FleetTripRequest(models.Model):
             })
             
             # CRITICAL: Immediately return the vehicle assignment
-            request._return_completed_trip_assignments()
+            request.sudo()._return_completed_trip_assignments()
             
             # Notify both parties about completion
             request._notify_completion()
@@ -490,26 +539,15 @@ class FleetTripRequest(models.Model):
             lambda a: a.status == 'assigned'
         ).mapped('driver_id')
         
-        # Notify requester
+        users = self._get_department_managers()
         if self.requester_id and self.requester_id.user_id:
-            # Requester receives: "Trip TRIP-001 has been completed successfully."
-            requester_message = f"Trip {self.name} has been completed successfully."
-            self._send_notification(self.requester_id.user_id, requester_message)
-            
-            # Requester also receives: "Driver has confirmed. Trip TRIP-001 is now completed."
-            requester_second_message = f"Driver has confirmed.\nTrip {self.name} is now completed."
-            self._send_notification(self.requester_id.user_id, requester_second_message)
-        
-        # Notify assigned drivers
+            users |= self.requester_id.user_id
         for driver in assigned_drivers:
             if driver.user_id:
-                # Driver receives: "Trip TRIP-001 has been completed successfully."
-                driver_message = f"Trip {self.name} has been completed successfully."
-                self._send_notification(driver.user_id, driver_message)
-                
-                # Driver also receives: "Requester has confirmed. Trip TRIP-001 is now completed."
-                driver_second_message = f"Requester has confirmed.\nTrip {self.name} is now completed."
-                self._send_notification(driver.user_id, driver_second_message)
+                users |= driver.user_id
+        
+        if users:
+            self._notify_users(users, "Trip completed successfully")
 
     def _return_completed_trip_assignments(self):
         """Return vehicle assignments and make vehicles available"""
@@ -612,7 +650,7 @@ class FleetTripRequest(models.Model):
             
             request.rejected_by = self.env.user.name
             request.state = 'rejected'
-            request._notify_requester('rejected')
+            request._notify_rejection()
 
     def action_cancel(self):
         for request in self:
@@ -641,55 +679,64 @@ class FleetTripRequest(models.Model):
             'requester_confirmed': False,
             'driver_confirmed': False,
         })
+        for request in self:
+            users = request._get_department_managers()
+            if request.requester_id and request.requester_id.user_id:
+                users |= request.requester_id.user_id
+            if users:
+                request._notify_users(users, "Trip request reset to draft")
     
     def _notify_department_manager(self, action):
         for request in self:
-            if request.department_id and request.department_id.manager_id:
-                manager_user = request.department_id.manager_id.user_id
-                if manager_user:
-                    request.message_subscribe(partner_ids=[manager_user.partner_id.id])
-                    request.message_post(
-                        body=f"<b>New Vehicle Request</b><br/>"
-                             f"Request <b>{request.name}</b> has been submitted for your approval.<br/>"
-                             f"<b>Destination:</b> {request.destination}<br/>"
-                             f"<b>Start Date:</b> {request.start_date}<br/>"
-                             f"<b>End Date:</b> {request.end_date}",
-                        subject=f"Vehicle Request {request.name} - Pending Your Approval",
-                        partner_ids=[manager_user.partner_id.id],
-                    )
+            users = request._get_department_managers()
+            if request.requester_id and request.requester_id.user_id:
+                users |= request.requester_id.user_id
+            if users:
+                request.message_subscribe(partner_ids=users.mapped('partner_id').ids)
+                request._notify_users(users, "New request pending approval")
 
     def _notify_fleet_managers(self, action):
         fleet_manager_group = self.env.ref('fleet_management.group_fleet_manager')
-        fleet_managers = fleet_manager_group.users
+        fleet_managers = fleet_manager_group.users.filtered(lambda u: u.active)
         
         for request in self:
             if fleet_managers:
                 partner_ids = fleet_managers.mapped('partner_id').ids
                 request.message_subscribe(partner_ids=partner_ids)
-                request.message_post(
-                    body=f"<b>Vehicle Request Department Approved</b><br/>"
-                         f"Request <b>{request.name}</b> has been approved by department manager.<br/>"
-                         f"<b>Department:</b> {request.department_id.name}<br/>"
-                         f"<b>Requester:</b> {request.requester_id.name}<br/>"
-                         f"<b>Destination:</b> {request.destination}<br/>"
-                         f"<b>Start Date:</b> {request.start_date}<br/>"
-                         f"<b>End Date:</b> {request.end_date}",
-                    subject=f"Vehicle Request {request.name} - Department Approved - Pending Fleet Approval",
-                    partner_ids=partner_ids,
-                )
+                request._notify_users(fleet_managers, "Request approved by department, pending fleet approval")
 
     def _notify_requester(self, action):
+        # Kept for compatibility / no-op
+        pass
+
+    def _notify_rejection(self):
         for request in self:
-            if request.requester_id and request.requester_id.user_id:
-                requester_partner = request.requester_id.user_id.partner_id
-                request.message_post(
-                    body=f"<b>Vehicle Request Rejected</b><br/>"
-                         f"Your request <b>{request.name}</b> has been rejected.<br/>"
-                         f"<b>Rejected By:</b> {request.rejected_by}<br/>"
-                         f"<b>Reason:</b> {request.rejection_reason}",
-                    subject=f"Vehicle Request {request.name} - Rejected",
-                    partner_ids=[requester_partner.id],
-                )
+            if request.rejected_by_role == 'department_manager':
+                users = request._get_department_managers()
+                if request.requester_id and request.requester_id.user_id:
+                    users |= request.requester_id.user_id
+                if users:
+                    request._notify_users(users, "Your request was rejected by department")
+            elif request.rejected_by_role == 'fleet_manager':
+                if request.requester_id and request.requester_id.user_id:
+                    request._notify_users(request.requester_id.user_id, "Your request was rejected by fleet")
+                managers = request._get_department_managers()
+                if managers:
+                    request._notify_users(managers, "Request was rejected by fleet")
+    def action_preview_attachment(self):
+        self.ensure_one()
+        if not self.attachment_file:
+            return
+        
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        attachment_url = f"/web/content/{self._name}/{self.id}/attachment_file/{self.attachment_filename}?download=false"
+        
+        return {
+            'type': 'ir.actions.act_url',
+            'url': attachment_url,
+            'target': 'new',
+        }
+
     
     def can_see_rejection_reason(self):
         self.ensure_one()

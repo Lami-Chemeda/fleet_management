@@ -34,6 +34,42 @@ class FleetVehicle(models.Model):
     current_driver_id = fields.Many2one('hr.employee', string='Current Driver', tracking=True)
     current_odometer = fields.Float(string='Current Odometer')
     special_case = fields.Boolean(string='Special Case', default=False, tracking=True)
+    
+    custom_fuel_type_id = fields.Many2one('fleet.fuel.type', string='Fuel Type', tracking=True)
+    has_active_request = fields.Boolean(
+        string='Has Active Request',
+        compute='_compute_has_active_request',
+        search='_search_has_active_request',
+    )
+
+    def _compute_has_active_request(self):
+        for vehicle in self:
+            active_maint = self.env['fleet.maintenance.request'].search_count([
+                ('vehicle_id', '=', vehicle.id),
+                ('state', 'not in', ['draft', 'completed', 'closed', 'rejected'])
+            ])
+            active_fuel = self.env['fleet.fuel.request'].search_count([
+                ('vehicle_id', '=', vehicle.id),
+                ('state', 'not in', ['draft', 'completed', 'rejected'])
+            ])
+            vehicle.has_active_request = bool(active_maint or active_fuel)
+
+    def _search_has_active_request(self, operator, value):
+        active_maint_vehicles = self.env['fleet.maintenance.request'].search([
+            ('state', 'not in', ['draft', 'completed', 'closed', 'rejected'])
+        ]).mapped('vehicle_id.id')
+        active_fuel_vehicles = self.env['fleet.fuel.request'].search([
+            ('state', 'not in', ['draft', 'completed', 'rejected'])
+        ]).mapped('vehicle_id.id')
+        
+        invalid_vehicle_ids = list(set(active_maint_vehicles + active_fuel_vehicles))
+        
+        if operator == '=' and value is False:
+            return [('id', 'not in', invalid_vehicle_ids)]
+        elif operator == '=' and value is True:
+            return [('id', 'in', invalid_vehicle_ids)]
+        
+        return []
 
     _sql_constraints = [
         (
@@ -83,6 +119,7 @@ class FleetVehicle(models.Model):
             'registration_certificate_number',
             'registration_date',
             'fleet_status',
+            'custom_fuel_type_id',
             'current_driver_id',
             'current_odometer',
             'special_case',

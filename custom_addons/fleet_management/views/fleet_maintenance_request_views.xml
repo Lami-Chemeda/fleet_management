@@ -77,6 +77,12 @@
                                placeholder="Please describe the maintenance issue in detail..."
                                readonly="not is_editable"
                                colspan="2"/>
+                        <label for="attachment_file" string="Attachment"/>
+                        <div class="o_row" colspan="2">
+                            <field name="attachment_file" filename="attachment_filename" readonly="not is_editable" widget="binary"/>
+                            <button name="action_preview_attachment" type="object" string="View Attachment" icon="fa-eye" class="btn-secondary" invisible="not attachment_file"/>
+                        </div>
+                        <field name="attachment_filename" invisible="1"/>
                     </group>
                     
                     <group>

@@ -37,6 +37,11 @@ fuel requests, maintenance requests, external garages, and fleet reports.
         'views/fleet_menu_views.xml',
         'views/login_branding_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'fleet_management/static/src/css/hide_chatter_buttons.css',
+        ],
+    },
     'application': True,
     'installable': True,
     'license': 'LGPL-3',

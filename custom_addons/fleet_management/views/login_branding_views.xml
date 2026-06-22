@@ -6,7 +6,7 @@
         <xpath expr="//div[hasclass('container')]" position="before">
             <div style="text-align:center; margin:20px 0;">
                 <h2 style="color:#007bff; font-weight:bold;">
-                    🚗🚚 Welcome to Fleet Management System for OTech 🚚🚗
+                    Welcome to Fleet Management System for OTech 
                 </h2>
             </div>
         </xpath>

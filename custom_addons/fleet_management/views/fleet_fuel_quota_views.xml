@@ -5,7 +5,7 @@
         <field name="model">fleet.fuel.quota</field>
         <field name="arch" type="xml">
             <list string="Fuel Type Quota Configurations" editable="bottom">
-                <field name="fuel_type"/>
+                <field name="fuel_type_id"/>
                 <field name="fuel_quota"/>
             </list>
         </field>
@@ -19,7 +19,7 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="fuel_type" options="{'no_create': True}"/>
+                            <field name="fuel_type_id" options="{'no_create': True}"/>
                             <field name="fuel_quota" string="Monthly Quota Per Vehicle (Liters)"/>
                             <label for="fuel_quota" string="Set 0 for unlimited quota"/>
                         </group>

@@ -40,17 +40,8 @@ class FleetFuelRequest(models.Model):
     )
     
     # Fuel Type for the request (mapped from vehicle)
-    fuel_type = fields.Selection(
-        [
-            ('diesel', 'Diesel'),
-            ('gasoline', 'Gasoline'),
-            ('full_hybrid', 'Full Hybrid'),
-            ('plug_in_hybrid_diesel', 'Plug-in Hybrid Diesel'),
-            ('plug_in_hybrid_gasoline', 'Plug-in Hybrid Gasoline'),
-            ('cng', 'CNG'),
-            ('lpg', 'LPG'),
-            ('hydrogen', 'Hydrogen'),
-        ],
+    fuel_type_id = fields.Many2one(
+        'fleet.fuel.type',
         string='Fuel Type',
         required=True,
         readonly=True,  # Locked - auto-filled from vehicle
@@ -122,20 +113,9 @@ class FleetFuelRequest(models.Model):
     @api.depends('vehicle_id')
     def _compute_vehicle_fuel_type(self):
         """Get the fuel type from the vehicle registration"""
-        fuel_labels = {
-            'diesel': 'Diesel',
-            'gasoline': 'Gasoline',
-            'full_hybrid': 'Full Hybrid',
-            'plug_in_hybrid_diesel': 'Plug-in Hybrid Diesel',
-            'plug_in_hybrid_gasoline': 'Plug-in Hybrid Gasoline',
-            'cng': 'CNG',
-            'lpg': 'LPG',
-            'hydrogen': 'Hydrogen',
-            'electric': 'Electric'
-        }
         for request in self:
-            if request.vehicle_id and request.vehicle_id.fuel_type:
-                request.vehicle_fuel_type = fuel_labels.get(request.vehicle_id.fuel_type, request.vehicle_id.fuel_type)
+            if request.vehicle_id and request.vehicle_id.custom_fuel_type_id:
+                request.vehicle_fuel_type = request.vehicle_id.custom_fuel_type_id.name
             else:
                 request.vehicle_fuel_type = ''
 
@@ -211,37 +191,27 @@ class FleetFuelRequest(models.Model):
                 vehicle = self._get_driver_vehicle(vals['driver_id'])
                 if vehicle:
                     # Check if vehicle is electric
-                    if vehicle.fuel_type == 'electric':
+                    if vehicle.custom_fuel_type_id.is_electric:
                         raise ValidationError(
                             f"This vehicle ({vehicle.name}) cannot request fuel because its fuel type is Electric."
                         )
                     vals['vehicle_id'] = vehicle.id
-                    # Auto-set fuel type from vehicle
-                    vehicle_fuel = vehicle.fuel_type
-                    if vehicle_fuel in ['diesel', 'gasoline', 'full_hybrid', 'plug_in_hybrid_diesel', 
-                                       'plug_in_hybrid_gasoline', 'cng', 'lpg', 'hydrogen']:
-                        vals['fuel_type'] = vehicle_fuel
-                    elif vehicle_fuel == 'electric':
-                        raise ValidationError(
-                            f"This vehicle ({vehicle.name}) cannot request fuel because its fuel type is Electric."
-                        )
+                    if vehicle.custom_fuel_type_id:
+                        vals['fuel_type_id'] = vehicle.custom_fuel_type_id.id
                 else:
                     raise ValidationError(
                         "You do not have any vehicle assigned to you. Please contact your Fleet Manager."
                     )
             
             # If vehicle_id is provided but fuel_type is not, auto-set from vehicle
-            if vals.get('vehicle_id') and not vals.get('fuel_type'):
+            if vals.get('vehicle_id') and not vals.get('fuel_type_id'):
                 vehicle = self.env['fleet.vehicle'].browse(vals['vehicle_id'])
                 if vehicle:
-                    if vehicle.fuel_type == 'electric':
+                    if vehicle.custom_fuel_type_id.is_electric:
                         raise ValidationError(
                             f"This vehicle ({vehicle.name}) cannot request fuel because its fuel type is Electric."
                         )
-                    vehicle_fuel = vehicle.fuel_type
-                    if vehicle_fuel in ['diesel', 'gasoline', 'full_hybrid', 'plug_in_hybrid_diesel', 
-                                       'plug_in_hybrid_gasoline', 'cng', 'lpg', 'hydrogen']:
-                        vals['fuel_type'] = vehicle_fuel
+                    vals['fuel_type_id'] = vehicle.custom_fuel_type_id.id
             
             if not vals.get('priority'):
                 vals['priority'] = 'medium'
@@ -270,13 +240,37 @@ class FleetFuelRequest(models.Model):
                 raise AccessError('Drivers can only submit fuel requests for themselves.')
             if not request.driver_id.is_fleet_driver:
                 raise ValidationError('Fuel can only be requested by an employee registered as a Fleet Driver.')
+    def _notify_users(self, users, message):
+        if not self or not users:
+            return
+        self.ensure_one()
+        
+        try:
+            self.message_post(
+                body=message,
+                partner_ids=users.mapped('partner_id').ids,
+            )
+        except Exception as e:
+            pass
+            
+        for user in users:
+            try:
+                self.env['custom.notification'].create({
+                    'title': f'Fuel Request {self.name} - Status Update',
+                    'user_id': user.id,
+                    'message': message,
+                    'is_read': False,
+                })
+            except Exception as e:
+                pass
+
 
     def action_submit(self):
         # Check all conditions before submitting
         for request in self:
             if not request.vehicle_id:
                 raise ValidationError("Please select a vehicle before submitting.")
-            if not request.fuel_type:
+            if not request.fuel_type_id:
                 raise ValidationError("Fuel type could not be determined from the vehicle.")
             if not request.reason:
                 raise ValidationError("Please provide a reason for the fuel request.")
@@ -284,7 +278,7 @@ class FleetFuelRequest(models.Model):
                 raise ValidationError("Requested Quantity must be greater than zero.")
             
             # Check if vehicle is electric
-            if request.vehicle_id.fuel_type == 'electric':
+            if request.vehicle_id.custom_fuel_type_id.is_electric:
                 raise ValidationError(
                     f"This vehicle ({request.vehicle_id.name}) cannot request fuel because its fuel type is Electric."
                 )
@@ -294,6 +288,15 @@ class FleetFuelRequest(models.Model):
         
         self._check_active_trip_assignment()
         self.write({'state': 'submitted'})
+        for request in self:
+            # Notify Fleet Manager
+            fleet_manager_group = self.env.ref('fleet_management.group_fleet_manager')
+            fleet_managers = fleet_manager_group.users.filtered(lambda u: u.active)
+            if fleet_managers:
+                request._notify_users(fleet_managers, "New fuel request pending approval")
+            # Notify Driver
+            if request.driver_id and request.driver_id.user_id:
+                request._notify_users(request.driver_id.user_id, "Your fuel request has been submitted")
 
     def _check_fuel_quota_single(self, request):
         """Check fuel quota for a single request"""
@@ -303,7 +306,7 @@ class FleetFuelRequest(models.Model):
             
         # Check if quota exists for this fuel type
         quota_rec = self.env['fleet.fuel.quota'].sudo().search([
-            ('fuel_type', '=', request.fuel_type)
+            ('fuel_type_id', '=', request.fuel_type_id.id)
         ], limit=1)
         
         if quota_rec:
@@ -328,7 +331,7 @@ class FleetFuelRequest(models.Model):
             # Get requests for THIS SPECIFIC VEHICLE with this fuel type
             existing_requests = self.search([
                 ('vehicle_id', '=', request.vehicle_id.id),
-                ('fuel_type', '=', request.fuel_type),
+                ('fuel_type_id', '=', request.fuel_type_id.id),
                 ('state', 'in', ['approved', 'issued', 'completed']),
                 ('id', '!=', request.id),
                 ('request_date', '>=', month_start),
@@ -343,7 +346,7 @@ class FleetFuelRequest(models.Model):
             if total_used + request.requested_quantity > quota_val:
                 raise ValidationError(
                     f"The requested quantity of {request.requested_quantity} Liters exceeds the vehicle's monthly fuel quota "
-                    f"for {request.fuel_type} ({quota_val} Liters per vehicle) for {month}/{year}.\n"
+                    f"for {request.fuel_type_id} ({quota_val} Liters per vehicle) for {month}/{year}.\n"
                     f"Vehicle: {request.vehicle_id.name}\n"
                     f"Total used by this vehicle this month: {total_used} Liters\n"
                     f"Remaining quota: {max(0.0, quota_val - total_used)} Liters"
@@ -352,16 +355,25 @@ class FleetFuelRequest(models.Model):
     def action_approve(self):
         self._check_fleet_manager()
         for request in self:
-            if request.vehicle_id and request.vehicle_id.fuel_type == 'electric':
+            if request.vehicle_id and request.vehicle_id.custom_fuel_type_id.is_electric:
                 raise ValidationError(
                     f"This vehicle ({request.vehicle_id.name}) cannot request fuel because its fuel type is Electric."
                 )
         self.write({'state': 'approved'})
+        for request in self:
+            # Notify Driver
+            if request.driver_id and request.driver_id.user_id:
+                request._notify_users(request.driver_id.user_id, "Your fuel request has been approved")
+            # Notify Fleet Managers
+            fleet_manager_group = self.env.ref('fleet_management.group_fleet_manager')
+            fleet_managers = fleet_manager_group.users.filtered(lambda u: u.active)
+            if fleet_managers:
+                request._notify_users(fleet_managers, f"Fuel request {request.name} approved")
 
     def action_issue(self):
         self._check_fleet_manager()
         for request in self:
-            if request.vehicle_id and request.vehicle_id.fuel_type == 'electric':
+            if request.vehicle_id and request.vehicle_id.custom_fuel_type_id.is_electric:
                 raise ValidationError(
                     f"This vehicle ({request.vehicle_id.name}) cannot request fuel because its fuel type is Electric."
                 )
@@ -393,6 +405,15 @@ class FleetFuelRequest(models.Model):
     def action_reject(self):
         self._check_fleet_manager()
         self.write({'state': 'rejected'})
+        for request in self:
+            # Notify Driver
+            if request.driver_id and request.driver_id.user_id:
+                request._notify_users(request.driver_id.user_id, "Your fuel request has been rejected")
+            # Notify Fleet Managers
+            fleet_manager_group = self.env.ref('fleet_management.group_fleet_manager')
+            fleet_managers = fleet_manager_group.users.filtered(lambda u: u.active)
+            if fleet_managers:
+                request._notify_users(fleet_managers, f"Fuel request {request.name} has been rejected")
 
     def action_reset_to_draft(self):
         self._check_fleet_manager()
@@ -410,9 +431,9 @@ class FleetFuelRequest(models.Model):
             vehicle = self._get_driver_vehicle(self.driver_id.id)
             if vehicle:
                 # Only show warning if vehicle is electric, but don't block
-                if vehicle.fuel_type == 'electric':
+                if vehicle.custom_fuel_type_id.is_electric:
                     self.vehicle_id = vehicle.id
-                    self.fuel_type = False
+                    self.fuel_type_id = False
                     return {
                         'warning': {
                             'title': 'Electric Vehicle',
@@ -420,30 +441,26 @@ class FleetFuelRequest(models.Model):
                         }
                     }
                 self.vehicle_id = vehicle.id
-                vehicle_fuel = vehicle.fuel_type
-                if vehicle_fuel in ['diesel', 'gasoline', 'full_hybrid', 'plug_in_hybrid_diesel', 
-                                   'plug_in_hybrid_gasoline', 'cng', 'lpg', 'hydrogen']:
-                    self.fuel_type = vehicle_fuel
+                if vehicle.custom_fuel_type_id:
+                    self.fuel_type_id = vehicle.custom_fuel_type_id.id
             else:
                 self.vehicle_id = False
-                self.fuel_type = False
+                self.fuel_type_id = False
 
     @api.onchange('vehicle_id')
     def _onchange_vehicle_id(self):
         if self.vehicle_id and self.state == 'draft':
             # Only show warning if vehicle is electric, but don't block
-            if self.vehicle_id.fuel_type == 'electric':
-                self.fuel_type = False
+            if self.vehicle_id.custom_fuel_type_id.is_electric:
+                self.fuel_type_id = False
                 return {
                     'warning': {
                         'title': 'Electric Vehicle',
                         'message': f"This vehicle ({self.vehicle_id.name}) is electric and cannot request fuel. Please contact your Fleet Manager."
                     }
                 }
-            vehicle_fuel = self.vehicle_id.fuel_type
-            if vehicle_fuel in ['diesel', 'gasoline', 'full_hybrid', 'plug_in_hybrid_diesel', 
-                               'plug_in_hybrid_gasoline', 'cng', 'lpg', 'hydrogen']:
-                self.fuel_type = vehicle_fuel
+            if self.vehicle_id.custom_fuel_type_id:
+                self.fuel_type_id = self.vehicle_id.custom_fuel_type_id.id
 
     @api.constrains('vehicle_id', 'driver_id')
     def _check_driver_assigned_vehicle(self):
@@ -455,46 +472,30 @@ class FleetFuelRequest(models.Model):
                 if request.driver_id != user_employee:
                     raise ValidationError("You can only request fuel for yourself.")
 
-    @api.constrains('vehicle_id', 'fuel_type')
+    @api.constrains('vehicle_id', 'fuel_type_id')
     def _check_fuel_type_match(self):
         for request in self:
-            if request.vehicle_id:
-                vehicle_fuel = request.vehicle_id.fuel_type
-                req_fuel = request.fuel_type
-                
-                if vehicle_fuel == 'electric':
+            if request.vehicle_id and request.fuel_type_id:
+                if request.vehicle_id.custom_fuel_type_id.is_electric:
                     raise ValidationError(
                         f"This vehicle ({request.vehicle_id.name}) cannot request fuel because its fuel type is Electric."
                     )
                 
-                fuel_mapping = {
-                    'diesel': 'diesel',
-                    'gasoline': 'gasoline',
-                    'full_hybrid': 'full_hybrid',
-                    'plug_in_hybrid_diesel': 'plug_in_hybrid_diesel',
-                    'plug_in_hybrid_gasoline': 'plug_in_hybrid_gasoline',
-                    'cng': 'cng',
-                    'lpg': 'lpg',
-                    'hydrogen': 'hydrogen',
-                }
-                
-                expected_fuel = fuel_mapping.get(vehicle_fuel)
-                if expected_fuel and req_fuel != expected_fuel:
-                    vehicle_fuel_label = dict(request.vehicle_id._fields['fuel_type'].selection).get(vehicle_fuel, vehicle_fuel)
+                if request.fuel_type_id != request.vehicle_id.custom_fuel_type_id:
                     raise ValidationError(
-                        f"You can only request the fuel type that your vehicle uses ({vehicle_fuel_label})."
+                        f"You can only request the fuel type that your vehicle uses ({request.vehicle_id.custom_fuel_type_id.name})."
                     )
 
-    @api.constrains('requested_quantity', 'vehicle_id', 'state', 'request_date', 'fuel_type')
+    @api.constrains('requested_quantity', 'vehicle_id', 'state', 'request_date', 'fuel_type_id')
     def _check_fuel_quota(self):
         for request in self:
             if request.state in ['rejected', 'draft']:
                 continue
                 
-            if not request.vehicle_id or not request.fuel_type:
+            if not request.vehicle_id or not request.fuel_type_id:
                 continue
                 
-            if request.vehicle_id.fuel_type == 'electric':
+            if request.vehicle_id.custom_fuel_type_id.is_electric:
                 raise ValidationError(
                     f"This vehicle ({request.vehicle_id.name}) cannot request fuel because its fuel type is Electric."
                 )
@@ -504,7 +505,7 @@ class FleetFuelRequest(models.Model):
                 continue
             
             quota_rec = self.env['fleet.fuel.quota'].sudo().search([
-                ('fuel_type', '=', request.fuel_type)
+                ('fuel_type_id', '=', request.fuel_type_id.id)
             ], limit=1)
             
             if quota_rec:
@@ -525,7 +526,7 @@ class FleetFuelRequest(models.Model):
                 
                 existing_requests = self.search([
                     ('vehicle_id', '=', request.vehicle_id.id),
-                    ('fuel_type', '=', request.fuel_type),
+                    ('fuel_type_id', '=', request.fuel_type_id.id),
                     ('state', 'in', ['approved', 'issued', 'completed']),
                     ('id', '!=', request.id),
                     ('request_date', '>=', month_start),
@@ -540,7 +541,7 @@ class FleetFuelRequest(models.Model):
                 if total_used + request.requested_quantity > quota_val:
                     raise ValidationError(
                         f"The requested quantity of {request.requested_quantity} Liters exceeds the vehicle's monthly fuel quota "
-                        f"for {request.fuel_type} ({quota_val} Liters per vehicle) for {month}/{year}.\n"
+                        f"for {request.fuel_type_id} ({quota_val} Liters per vehicle) for {month}/{year}.\n"
                         f"Vehicle: {request.vehicle_id.name}\n"
                         f"Total used by this vehicle this month: {total_used} Liters\n"
                         f"Remaining quota: {max(0.0, quota_val - total_used)} Liters"
@@ -549,7 +550,7 @@ class FleetFuelRequest(models.Model):
     @api.constrains('vehicle_id')
     def _check_electric_vehicle(self):
         for request in self:
-            if request.vehicle_id and request.vehicle_id.fuel_type == 'electric':
+            if request.vehicle_id and request.vehicle_id.custom_fuel_type_id.is_electric:
                 raise ValidationError(
                     f"This vehicle ({request.vehicle_id.name}) cannot request fuel because its fuel type is Electric."
                 )
@@ -573,14 +574,12 @@ class FleetFuelRequest(models.Model):
             
             vehicle = self._get_driver_vehicle(employee.id)
             if vehicle:
-                if vehicle.fuel_type != 'electric':
+                if not vehicle.custom_fuel_type_id.is_electric:
                     if 'vehicle_id' in fields_list and not res.get('vehicle_id'):
                         res['vehicle_id'] = vehicle.id
-                    if 'fuel_type' in fields_list and not res.get('fuel_type'):
-                        vehicle_fuel = vehicle.fuel_type
-                        if vehicle_fuel in ['diesel', 'gasoline', 'full_hybrid', 'plug_in_hybrid_diesel', 
-                                           'plug_in_hybrid_gasoline', 'cng', 'lpg', 'hydrogen']:
-                            res['fuel_type'] = vehicle_fuel
+                    if 'fuel_type_id' in fields_list and not res.get('fuel_type_id'):
+                        if vehicle.custom_fuel_type_id:
+                            res['fuel_type_id'] = vehicle.custom_fuel_type_id.id
                 else:
                     # For electric vehicles, set the vehicle but not fuel type
                     if 'vehicle_id' in fields_list and not res.get('vehicle_id'):
@@ -600,7 +599,7 @@ class FleetFuelRequest(models.Model):
             raise AccessError('Driver cannot be modified manually. It is auto-set from the logged in user.')
         if 'vehicle_id' in vals:
             raise AccessError('Vehicle cannot be modified manually. It is auto-set from the driver.')
-        if 'fuel_type' in vals:
+        if 'fuel_type_id' in vals:
             raise AccessError('Fuel Type cannot be modified manually. It is auto-filled from the vehicle.')
         
         is_driver = not self.env.user.has_group('fleet_management.group_fleet_manager')

@@ -61,7 +61,11 @@
                             <!-- Hidden Filename tracking field -->
                             <field name="attachment_filename" invisible="1"/>
                             <!-- File attachment upload control - only editable in draft state -->
-                            <field name="attachment_file" filename="attachment_filename" readonly="not can_edit_attachments"/>
+                            <label for="attachment_file" string="Attachment / Document"/>
+                            <div class="o_row">
+                                <field name="attachment_file" filename="attachment_filename" readonly="not can_edit_attachments"/>
+                                <button name="action_preview_attachment" type="object" string="View Attachment" icon="fa-eye" class="btn-secondary" invisible="not attachment_file"/>
+                            </div>
                         </group>
                     </group>
                     <group>
@@ -69,11 +73,11 @@
                         <field name="rejection_reason" readonly="1" invisible="1"/>
                     </group>
                     <notebook>
-                        <page string="Assignments">
-                            <field name="assignment_ids" groups="fleet_management.group_fleet_manager" readonly="state in ['allocated', 'completed', 'cancelled', 'rejected']">
+                        <page string="Assignments" groups="fleet_management.group_fleet_manager">
+                            <field name="assignment_ids" readonly="state in ['allocated', 'completed', 'cancelled', 'rejected']">
                                 <list editable="bottom">
                                     <field name="vehicle_driver_id" column_invisible="1"/>
-                                    <field name="vehicle_id" domain="[('fleet_status', '=', 'available'), ('current_driver_id', '!=', False)]" options="{'no_create': True, 'no_create_edit': True}"/>
+                                    <field name="vehicle_id" domain="[('fleet_status', '=', 'available'), ('current_driver_id', '!=', False), ('has_active_request', '=', False)]" options="{'no_create': True, 'no_create_edit': True}"/>
                                     <field name="driver_id" readonly="1" force_save="1" domain="[('id', '=', vehicle_driver_id)]"/>
                                     <field name="assignment_date"/>
                                     <field name="return_date"/>

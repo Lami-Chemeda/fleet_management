@@ -55,6 +55,11 @@ class FleetMaintenanceRequest(models.Model):
         required=True,
         tracking=True,
     )
+    notes = fields.Text(string='Maintenance Notes', tracking=True)
+    
+    attachment_file = fields.Binary(string='Attachment', attachment=True)
+    attachment_filename = fields.Char(string='Attachment Filename')
+    
     rejection_reason = fields.Text(string='Rejection Reason', readonly=True, copy=False, tracking=True)
     service_ids = fields.One2many('fleet.maintenance.service', 'maintenance_request_id', string='Maintenance Services')
     total_service_cost = fields.Monetary(
@@ -156,6 +161,44 @@ class FleetMaintenanceRequest(models.Model):
                 raise ValidationError('Maintenance can only be requested by a registered Fleet Driver.')
             if request.vehicle_id.current_driver_id != request.requested_by_id:
                 raise ValidationError('Drivers can only request maintenance for their assigned vehicle.')
+    def _notify_users(self, users, message):
+        if not self or not users:
+            return
+        self.ensure_one()
+        
+        try:
+            self.message_post(
+                body=message,
+                partner_ids=users.mapped('partner_id').ids,
+            )
+        except Exception as e:
+            pass
+            
+        for user in users:
+            try:
+                self.env['custom.notification'].create({
+                    'title': f'Maintenance Request {self.name} - Status Update',
+                    'user_id': user.id,
+                    'message': message,
+                    'is_read': False,
+                })
+            except Exception as e:
+                pass
+
+    def action_preview_attachment(self):
+        self.ensure_one()
+        if not self.attachment_file:
+            return
+        
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        attachment_url = f"/web/content/{self._name}/{self.id}/attachment_file/{self.attachment_filename}?download=false"
+        
+        return {
+            'type': 'ir.actions.act_url',
+            'url': attachment_url,
+            'target': 'new',
+        }
+
 
     def action_submit(self):
         for request in self:
@@ -163,6 +206,14 @@ class FleetMaintenanceRequest(models.Model):
                 raise ValidationError('Problem Description is required before submitting.')
             request._check_driver_vehicle()
             request.state = 'submitted'
+            # Notify Fleet Manager
+            fleet_manager_group = self.env.ref('fleet_management.group_fleet_manager')
+            fleet_managers = fleet_manager_group.users.filtered(lambda u: u.active)
+            if fleet_managers:
+                request._notify_users(fleet_managers, "New maintenance request pending approval")
+            # Notify Driver
+            if request.requested_by_id and request.requested_by_id.user_id:
+                request._notify_users(request.requested_by_id.user_id, "Your maintenance request has been submitted")
 
     def action_approve(self):
         self._check_fleet_manager()
@@ -170,6 +221,14 @@ class FleetMaintenanceRequest(models.Model):
             if request.vehicle_id.fleet_status == 'retired':
                 raise ValidationError('Retired vehicles cannot be sent for maintenance.')
             request.state = 'approved'
+            # Notify Driver
+            if request.requested_by_id and request.requested_by_id.user_id:
+                request._notify_users(request.requested_by_id.user_id, "Your maintenance request has been approved")
+            # Notify Fleet Managers
+            fleet_manager_group = self.env.ref('fleet_management.group_fleet_manager')
+            fleet_managers = fleet_manager_group.users.filtered(lambda u: u.active)
+            if fleet_managers:
+                request._notify_users(fleet_managers, f"Maintenance request {request.name} approved")
             request.vehicle_id.fleet_status = 'maintenance'
             self.env['fleet.vehicle.history'].create({
                 'vehicle_id': request.vehicle_id.id,
@@ -230,6 +289,14 @@ class FleetMaintenanceRequest(models.Model):
     def action_reject(self):
         self._check_fleet_manager()
         self.write({'state': 'rejected'})
+        # Notify Driver
+        if self.requested_by_id and self.requested_by_id.user_id:
+            self._notify_users(self.requested_by_id.user_id, "Your maintenance request has been rejected")
+        # Notify Fleet Managers
+        fleet_manager_group = self.env.ref('fleet_management.group_fleet_manager')
+        fleet_managers = fleet_manager_group.users.filtered(lambda u: u.active)
+        if fleet_managers:
+            self._notify_users(fleet_managers, f"Maintenance request {self.name} has been rejected")
 
     def action_reset_to_draft(self):
         self._check_fleet_manager()

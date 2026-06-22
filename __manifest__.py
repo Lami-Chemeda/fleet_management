@@ -14,6 +14,7 @@ fuel requests, maintenance requests, external garages, and fleet reports.
         'hr',
         'contacts',
         'fleet',
+        'custom_notification',
         'web',  # Added this line for login template inheritance
     ],
     'data': [

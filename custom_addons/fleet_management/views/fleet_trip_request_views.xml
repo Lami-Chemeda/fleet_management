@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
     <record id="view_fleet_trip_request_list" model="ir.ui.view">
         <field name="name">fleet.trip.request.list</field>
         <field name="model">fleet.trip.request</field>
@@ -28,6 +29,7 @@
                     <button name="action_fleet_approve" type="object" string="Fleet Approve" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'department_approved'"/>
                     <button name="action_allocate" type="object" string="Mark Allocated" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'fleet_approved'"/>
                     <button name="action_finish_trip" type="object" string="Finish Trip" class="btn-primary" groups="fleet_management.group_fleet_user,fleet_management.group_fleet_driver" invisible="not can_execute_current_user"/>
+                    <button name="%(custom_report.action_report_trip_ticket)d" type="action" string="Print Ticket" class="btn-secondary" invisible="not show_print_button"/>
                     <button name="action_open_reject_wizard" type="object" string="Reject" groups="fleet_management.group_department_manager,fleet_management.group_fleet_manager" invisible="not show_reject_button"/>
                     <button name="action_reset_to_draft" type="object" string="Reset To Draft" groups="fleet_management.group_fleet_manager" invisible="state not in ['cancelled', 'rejected']"/>
                     <field name="can_execute_current_user" invisible="1"/>
@@ -35,6 +37,7 @@
                     <field name="can_edit_attachments" invisible="1"/>
                     <field name="is_editable" invisible="1"/>
                     <field name="show_reject_button" invisible="1"/>
+                    <field name="show_print_button" invisible="1"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,submitted,department_approved,fleet_approved,allocated,completed"/>
                 </header>
                 <sheet>

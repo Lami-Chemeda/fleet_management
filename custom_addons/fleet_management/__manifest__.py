@@ -15,6 +15,7 @@ fuel requests, maintenance requests, external garages, and fleet reports.
         'contacts',
         'fleet',
         'custom_notification',
+        'custom_report',
         'web',  # Added this line for login template inheritance
     ],
     'data': [
@@ -35,7 +36,10 @@ fuel requests, maintenance requests, external garages, and fleet reports.
         'views/fleet_fuel_quota_views.xml',
         'views/fleet_report_views.xml',
         'views/fleet_menu_views.xml',
+        'report/trip_assignment_template.xml',
+        'report/trip_assignment_report.xml',
         'views/login_branding_views.xml',
+        
     ],
     'assets': {
         'web.assets_backend': [

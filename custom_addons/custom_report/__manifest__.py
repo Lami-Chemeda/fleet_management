@@ -1,0 +1,19 @@
+{
+    'name': 'Custom Report Layout',
+    'version': '18.0.1.0.0',
+    'author': 'Your Company',
+    'summary': 'Company Report Layouts',
+    'sequence': 1,
+    'description': 'Provides custom report layout for company letterheads.',
+    'category': 'Hidden',
+    'depends': ['base', 'web'],
+    'data': [
+        'report/custom_layout.xml',
+        'report/trip_request_report.xml',
+        'report/fuel_request_report.xml',
+        'report/maintenance_request_report.xml',
+    ],
+    'installable': True,
+    'application': False,
+    'license': 'LGPL-3',
+}

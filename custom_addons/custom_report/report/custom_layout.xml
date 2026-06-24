@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="custom_external_layout">
+            <div class="header" style="padding: 8px 0 0 0;">
+                <div style="text-align: center;">
+                    <img src="/custom_report/static/src/img/company_logo.png"
+                         style="height: 95px; max-width: 180px; object-fit: contain;"
+                         alt="OTECH Logo"/>
+                    <div style="font-size: 27px; font-weight: 900; line-height: 1.1; color: #111; text-transform: uppercase;">
+                        OTECH ENGINEERING
+                    </div>
+                    <div style="font-size: 15px; font-weight: 300; line-height: 1.1; color: #555; text-transform: uppercase;">
+                        AND TECHNOLOGY SOLUTION PLC
+                    </div>
+                </div>
+                <div style="display: table; width: 100%; margin-top: -38px;">
+                    <div style="display: table-cell; width: 34%; vertical-align: bottom;">
+                        <div style="height: 24px; background: linear-gradient(90deg, #211715 0%, #ed1c24 55%, #ffffff 100%); border-bottom: 2px solid #111;"></div>
+                    </div>
+                    <div style="display: table-cell; width: 32%;"></div>
+                    <div style="display: table-cell; width: 34%; vertical-align: bottom;">
+                        <div style="height: 24px; background: linear-gradient(90deg, #ffffff 0%, #ed1c24 45%, #211715 100%); border-bottom: 2px solid #111;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="article o_report_layout_standard"
+                 t-att-data-oe-model="o and o._name"
+                 t-att-data-oe-id="o and o.id"
+                 t-att-data-oe-lang="o and o.env.context.get('lang')"
+                 style="padding: 18mm 0 8mm 0; position: relative;">
+                <div style="position: fixed; top: 105mm; left: 0; right: 0; text-align: center; z-index: 0; opacity: 0.08;">
+                    <img src="/custom_report/static/src/img/company_logo.png"
+                         style="width: 110mm; max-height: 110mm; object-fit: contain;"
+                         alt="Company Logo Background"/>
+                </div>
+                <div style="position: relative; z-index: 1;">
+                    <t t-out="0"/>
+                </div>
+            </div>
+
+            <div class="footer o_standard_footer" style="font-size: 12px; color: #444;">
+                <div style="height: 2px; background: linear-gradient(90deg, #ffffff 0%, #ed1c24 55%, #111111 100%); margin-bottom: 10px;"></div>
+                <div style="display: table; width: 100%;">
+                    <div style="display: table-cell; width: 33%; vertical-align: top; text-align: left;">
+                        <div>+251 90 335 0035</div>
+                        <div>+251 92 017 8296</div>
+                    </div>
+                    <div style="display: table-cell; width: 34%; vertical-align: top; text-align: center;">
+                        <div>www.otech.et</div>
+                        <div>oets@otech.et</div>
+                    </div>
+                    <div style="display: table-cell; width: 33%; vertical-align: top; text-align: right;">
+                        <div>Ayer Tena, Jimma Road</div>
+                    </div>
+                </div>
+                <div style="margin-top: 8px; padding: 7px 0; background: #111; color: #fff; text-align: center; font-size: 10px; font-weight: bold; text-transform: uppercase;">
+                    WE STRIVE TO PROVIDE THE CUTTING-EDGE TECHNOLOGY SOLUTIONS
+                </div>
+            </div>
+        </template>
+    </data>
+</odoo>

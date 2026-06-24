@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_report_fuel_request" model="ir.actions.report">
+            <field name="name">Fuel Request Ticket</field>
+            <field name="model">fleet.fuel.request</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_report.report_fuel_request</field>
+            <field name="report_file">custom_report.report_fuel_request</field>
+            <field name="print_report_name">'Fuel Request - %s' % (object.name)</field>
+        </record>
+
+        <template id="report_fuel_request">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="o" t-value="doc"/>
+                    <t t-call="custom_report.custom_external_layout">
+                        <div class="page">
+                            <h2 class="text-center mb-4">Fuel Request Ticket</h2>
+                            <table class="table table-sm table-bordered mb-4">
+                                <tbody>
+                                    <tr>
+                                        <th style="width: 25%; background-color: #f8f9fa;">Request Number</th>
+                                        <td style="width: 25%;"><span t-field="doc.name"/></td>
+                                        <th style="width: 25%; background-color: #f8f9fa;">Date</th>
+                                        <td style="width: 25%;"><span t-field="doc.request_date"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background-color: #f8f9fa;">Driver</th>
+                                        <td><span t-field="doc.driver_id.name"/></td>
+                                        <th style="background-color: #f8f9fa;">Priority</th>
+                                        <td><span t-field="doc.priority"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background-color: #f8f9fa;">Vehicle</th>
+                                        <td><span t-field="doc.vehicle_id.name"/></td>
+                                        <th style="background-color: #f8f9fa;">Fuel Type</th>
+                                        <td><span t-field="doc.vehicle_fuel_type"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background-color: #f8f9fa;">Requested Qty (L)</th>
+                                        <td><span t-field="doc.requested_quantity"/></td>
+                                        <th style="background-color: #f8f9fa;">Total Issued Qty</th>
+                                        <td><span t-field="doc.total_issued_quantity"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <p><strong>Reason:</strong> <span t-field="doc.reason"/></p>
+
+                            <h3 class="mt-4 mb-3" t-if="doc.issue_ids">Issued Fuel Log</h3>
+                            <table class="table table-sm table-bordered" t-if="doc.issue_ids">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Quantity (Liters)</th>
+                                        <th>Cost</th>
+                                        <th>Issued By</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="doc.issue_ids" t-as="issue">
+                                        <tr>
+                                            <td><span t-field="issue.issue_date"/></td>
+                                            <td><span t-field="issue.issued_quantity"/></td>
+                                            <td><span t-field="issue.cost" t-options='{"widget": "monetary", "display_currency": issue.currency_id}'/></td>
+                                            <td><span t-field="issue.issuer_id.name"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

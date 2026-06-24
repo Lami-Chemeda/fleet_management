@@ -28,6 +28,7 @@
                     <button name="action_send_to_garage" type="object" string="Send To Garage" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'approved'"/>
                     <button name="action_complete" type="object" string="Complete" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'sent_to_garage'"/>
                     <button name="action_close" type="object" string="Close" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'completed'"/>
+                    <button name="%(custom_report.action_report_maintenance_request)d" type="action" string="Print Ticket" class="btn-secondary" invisible="state in ['draft', 'submitted', 'rejected']"/>
                     
                     <!-- Reject button - Hidden after approval (only visible in submitted state) -->
                     <button name="action_open_reject_wizard" type="object" string="Reject" 

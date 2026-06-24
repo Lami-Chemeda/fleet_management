@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_report_maintenance_request" model="ir.actions.report">
+            <field name="name">Maintenance Request Ticket</field>
+            <field name="model">fleet.maintenance.request</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_report.report_maintenance_request</field>
+            <field name="report_file">custom_report.report_maintenance_request</field>
+            <field name="print_report_name">'Maintenance Request - %s' % (object.name)</field>
+        </record>
+
+        <template id="report_maintenance_request">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="o" t-value="doc"/>
+                    <t t-call="custom_report.custom_external_layout">
+                        <div class="page">
+                            <h2 class="text-center mb-4">Maintenance Request Ticket</h2>
+                            <table class="table table-sm table-bordered mb-4">
+                                <tbody>
+                                    <tr>
+                                        <th style="width: 25%; background-color: #f8f9fa;">Request Number</th>
+                                        <td style="width: 25%;"><span t-field="doc.name"/></td>
+                                        <th style="width: 25%; background-color: #f8f9fa;">Date</th>
+                                        <td style="width: 25%;"><span t-field="doc.request_date"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background-color: #f8f9fa;">Vehicle</th>
+                                        <td><span t-field="doc.vehicle_id.name"/></td>
+                                        <th style="background-color: #f8f9fa;">Requested By</th>
+                                        <td><span t-field="doc.requested_by_id.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background-color: #f8f9fa;">Priority</th>
+                                        <td colspan="3"><span t-field="doc.priority"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <div class="mb-4">
+                                <strong>Problem Description:</strong><br/>
+                                <span t-field="doc.problem_description"/>
+                            </div>
+
+                            <h3 class="mt-4 mb-3" t-if="doc.service_ids">Service Records</h3>
+                            <table class="table table-sm table-bordered" t-if="doc.service_ids">
+                                <thead>
+                                    <tr>
+                                        <th>Vendor</th>
+                                        <th>Service Description</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Cost</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="doc.service_ids" t-as="service">
+                                        <tr>
+                                            <td><span t-field="service.vendor_id.name"/></td>
+                                            <td><span t-field="service.service_description"/></td>
+                                            <td><span t-field="service.start_date"/></td>
+                                            <td><span t-field="service.completion_date"/></td>
+                                            <td><span t-field="service.cost" t-options='{"widget": "monetary", "display_currency": service.currency_id}'/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

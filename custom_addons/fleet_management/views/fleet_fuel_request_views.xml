@@ -27,6 +27,7 @@
                     <button name="action_approve" type="object" string="Approve" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'submitted'"/>
                     <button name="action_issue" type="object" string="Mark Issued" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'approved'"/>
                     <button name="action_complete" type="object" string="Complete" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'issued'"/>
+                    <button name="%(custom_report.action_report_fuel_request)d" type="action" string="Print Ticket" class="btn-secondary" invisible="state in ['draft', 'submitted', 'rejected']"/>
                     <button name="action_open_reject_wizard" type="object" string="Reject" 
                             groups="fleet_management.group_fleet_manager" 
                             invisible="state not in ['submitted']"/>

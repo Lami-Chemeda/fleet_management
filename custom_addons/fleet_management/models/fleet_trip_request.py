@@ -105,6 +105,17 @@ class FleetTripRequest(models.Model):
         compute='_compute_show_reject_button',
         help='Determines if reject button should be shown based on state and user role',
     )
+    show_print_button = fields.Boolean(
+        string='Show Print Button',
+        compute='_compute_show_print_button',
+        help='Determines if the print button should be visible',
+    )
+    dept_approved_by_id = fields.Many2one(
+        'res.users', string='Dept. Approved By', readonly=True, copy=False,
+    )
+    fleet_approved_by_id = fields.Many2one(
+        'res.users', string='Fleet Approved By', readonly=True, copy=False,
+    )
 
     @api.depends_context('uid')
     def _compute_can_edit_requester(self):
@@ -155,6 +166,26 @@ class FleetTripRequest(models.Model):
                 request.show_reject_button = True
             else:
                 request.show_reject_button = False
+
+    @api.depends('state', 'assignment_ids.driver_id', 'requester_id')
+    @api.depends_context('uid')
+    def _compute_show_print_button(self):
+        current_employee = self.env.user.employee_id
+        is_fleet_manager = self.env.user.has_group('fleet_management.group_fleet_manager')
+        is_dept_manager = self.env.user.has_group('fleet_management.group_department_manager')
+
+        for request in self:
+            if request.state in ['allocated', 'awaiting_confirmation', 'completed']:
+                assigned_drivers = request.assignment_ids.filtered(
+                    lambda a: a.status in ['assigned', 'returned']
+                ).mapped('driver_id')
+                
+                is_driver = current_employee in assigned_drivers
+                is_requester = request.requester_id == current_employee
+                
+                request.show_print_button = is_driver or is_requester or is_fleet_manager or is_dept_manager
+            else:
+                request.show_print_button = False
 
     @api.model
     def _search(self, domain, offset=0, limit=None, order=None):
@@ -241,7 +272,8 @@ class FleetTripRequest(models.Model):
             'state', 'requester_executed', 'driver_executed', 
             'rejection_reason', 'rejected_by', 'rejected_by_role',
             'attachment_file', 'attachment_filename',
-            'driver_confirmed', 'requester_confirmed'
+            'driver_confirmed', 'requester_confirmed',
+            'dept_approved_by_id', 'fleet_approved_by_id',
         }
         
         fleet_manager_allowed_fields = {
@@ -310,7 +342,10 @@ class FleetTripRequest(models.Model):
             'fleet_management.group_department_manager',
             'Only Department Managers can approve vehicle requests at department level.',
         )
-        self.write({'state': 'department_approved'})
+        self.with_context(skip_state_check=True).write({
+            'state': 'department_approved',
+            'dept_approved_by_id': self.env.user.id,
+        })
         for request in self:
             # Notify requester and department manager
             users = request._get_department_managers()
@@ -325,7 +360,10 @@ class FleetTripRequest(models.Model):
             'fleet_management.group_fleet_manager',
             'Only Fleet Managers can approve vehicle requests for fleet allocation.',
         )
-        self.write({'state': 'fleet_approved'})
+        self.with_context(skip_state_check=True).write({
+            'state': 'fleet_approved',
+            'fleet_approved_by_id': self.env.user.id,
+        })
         for request in self:
             # Notify requester and department manager
             users = request._get_department_managers()

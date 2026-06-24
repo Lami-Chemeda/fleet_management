@@ -359,7 +359,7 @@ class FleetFuelRequest(models.Model):
                 raise ValidationError(
                     f"This vehicle ({request.vehicle_id.name}) cannot request fuel because its fuel type is Electric."
                 )
-        self.write({'state': 'approved'})
+        self.with_context(skip_state_check=True).write({'state': 'approved'})
         for request in self:
             # Notify Driver
             if request.driver_id and request.driver_id.user_id:

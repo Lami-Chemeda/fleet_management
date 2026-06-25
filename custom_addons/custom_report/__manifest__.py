@@ -6,7 +6,9 @@
     'sequence': 1,
     'description': 'Provides custom report layout for company letterheads.',
     'category': 'Hidden',
-    'depends': ['base', 'web'],
+    'depends': ['base', 
+                'fleet_management',
+                'web'],
     'data': [
         'report/custom_layout.xml',
         'report/trip_request_report.xml',

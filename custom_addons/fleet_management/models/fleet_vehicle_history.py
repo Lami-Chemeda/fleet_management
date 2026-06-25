@@ -35,7 +35,7 @@ class FleetVehicleHistory(models.Model):
     )
     chassis_number = fields.Char(
         string='VIN / Chassis Number',
-        related='vehicle_id.chassis_number',
+        related='vehicle_id.vin_sn',
         store=True,
         readonly=True,
     )

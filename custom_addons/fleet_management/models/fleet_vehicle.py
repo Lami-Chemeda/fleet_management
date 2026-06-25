@@ -5,7 +5,7 @@ from odoo.exceptions import AccessError, ValidationError
 class FleetVehicle(models.Model):
     _inherit = 'fleet.vehicle'
 
-    chassis_number = fields.Char(string='VIN / Chassis Number', required=False, copy=False, index=True)
+
     engine_number = fields.Char(string='Engine Number', copy=False)
     ownership_type = fields.Selection(
         [
@@ -71,13 +71,7 @@ class FleetVehicle(models.Model):
         
         return []
 
-    _sql_constraints = [
-        (
-            'fleet_vehicle_chassis_number_unique',
-            'unique(chassis_number)',
-            'The VIN / Chassis Number must be unique for each vehicle.',
-        ),
-    ]
+    _sql_constraints = []
 
     @api.constrains('registration_date', 'create_date')
     def _check_registration_dates(self):
@@ -113,7 +107,7 @@ class FleetVehicle(models.Model):
             'name',
             'license_plate',
             'model_id',
-            'chassis_number',
+
             'engine_number',
             'ownership_type',
             'registration_certificate_number',

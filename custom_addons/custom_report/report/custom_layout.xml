@@ -14,12 +14,12 @@
         </template>
 
         <record id="fleet_management_report_temp" model="ir.actions.report">
-            <field name="name">Fleet Management Report</field>
-            <field name="model">fleet.management</field>
+            <field name="name">Fleet.Management Report</field>
+            <field name="model">fleet.vehicle</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">custom_report.fleet_management_report_template</field>
             <field name="print_report_name">'Fleet-Management-Report'</field>
-            <field name="binding_model_id" ref="fleet_management.model_fleet_management"/>
+            <field name="binding_model_id" ref="fleet.model_fleet_vehicle"/>
         </record>
 
     </data>

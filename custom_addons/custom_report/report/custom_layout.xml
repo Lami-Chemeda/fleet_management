@@ -17,7 +17,7 @@
             <field name="name">Fleet Management Report</field>
             <field name="model">fleet.management</field>
             <field name="report_type">qweb-pdf</field>
-            <field name="report_name">your_module_name.fleet_management_report_template</field>
+            <field name="report_name">fleet_management.fleet_management_report_template</field>
             <field name="print_report_name">'Fleet-Management-Report'</field>
             <field name="binding_model_id" ref="fleet_management.model_fleet_management"/>
         </record>

@@ -9,14 +9,12 @@ class FleetFuelQuota(models.Model):
     fuel_type_id = fields.Many2one(
         'fleet.fuel.type',
         string='Fuel Type',
-        required=True,
-        tracking=True
+        required=True
     )
     
     fuel_quota = fields.Float(
         string='Monthly Quota (Liters)', 
         required=True, 
-        tracking=True,
         default=0.0,
         help="Maximum monthly fuel quota per vehicle for this fuel type. Set to 0 for unlimited."
     )

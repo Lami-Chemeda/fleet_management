@@ -16,58 +16,87 @@
                     <t t-set="o" t-value="doc"/>
                     <t t-call="custom_report.custom_external_layout">
                         <div class="page">
-                            <h2 class="text-center mb-4">Fuel Request Ticket</h2>
-                            <table class="table table-sm table-bordered mb-4">
-                                <tbody>
-                                    <tr>
-                                        <th style="width: 25%; background-color: #f8f9fa;">Request Number</th>
-                                        <td style="width: 25%;"><span t-field="doc.name"/></td>
-                                        <th style="width: 25%; background-color: #f8f9fa;">Date</th>
-                                        <td style="width: 25%;"><span t-field="doc.request_date"/></td>
-                                    </tr>
-                                    <tr>
-                                        <th style="background-color: #f8f9fa;">Driver</th>
-                                        <td><span t-field="doc.driver_id.name"/></td>
-                                        <th style="background-color: #f8f9fa;">Priority</th>
-                                        <td><span t-field="doc.priority"/></td>
-                                    </tr>
-                                    <tr>
-                                        <th style="background-color: #f8f9fa;">Vehicle</th>
-                                        <td><span t-field="doc.vehicle_id.name"/></td>
-                                        <th style="background-color: #f8f9fa;">Fuel Type</th>
-                                        <td><span t-field="doc.vehicle_fuel_type"/></td>
-                                    </tr>
-                                    <tr>
-                                        <th style="background-color: #f8f9fa;">Requested Qty (L)</th>
-                                        <td><span t-field="doc.requested_quantity"/></td>
-                                        <th style="background-color: #f8f9fa;">Total Issued Qty</th>
-                                        <td><span t-field="doc.total_issued_quantity"/></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            
-                            <p><strong>Reason:</strong> <span t-field="doc.reason"/></p>
+                            <h2 style="text-align: center; margin: 16px 0; font-size: 17px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">Fuel Request Ticket</h2>
 
-                            <h3 class="mt-4 mb-3" t-if="doc.issue_ids">Issued Fuel Log</h3>
-                            <table class="table table-sm table-bordered" t-if="doc.issue_ids">
+                            <!-- Main Info Table -->
+                            <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 16px;">
+                                <tr>
+                                    <td style="width: 25%; background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Request Number</td>
+                                    <td style="width: 25%; padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.name"/></td>
+                                    <td style="width: 25%; background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Request Date</td>
+                                    <td style="width: 25%; padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.request_date"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Driver</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.driver_id.name"/></td>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Priority</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.priority"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Vehicle</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.vehicle_id.name"/></td>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Fuel Type</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.vehicle_fuel_type"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Issue Date</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.issue_date"/></td>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Issuer</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.issuer_id.name"/></td>
+                                </tr>
+                                <tr t-if="doc.reason">
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Reason</td>
+                                    <td colspan="3" style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.reason"/></td>
+                                </tr>
+                            </table>
+
+                            <!-- Product Details Table -->
+                            <h3 style="font-size: 14px; font-weight: bold; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.5px;">Product Details</h3>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px;">
                                 <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Quantity (Liters)</th>
-                                        <th>Cost</th>
-                                        <th>Issued By</th>
+                                    <tr style="background-color: #f0f0f0;">
+                                        <th style="padding: 7px 10px; border: 1px solid #ccc; text-align: left; font-weight: bold;">Product Name</th>
+                                        <th style="padding: 7px 10px; border: 1px solid #ccc; text-align: left; font-weight: bold;">Product Type</th>
+                                        <th style="padding: 7px 10px; border: 1px solid #ccc; text-align: left; font-weight: bold;">Unit of Measure</th>
+                                        <th style="padding: 7px 10px; border: 1px solid #ccc; text-align: left; font-weight: bold;">Requested Qty</th>
+                                        <th style="padding: 7px 10px; border: 1px solid #ccc; text-align: left; font-weight: bold;">Issued Qty</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <t t-foreach="doc.issue_ids" t-as="issue">
-                                        <tr>
-                                            <td><span t-field="issue.issue_date"/></td>
-                                            <td><span t-field="issue.issued_quantity"/></td>
-                                            <td><span t-field="issue.cost" t-options='{"widget": "monetary", "display_currency": issue.currency_id}'/></td>
-                                            <td><span t-field="issue.issuer_id.name"/></td>
-                                        </tr>
-                                    </t>
+                                    <tr>
+                                        <td style="padding: 7px 10px; border: 1px solid #ccc;"><span t-field="doc.product_name"/></td>
+                                        <td style="padding: 7px 10px; border: 1px solid #ccc;"><span t-field="doc.product_type"/></td>
+                                        <td style="padding: 7px 10px; border: 1px solid #ccc;"><span t-field="doc.uom_id.name"/></td>
+                                        <td style="padding: 7px 10px; border: 1px solid #ccc;"><span t-field="doc.requested_quantity"/></td>
+                                        <td style="padding: 7px 10px; border: 1px solid #ccc; font-weight: bold;"><span t-field="doc.issued_quantity"/></td>
+                                    </tr>
                                 </tbody>
+                            </table>
+
+                            <!-- Signature / Authorization Section -->
+                            <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 30px;">
+                                <tr>
+                                    <td style="width: 50%; padding: 12px 15px; border: 1px solid #ccc; vertical-align: top;">
+                                        <div style="font-weight: bold; font-size: 13px; margin-bottom: 4px;">Authorized by</div>
+                                        <div style="font-size: 11px; color: #666; margin-bottom: 8px;">Department Manager</div>
+                                        <div t-if="doc.dept_authorized_by_id" style="font-weight: bold; font-size: 13px; margin-bottom: 4px;">
+                                            <span t-field="doc.dept_authorized_by_id.name"/>
+                                        </div>
+                                        <!-- Blank space for signature -->
+                                        <div style="height: 50px;"/>
+                                        <div style="border-top: 1px solid #aaa; padding-top: 4px; font-size: 11px; color: #999;">Signature / Name</div>
+                                    </td>
+                                    <td style="width: 50%; padding: 12px 15px; border: 1px solid #ccc; vertical-align: top;">
+                                        <div style="font-weight: bold; font-size: 13px; margin-bottom: 4px;">Approved by</div>
+                                        <div style="font-size: 11px; color: #666; margin-bottom: 8px;">Fleet Manager</div>
+                                        <div t-if="doc.fleet_approved_by_id" style="font-weight: bold; font-size: 13px; margin-bottom: 4px;">
+                                            <span t-field="doc.fleet_approved_by_id.name"/>
+                                        </div>
+                                        <!-- Blank space for signature -->
+                                        <div style="height: 50px;"/>
+                                        <div style="border-top: 1px solid #aaa; padding-top: 4px; font-size: 11px; color: #999;">Signature / Name</div>
+                                    </td>
+                                </tr>
                             </table>
                         </div>
                     </t>

@@ -5,7 +5,7 @@ from odoo.exceptions import AccessError, ValidationError
 class FleetVehicle(models.Model):
     _inherit = 'fleet.vehicle'
 
-    chassis_number = fields.Char(string='VIN / Chassis Number', required=True, copy=False, index=True)
+    chassis_number = fields.Char(string='VIN / Chassis Number', required=False, copy=False, index=True)
     engine_number = fields.Char(string='Engine Number', copy=False)
     ownership_type = fields.Selection(
         [

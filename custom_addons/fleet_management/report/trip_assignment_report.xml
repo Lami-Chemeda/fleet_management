@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_trip_assignment_report" model="ir.actions.report">
+            <field name="name">Trip Assignment</field>
+            <field name="model">fleet.trip.request</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">fleet_management.trip_assignment_template</field>
+            <field name="attachment_use">False</field>
+        </record>
+    </data>
+</odoo>
+

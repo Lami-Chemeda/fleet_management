@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="trip_assignment_template">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <div class="page">
+          <h2>Trip Assignment</h2>
+          <p><strong>Vehicle:</strong> <span t-esc="doc.vehicle_id.name"/></p>
+          <p><strong>Driver:</strong> <span t-esc="doc.driver_id.name"/></p>
+          <p><strong>Start:</strong> <span t-esc="doc.start_date"/></p>
+          <p><strong>End:</strong> <span t-esc="doc.end_date"/></p>
+          <p><strong>Status:</strong> <span t-esc="doc.state"/></p>
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>

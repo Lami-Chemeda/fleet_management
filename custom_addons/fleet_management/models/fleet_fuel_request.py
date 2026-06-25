@@ -49,7 +49,15 @@ class FleetFuelRequest(models.Model):
     )
     
     requester_number = fields.Char(string='Requester Number', compute='_compute_requester_number', store=True)
-    requested_quantity = fields.Float(string='Requested Quantity (Liters)', required=True, tracking=True)
+    product_name = fields.Char(string='Product Name', compute='_compute_product_fields')
+    product_type = fields.Char(string='Product Type', compute='_compute_product_fields')
+    uom_id = fields.Many2one('uom.uom', string='Unit of Measure')
+    requested_quantity = fields.Float(string='Requested Quantity (Liters)', required=True)
+    issued_quantity = fields.Float(string='Issued Quantity', help='Quantity issued after approval')
+    issue_date = fields.Datetime(string='Issue Date', help='Date the fuel was issued')
+    issuer_id = fields.Many2one('res.users', string='Issuer', help='Person who issued the fuel')
+    dept_authorized_by_id = fields.Many2one('res.users', string='Authorized by (Dept. Manager)', help='Department Manager who authorized this request', readonly=True, copy=False)
+    fleet_approved_by_id = fields.Many2one('res.users', string='Approved by (Fleet Manager)', help='Fleet Manager who approved this request', readonly=True, copy=False)
     request_date = fields.Datetime(
         string='Request Date', 
         default=fields.Datetime.now, 
@@ -352,6 +360,17 @@ class FleetFuelRequest(models.Model):
                     f"Remaining quota: {max(0.0, quota_val - total_used)} Liters"
                 )
 
+    def action_dept_authorize(self):
+        """Department Manager authorizes the fuel request."""
+        if not self.env.user.has_group('fleet_management.group_department_manager'):
+            raise AccessError('Only Department Managers can authorize fuel requests.')
+        for request in self:
+            if request.state != 'submitted':
+                raise ValidationError('Only submitted requests can be authorized.')
+        self.with_context(skip_state_check=True).write({
+            'dept_authorized_by_id': self.env.user.id,
+        })
+
     def action_approve(self):
         self._check_fleet_manager()
         for request in self:
@@ -359,7 +378,12 @@ class FleetFuelRequest(models.Model):
                 raise ValidationError(
                     f"This vehicle ({request.vehicle_id.name}) cannot request fuel because its fuel type is Electric."
                 )
-        self.with_context(skip_state_check=True).write({'state': 'approved'})
+        self.with_context(skip_state_check=True).write({
+            'state': 'approved',
+            'issue_date': fields.Datetime.now(),
+            'issuer_id': self.env.user.id,
+            'fleet_approved_by_id': self.env.user.id,
+        })
         for request in self:
             # Notify Driver
             if request.driver_id and request.driver_id.user_id:
@@ -370,6 +394,7 @@ class FleetFuelRequest(models.Model):
             if fleet_managers:
                 request._notify_users(fleet_managers, f"Fuel request {request.name} approved")
 
+
     def action_issue(self):
         self._check_fleet_manager()
         for request in self:
@@ -377,9 +402,7 @@ class FleetFuelRequest(models.Model):
                 raise ValidationError(
                     f"This vehicle ({request.vehicle_id.name}) cannot request fuel because its fuel type is Electric."
                 )
-            if not request.issue_ids:
-                raise ValidationError('Please create at least one fuel issue before marking as issued.')
-            request.state = 'issued'
+            request.with_context(skip_state_check=True).write({'state': 'issued'})
 
     def action_complete(self):
         self._check_fleet_manager()
@@ -558,10 +581,14 @@ class FleetFuelRequest(models.Model):
     @api.depends('driver_id')
     def _compute_requester_number(self):
         for request in self:
-            if request.driver_id:
-                request.requester_number = request.driver_id.mobile_phone or request.driver_id.driver_license_number or ''
-            else:
-                request.requester_number = ''
+            request.requester_number = request.driver_id.user_id.id
+
+    @api.depends('vehicle_fuel_type')
+    def _compute_product_fields(self):
+        for request in self:
+            request.product_name = 'Fuel'
+            request.product_type = request.vehicle_fuel_type or ''
+
 
     @api.model
     def default_get(self, fields_list):
@@ -592,6 +619,10 @@ class FleetFuelRequest(models.Model):
 
     @api.model
     def write(self, vals):
+        # Allow skip_state_check context to bypass restrictions (used internally by approve/issue actions)
+        if self.env.context.get('skip_state_check'):
+            return super().write(vals)
+
         if 'request_date' in vals:
             raise AccessError('Request Date cannot be modified. It is auto-set when the request is created.')
         
@@ -602,16 +633,21 @@ class FleetFuelRequest(models.Model):
         if 'fuel_type_id' in vals:
             raise AccessError('Fuel Type cannot be modified manually. It is auto-filled from the vehicle.')
         
-        is_driver = not self.env.user.has_group('fleet_management.group_fleet_manager')
-        
-        if is_driver:
-            editable_fields = ['requested_quantity', 'priority', 'reason']
-            if any(field in vals for field in editable_fields):
+        # Fleet managers can freely update issue_date, issuer_id, issued_quantity, state
+        is_fleet_manager = self.env.user.has_group('fleet_management.group_fleet_manager') or self.env.is_superuser()
+        fleet_manager_fields = {'state', 'issue_date', 'issuer_id', 'issued_quantity', 'uom_id'}
+
+        if is_fleet_manager:
+            # For fleet managers, only restrict changes to draft-only fields when record is not draft
+            draft_only_fields = ['requested_quantity', 'priority', 'reason']
+            restricted_vals = {k: v for k, v in vals.items() if k in draft_only_fields}
+            if restricted_vals:
                 non_draft_records = self.filtered(lambda r: r.state != 'draft')
                 if non_draft_records:
-                    raise AccessError('You can only modify fields when the request is in Draft state.')
+                    raise AccessError('You can only modify these fields when the request is in Draft state.')
         else:
-            editable_fields = ['requested_quantity', 'priority', 'reason']
+            # Drivers can only edit limited fields in draft
+            editable_fields = ['requested_quantity', 'priority', 'reason', 'uom_id']
             if any(field in vals for field in editable_fields):
                 non_draft_records = self.filtered(lambda r: r.state != 'draft')
                 if non_draft_records:

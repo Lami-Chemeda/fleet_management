@@ -17,6 +17,7 @@ fuel requests, maintenance requests, external garages, and fleet reports.
         'custom_notification',
         'custom_report',
         'web',  # Added this line for login template inheritance
+        'uom',  # Added for uom.uom used in fuel requests
     ],
     'data': [
         'security/security.xml',

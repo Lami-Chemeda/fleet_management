@@ -25,9 +25,9 @@
                 <header>
                     <button name="action_submit" type="object" string="Submit" class="btn-primary"
                             groups="fleet_management.group_fleet_driver" invisible="state != 'draft'"/>
-                    <!-- Department Manager: Authorize button (renamed from "Department Approve") -->
+                    <!-- Department Manager: Authorize button -->
                     <button name="action_dept_authorize" type="object" string="Authorize" class="btn-primary"
-                            groups="fleet_management.group_department_manager" invisible="state != 'submitted'"/>
+                            groups="fleet_management.group_department_manager" invisible="state != 'submitted' or is_manager"/>
                     <button name="action_approve" type="object" string="Approve" class="btn-primary"
                             groups="fleet_management.group_fleet_manager" invisible="state != 'submitted'"/>
                     <button name="action_issue" type="object" string="Mark Issued" class="btn-primary"
@@ -130,22 +130,7 @@
                         </div>
                     </group>
 
-                    <!-- Signature / Authorization Section below table -->
-         <group>
-    <!-- Header and Subtitle -->
-    <div style="font-weight:bold;">Approved by</div>
-    <div>Fleet Manager</div>
-    
-    <!-- Blankspace for signing (with structural height) -->
-    <div style="height:50px; margin-top:10px;">
-        <field name="fleet_approved_by_id" readonly="1" nolabel="1" invisible="not fleet_approved_by_id"/>
-    </div>
-    
-    <!-- Signature Line and Disabled Text -->
-    <div style="width:250px; border-top:1px solid #999; padding-top:4px;">
-        <span style="color:#999; font-size:11px;">Signature / Name</span>
-    </div>
-</group>
+                    <!-- Signature removed from form view as per request -->
 
 
 

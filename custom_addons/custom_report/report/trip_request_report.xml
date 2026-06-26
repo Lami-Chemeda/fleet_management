@@ -14,7 +14,7 @@
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
                     <t t-set="o" t-value="doc"/>
-                    <t t-call="custom_report.custom_external_layout">
+                    <t t-call="web.external_layout">
                         <div class="page">
                             <h2 style="text-align: center; margin: 16px 0; font-size: 17px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">Trip Ticket</h2>
 
@@ -81,7 +81,7 @@
                                 </t>
 
                                 <tr>
-                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Approved By<br/><span style="font-weight: normal; font-size: 11px; color: #888;">Department Manager</span></td>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Authorized By<br/><span style="font-weight: normal; font-size: 11px; color: #888;">Department Manager</span></td>
                                     <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.dept_approved_by_id.name"/></td>
                                 </tr>
                                 <tr>
@@ -89,6 +89,31 @@
                                     <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.fleet_approved_by_id.name"/></td>
                                 </tr>
                             </table>
+
+                            <!-- Signature Block placed directly below the table -->
+                            <div style="margin-top: 30px; display: flex; justify-content: space-between;">
+                                <div style="width: 45%;">
+                                    <div style="font-weight: bold;">Authorized by</div>
+                                    <div>Department Manager</div>
+                                    <div style="height: 50px; margin-top: 10px;">
+                                        <span t-field="doc.dept_approved_by_id.name"/>
+                                    </div>
+                                    <div style="border-top: 1px solid #999; padding-top: 4px;">
+                                        <span style="color: #999; font-size: 11px;">Signature</span>
+                                    </div>
+                                </div>
+                                <div style="width: 45%;">
+                                    <div style="font-weight: bold;">Approved by</div>
+                                    <div>Fleet Manager</div>
+                                    <div style="height: 50px; margin-top: 10px;">
+                                        <span t-field="doc.fleet_approved_by_id.name"/>
+                                    </div>
+                                    <div style="border-top: 1px solid #999; padding-top: 4px;">
+                                        <span style="color: #999; font-size: 11px;">Signature</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
                         </div>
                     </t>
                 </t>

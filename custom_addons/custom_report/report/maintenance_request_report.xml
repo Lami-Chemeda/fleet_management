@@ -16,24 +16,41 @@
                     <t t-set="o" t-value="doc"/>
                     <t t-call="web.external_layout">
                         <div class="page">
-                            <table class="table table-sm table-bordered mb-4">
+                            <h2 style="text-align: center; margin: 16px 0; font-size: 17px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">MAINTENANCE TICKET</h2>
+
+                            <table class="table table-sm table-bordered mb-4" style="width: 100%; border-collapse: collapse; font-size: 13px;">
                                 <tbody>
                                     <tr>
-                                        <th style="width: 25%; background-color: #f8f9fa;">Request Number</th>
-                                        <td style="width: 25%;"><span t-field="doc.name"/></td>
-                                        <th style="width: 25%; background-color: #f8f9fa;">Date</th>
-                                        <td style="width: 25%;"><span t-field="doc.request_date"/></td>
+                                        <th style="width: 25%; background-color: #f8f9fa; padding: 7px 10px;">Request Number</th>
+                                        <td style="width: 25%; padding: 7px 10px;"><span t-field="doc.name"/></td>
+                                        <th style="width: 25%; background-color: #f8f9fa; padding: 7px 10px;">Date</th>
+                                        <td style="width: 25%; padding: 7px 10px;"><span t-field="doc.request_date"/></td>
                                     </tr>
                                     <tr>
-                                        <th style="background-color: #f8f9fa;">Vehicle</th>
-                                        <td><span t-field="doc.vehicle_id.name"/></td>
-                                        <th style="background-color: #f8f9fa;">Requested By</th>
-                                        <td><span t-field="doc.requested_by_id.name"/></td>
+                                        <th style="background-color: #f8f9fa; padding: 7px 10px;">Vehicle</th>
+                                        <td style="padding: 7px 10px;"><span t-field="doc.vehicle_id.name"/></td>
+                                        <th style="background-color: #f8f9fa; padding: 7px 10px;">Requested By</th>
+                                        <td style="padding: 7px 10px;"><span t-field="doc.requested_by_id.name"/></td>
                                     </tr>
                                     <tr>
-                                        <th style="background-color: #f8f9fa;">Priority</th>
-                                        <td colspan="3"><span t-field="doc.priority"/></td>
+                                        <th style="background-color: #f8f9fa; padding: 7px 10px;">Priority</th>
+                                        <td colspan="3" style="padding: 7px 10px;"><span t-field="doc.priority"/></td>
                                     </tr>
+                                    <!-- Service Records inside the same table -->
+                                    <t t-foreach="doc.service_ids" t-as="service">
+                                        <tr>
+                                            <th style="background-color: #f8f9fa; padding: 7px 10px; font-weight: normal;">Vendor</th>
+                                            <td style="padding: 7px 10px;"><span t-field="service.vendor_id.name"/></td>
+                                            <th style="background-color: #f8f9fa; padding: 7px 10px; font-weight: normal;">Service Description</th>
+                                            <td style="padding: 7px 10px;"><span t-field="service.service_description"/></td>
+                                        </tr>
+                                        <tr>
+                                            <th style="background-color: #f8f9fa; padding: 7px 10px; font-weight: normal;">Start Date</th>
+                                            <td style="padding: 7px 10px;"><span t-field="service.start_date"/></td>
+                                            <th style="background-color: #f8f9fa; padding: 7px 10px; font-weight: normal;">End Date</th>
+                                            <td style="padding: 7px 10px;"><span t-field="service.completion_date"/></td>
+                                        </tr>
+                                    </t>
                                 </tbody>
                             </table>
                             
@@ -42,29 +59,17 @@
                                 <span t-field="doc.problem_description"/>
                             </div>
 
-                            <h3 class="mt-4 mb-3" t-if="doc.service_ids">Service Records</h3>
-                            <table class="table table-sm table-bordered" t-if="doc.service_ids">
-                                <thead>
-                                    <tr>
-                                        <th>Vendor</th>
-                                        <th>Service Description</th>
-                                        <th>Start Date</th>
-                                        <th>End Date</th>
-                                        <th>Cost</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="doc.service_ids" t-as="service">
-                                        <tr>
-                                            <td><span t-field="service.vendor_id.name"/></td>
-                                            <td><span t-field="service.service_description"/></td>
-                                            <td><span t-field="service.start_date"/></td>
-                                            <td><span t-field="service.completion_date"/></td>
-                                            <td><span t-field="service.cost" t-options='{"widget": "monetary", "display_currency": service.currency_id}'/></td>
-                                        </tr>
-                                    </t>
-                                </tbody>
-                            </table>
+                            <!-- Signature Section -->
+                            <div style="margin-top: 40px; width: 45%;">
+                                <div style="font-weight: bold; font-size: 13px; margin-bottom: 4px;">Approved by</div>
+                                <div style="font-size: 11px; color: #666; margin-bottom: 8px;">Fleet Manager</div>
+                                <div style="height: 50px; margin-top: 10px;">
+                                    <span t-field="doc.fleet_approved_by_id.name"/>
+                                </div>
+                                <div style="border-top: 1px solid #999; padding-top: 4px; font-size: 11px; color: #999;">
+                                    Signature / Name
+                                </div>
+                            </div>
 
                         </div>
                     </t>
@@ -73,3 +78,4 @@
         </template>
     </data>
 </odoo>
+

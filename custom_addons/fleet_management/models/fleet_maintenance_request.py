@@ -73,6 +73,12 @@ class FleetMaintenanceRequest(models.Model):
         default=lambda self: self.env.company.currency_id,
         required=True,
     )
+    fleet_approved_by_id = fields.Many2one(
+        'res.users', 
+        string='Approved by (Fleet Manager)', 
+        readonly=True, 
+        copy=False
+    )
 
     @api.depends('state')
     def _compute_is_editable(self):
@@ -221,6 +227,7 @@ class FleetMaintenanceRequest(models.Model):
             if request.vehicle_id.fleet_status == 'retired':
                 raise ValidationError('Retired vehicles cannot be sent for maintenance.')
             request.state = 'approved'
+            request.fleet_approved_by_id = self.env.user.id
             # Notify Driver
             if request.requested_by_id and request.requested_by_id.user_id:
                 request._notify_users(request.requested_by_id.user_id, "Your maintenance request has been approved")

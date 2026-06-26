@@ -402,6 +402,19 @@ class FleetFuelRequest(models.Model):
                 raise ValidationError(
                     f"This vehicle ({request.vehicle_id.name}) cannot request fuel because its fuel type is Electric."
                 )
+            if request.issued_quantity <= 0:
+                raise ValidationError("Please set an Issued Quantity greater than zero before marking as issued.")
+                
+            # Auto-create the Fuel Issue record so it shows up in Fuel Consumption reports
+            # Check if one hasn't already been created manually
+            if not request.issue_ids:
+                self.env['fleet.fuel.issue'].create({
+                    'fuel_request_id': request.id,
+                    'issued_quantity': request.issued_quantity,
+                    'issue_date': request.issue_date or fields.Datetime.now(),
+                    'issuer_id': self.env.user.id,
+                })
+                
             request.with_context(skip_state_check=True).write({'state': 'issued'})
 
     def action_complete(self):

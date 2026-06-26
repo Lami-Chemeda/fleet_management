@@ -11,8 +11,26 @@
                 <field name="issued_quantity"/>
                 <field name="issue_date"/>
                 <field name="issuer_id"/>
+                <field name="fleet_approved_by_id" optional="show"/>
                 <field name="cost"/>
             </list>
+        </field>
+    </record>
+
+    <record id="view_fleet_fuel_issue_search" model="ir.ui.view">
+        <field name="name">fleet.fuel.issue.search</field>
+        <field name="model">fleet.fuel.issue</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="vehicle_id"/>
+                <field name="driver_id"/>
+                <field name="fleet_approved_by_id"/>
+                <group expand="0" string="Group By">
+                    <filter string="Vehicle" name="group_by_vehicle" context="{'group_by': 'vehicle_id'}"/>
+                    <filter string="Driver" name="group_by_driver" context="{'group_by': 'driver_id'}"/>
+                    <filter string="Fleet Manager" name="group_by_manager" context="{'group_by': 'fleet_approved_by_id'}"/>
+                </group>
+            </search>
         </field>
     </record>
 

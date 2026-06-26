@@ -11,6 +11,7 @@ class FleetFuelIssue(models.Model):
     fuel_request_id = fields.Many2one('fleet.fuel.request', string='Fuel Request', required=True, ondelete='cascade', tracking=True)
     vehicle_id = fields.Many2one('fleet.vehicle', string='Vehicle', related='fuel_request_id.vehicle_id', store=True, readonly=True)
     driver_id = fields.Many2one('hr.employee', string='Driver', related='fuel_request_id.driver_id', store=True, readonly=True)
+    fleet_approved_by_id = fields.Many2one('res.users', string='Approved by (Fleet Manager)', related='fuel_request_id.fleet_approved_by_id', store=True, readonly=True)
     issued_quantity = fields.Float(string='Issued Quantity', required=True, tracking=True)
     issue_date = fields.Datetime(string='Issue Date', default=fields.Datetime.now, required=True, tracking=True)
     issuer_id = fields.Many2one('res.users', string='Issuer', default=lambda self: self.env.user, required=True, tracking=True)

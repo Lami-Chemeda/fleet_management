@@ -37,8 +37,6 @@
                         </group>
                         <group string="Registration">
                             <field name="vin_sn"/>
-                            <field name="vin_sn"/>
-                            <field name="vin_sn"/>
                             <field name="registration_certificate_number"/>
                             <field name="registration_date"/>
                             <field name="acquisition_date"/>

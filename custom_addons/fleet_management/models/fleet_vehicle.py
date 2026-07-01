@@ -34,8 +34,9 @@ class FleetVehicle(models.Model):
     current_driver_id = fields.Many2one('hr.employee', string='Current Driver', tracking=True)
     current_odometer = fields.Float(string='Current Odometer')
     special_case = fields.Boolean(string='Special Case', default=False, tracking=True)
+    seat_count = fields.Integer(string='Seat Count', tracking=True, help='Number of seats in the vehicle')
     
-    custom_fuel_type_id = fields.Many2one('fleet.fuel.type', string='Fuel Type', tracking=True)
+    custom_fuel_type_id = fields.Many2one('fleet.fuel.type', string='Fuel Category', tracking=True)
     has_active_request = fields.Boolean(
         string='Has Active Request',
         compute='_compute_has_active_request',

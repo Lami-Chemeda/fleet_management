@@ -33,12 +33,6 @@
         <field name="domain">[('is_fleet_driver', '=', True)]</field>
     </record>
 
-    <record id="action_fleet_fuel_type" model="ir.actions.act_window">
-        <field name="name">Fuel Types</field>
-        <field name="res_model">fleet.fuel.type</field>
-        <field name="view_mode">list,form</field>
-    </record>
-
     <!-- ======================================================== -->
     <!-- MENUS                                                    -->
     <!-- ======================================================== -->
@@ -75,19 +69,17 @@
               sequence="15"/>
 
     <!-- ======================================================== -->
-    <!-- Trip Management (Fleet Manager, Department Manager, Driver, Fleet User) -->
+    <!-- REST OF YOUR MENUS                                       -->
     <!-- ======================================================== -->
     <menuitem id="menu_fleet_management_trip"
               name="Trip Management"
               parent="menu_fleet_management_root"
-              groups="fleet_management.group_fleet_manager,fleet_management.group_department_manager,fleet_management.group_fleet_driver,fleet_management.group_fleet_user"
               sequence="20"/>
 
     <menuitem id="menu_fleet_management_trip_requests"
               name="Vehicle Requests"
               parent="menu_fleet_management_trip"
               action="action_fleet_trip_request"
-              groups="fleet_management.group_fleet_manager,fleet_management.group_department_manager,fleet_management.group_fleet_driver,fleet_management.group_fleet_user"
               sequence="10"/>
 
     <menuitem id="menu_fleet_management_assignments"
@@ -97,9 +89,6 @@
               groups="fleet_management.group_fleet_manager,fleet_management.group_department_manager,fleet_management.group_fleet_driver"
               sequence="20"/>
 
-    <!-- ======================================================== -->
-    <!-- Fuel Management (Fleet Manager, Driver) -->
-    <!-- ======================================================== -->
     <menuitem id="menu_fleet_management_fuel"
               name="Fuel Management"
               parent="menu_fleet_management_root"
@@ -110,7 +99,6 @@
               name="Fuel Requests"
               parent="menu_fleet_management_fuel"
               action="action_fleet_fuel_request"
-              groups="fleet_management.group_fleet_manager,fleet_management.group_fleet_driver"
               sequence="10"/>
 
     <menuitem id="menu_fleet_management_fuel_issues"
@@ -126,6 +114,19 @@
               groups="base.group_system"
               sequence="30"/>
 
+    <record id="action_fleet_fuel_type" model="ir.actions.act_window">
+        <field name="name">Fuel Types</field>
+        <field name="res_model">fleet.fuel.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_fleet_management_fuel_quotas"
+              name="Fuel Quotas"
+              parent="menu_fleet_management_fuel_configuration"
+              action="action_fleet_fuel_quota"
+              groups="base.group_system"
+              sequence="10"/>
+
     <menuitem id="menu_fleet_management_fuel_quotas"
               name="Fuel Quotas"
               parent="menu_fleet_management_fuel_configuration"
@@ -140,9 +141,6 @@
               groups="base.group_system"
               sequence="20"/>
 
-    <!-- ======================================================== -->
-    <!-- Maintenance (Fleet Manager, Driver) -->
-    <!-- ======================================================== -->
     <menuitem id="menu_fleet_management_maintenance"
               name="Maintenance"
               parent="menu_fleet_management_root"
@@ -153,7 +151,6 @@
               name="Maintenance Requests"
               parent="menu_fleet_management_maintenance"
               action="action_fleet_maintenance_request"
-              groups="fleet_management.group_fleet_manager,fleet_management.group_fleet_driver"
               sequence="10"/>
 
     <menuitem id="menu_fleet_management_service_records"
@@ -162,5 +159,4 @@
               action="action_fleet_maintenance_service"
               groups="fleet_management.group_fleet_manager"
               sequence="20"/>
-
 </odoo>

@@ -7,7 +7,7 @@
                   name="Fleet Login Branding">
 
             <!-- Welcome Title -->
-            <xpath expr="//div[contains(@class, 'container')]" position="before">
+            <xpath expr="//div[hasclass('container')]" position="before">
                 <div style="text-align:center; margin:20px 0;">
                     <h2 style="color:#007bff; font-weight:bold;">
                         Welcome to Fleet Management System for OTech
@@ -16,7 +16,7 @@
             </xpath>
 
             <!-- Replace Default Logo -->
-            <xpath expr="//div[contains(@class, 'card-body')]//div[contains(@class, 'text-center')][img]"
+            <xpath expr="//div[hasclass('card-body')]//div[hasclass('text-center')][img]"
                    position="replace">
                 <div class="text-center mb-4">
                     <img src="/fleet_management/static/src/img/logo.png"
@@ -30,7 +30,7 @@
             </xpath>
 
             <!-- Hide Footer Links -->
-            <xpath expr="//div[contains(@class, 'card-body')]//div[contains(@class, 'small')]"
+            <xpath expr="//div[hasclass('card-body')]//div[hasclass('small')]"
                    position="replace">
             </xpath>
 

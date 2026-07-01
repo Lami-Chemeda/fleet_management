@@ -411,12 +411,38 @@ class FleetTripRequest(models.Model):
             if driver_users:
                 request._notify_users(driver_users, "You are assigned as driver for this trip")
 
+    def action_request_split(self):
+        self._check_group(
+            'fleet_management.group_fleet_manager',
+            'Only Fleet Managers can request a split.',
+        )
+        for request in self:
+            message = ("No single vehicle has enough seats for your request. "
+                       "Please split your request into two separate trip requests and adjust the number of people.")
+            request.message_post(body=message, message_type='comment', subtype_xmlid='mail.mt_comment')
+            request.write({'state': 'draft'})
+            if request.requester_id and request.requester_id.user_id:
+                request._notify_users(request.requester_id.user_id, message)
+
     def action_complete(self):
         self._check_group(
             'fleet_management.group_fleet_manager',
             'Only Fleet Managers can manually complete a trip.',
         )
         self._complete_trip()
+
+    def action_open_finish_trip_wizard(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Finish Trip Confirmation',
+            'res_model': 'fleet.finish.trip.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_trip_request_id': self.id,
+            },
+        }
 
     def action_finish_trip(self):
         """Handles the Finish Trip button with two-confirmation flow"""
@@ -432,11 +458,11 @@ class FleetTripRequest(models.Model):
                 raise ValidationError('This trip is already completed.')
             
             is_requester = request.requester_id == current_employee
-            
+
             assigned_drivers = request.assignment_ids.filtered(
                 lambda assignment: assignment.status == 'assigned'
             ).mapped('driver_id')
-            
+
             is_driver = current_employee in assigned_drivers
 
             if not is_requester and not is_driver:

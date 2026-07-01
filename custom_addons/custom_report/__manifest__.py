@@ -9,6 +9,7 @@
     'depends': ['base',
     'web'],
     'data': [
+        'views/res_company_views.xml',
         'report/custom_layout.xml',
         'report/trip_request_report.xml',
         'report/fuel_request_report.xml',

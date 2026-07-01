@@ -46,6 +46,7 @@
                         <group string="Operation">
                             <field name="current_driver_id" domain="[('is_fleet_driver', '=', True), ('current_vehicle_ids', '=', False)]" options="{'no_create': True, 'no_create_edit': True}"/>
                             <field name="current_odometer"/>
+                            <field name="seat_count"/>
                         </group>
                     </group>
                 </sheet>

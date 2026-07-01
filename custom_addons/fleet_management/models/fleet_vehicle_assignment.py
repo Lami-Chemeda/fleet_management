@@ -9,11 +9,16 @@ class FleetVehicleAssignment(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     trip_request_id = fields.Many2one('fleet.trip.request', string='Trip Request', required=True, ondelete='cascade', tracking=True)
+    number_of_people_display = fields.Integer(related='trip_request_id.number_of_people', readonly=True)
     vehicle_id = fields.Many2one(
         'fleet.vehicle',
         string='Vehicle',
         required=True,
-        domain="[('fleet_status', '=', 'available'), ('current_driver_id', '!=', False)]",
+        domain="""[
+            ('fleet_status', '=', 'available'), 
+            ('current_driver_id', '!=', False),
+            '|', ('seat_count', '=', 0), ('seat_count', '&gt;=', parent.number_of_people)
+        ]""",
         tracking=True,
     )
     vehicle_driver_id = fields.Many2one(
@@ -69,6 +74,17 @@ class FleetVehicleAssignment(models.Model):
         for assignment in self:
             if assignment.assignment_date and assignment.return_date and assignment.return_date < assignment.assignment_date:
                 raise ValidationError('Return Date must be after Assignment Date.')
+
+    @api.constrains('vehicle_id')
+    def _check_vehicle_seat_capacity(self):
+        for assignment in self:
+            if assignment.vehicle_id and assignment.trip_request_id:
+                vehicle_seats = assignment.vehicle_id.seat_count or 0
+                num_people = assignment.trip_request_id.number_of_people or 0
+                if vehicle_seats > 0 and vehicle_seats < num_people:
+                    raise ValidationError('Selected vehicle has only %s seats, but %s people are going on this trip. Please choose a vehicle with at least %s seats.' % (
+                        vehicle_seats, num_people, num_people
+                    ))
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -169,6 +185,13 @@ class FleetVehicleAssignment(models.Model):
                 raise ValidationError('The assigned driver must match the driver linked to the selected vehicle.')
             if not assignment.driver_id.is_fleet_driver:
                 raise ValidationError('Selected driver must be marked as Fleet Driver.')
+            
+            vehicle_seats = assignment.vehicle_id.seat_count or 0
+            num_people = assignment.trip_request_id.number_of_people or 0
+            if vehicle_seats > 0 and vehicle_seats < num_people:
+                raise ValidationError('Selected vehicle has only %s seats, but %s people are going on this trip. Please choose a vehicle with at least %s seats.' % (
+                    vehicle_seats, num_people, num_people
+                ))
             assignment.status = 'assigned'
             assignment.vehicle_id.fleet_status = 'assigned'
             assignment.vehicle_id.current_driver_id = assignment.driver_id.id

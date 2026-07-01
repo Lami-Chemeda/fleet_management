@@ -31,7 +31,8 @@
                         <group>
                             <field name="trip_request_id" readonly="1"/>
                             <field name="vehicle_driver_id" invisible="1"/>
-                            <field name="vehicle_id" readonly="1" domain="[('fleet_status', '=', 'available'), ('current_driver_id', '!=', False)]" options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="number_of_people_display" invisible="1"/>
+                            <field name="vehicle_id" readonly="1" domain="[('fleet_status', '=', 'available'), ('current_driver_id', '!=', False), ('seat_count', '&gt;=', number_of_people_display)]" options="{'no_create': True, 'no_create_edit': True}"/>
                             <field name="driver_id" readonly="1" force_save="1" domain="[('id', '=', vehicle_driver_id)]"/>
                         </group>
                         <group>

@@ -1,6 +1,7 @@
 from . import fleet_vehicle
 from . import hr_employee
 from . import res_partner
+from . import res_company
 from . import fleet_vehicle_history
 from . import fleet_trip_request
 from . import fleet_vehicle_assignment
@@ -10,5 +11,6 @@ from . import fleet_fuel_quota
 from . import fleet_maintenance_request
 from . import fleet_maintenance_service
 from . import fleet_reject_reason_wizard
+from . import fleet_finish_trip_wizard
 from . import fleet_fuel_type
-
+from . import ir_ui_menu

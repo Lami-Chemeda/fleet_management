@@ -30,3 +30,4 @@ access_fleet_fuel_quota_driver,fleet.fuel.quota.driver,model_fleet_fuel_quota,fl
 access_fleet_fuel_quota_manager,fleet.fuel.quota.manager,model_fleet_fuel_quota,fleet_management.group_fleet_manager,1,1,1,1
 access_fleet_fuel_type_user,fleet.fuel.type.user,model_fleet_fuel_type,fleet_management.group_fleet_user,1,0,0,0
 access_fleet_fuel_type_manager,fleet.fuel.type.manager,model_fleet_fuel_type,fleet_management.group_fleet_manager,1,1,1,1
+access_fleet_finish_trip_wizard_user,fleet.finish.trip.wizard.user,model_fleet_finish_trip_wizard,fleet_management.group_fleet_user,1,1,1,1

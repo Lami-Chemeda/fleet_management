@@ -73,6 +73,11 @@ class HrEmployee(models.Model):
         string='Driver License Copy',
         attachment=True,
     )
+    signature_image = fields.Binary(
+        string='Signature',
+        attachment=True,
+        help='Upload employee signature for reports'
+    )
     driver_license_status = fields.Selection(
         selection=[
             ('valid', 'Valid'),
@@ -469,6 +474,11 @@ class ResUsers(models.Model):
         string='Driver License Copy',
         attachment=True,
     )
+    signature_image = fields.Binary(
+        string='Signature',
+        attachment=True,
+        help='Upload employee signature for reports'
+    )
     driver_license_status = fields.Selection(
         selection=[
             ('valid', 'Valid'),
@@ -595,6 +605,7 @@ class ResUsers(models.Model):
                     'driver_license_expiry_date': user.driver_license_expiry_date,
                     'driver_license_suspended': user.driver_license_suspended,
                     'driver_license_image': user.driver_license_image,
+                    'signature_image': user.signature_image,
                 })
 
     @api.model_create_multi

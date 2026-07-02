@@ -47,20 +47,20 @@ class FleetVehicle(models.Model):
         for vehicle in self:
             active_maint = self.env['fleet.maintenance.request'].search_count([
                 ('vehicle_id', '=', vehicle.id),
-                ('state', 'not in', ['draft', 'completed', 'closed', 'rejected'])
+                ('state', 'not in', ['completed', 'closed', 'rejected'])
             ])
             active_fuel = self.env['fleet.fuel.request'].search_count([
                 ('vehicle_id', '=', vehicle.id),
-                ('state', 'not in', ['draft', 'completed', 'rejected'])
+                ('state', 'not in', ['completed', 'rejected'])
             ])
             vehicle.has_active_request = bool(active_maint or active_fuel)
 
     def _search_has_active_request(self, operator, value):
         active_maint_vehicles = self.env['fleet.maintenance.request'].search([
-            ('state', 'not in', ['draft', 'completed', 'closed', 'rejected'])
+            ('state', 'not in', ['completed', 'closed', 'rejected'])
         ]).mapped('vehicle_id.id')
         active_fuel_vehicles = self.env['fleet.fuel.request'].search([
-            ('state', 'not in', ['draft', 'completed', 'rejected'])
+            ('state', 'not in', ['completed', 'rejected'])
         ]).mapped('vehicle_id.id')
         
         invalid_vehicle_ids = list(set(active_maint_vehicles + active_fuel_vehicles))

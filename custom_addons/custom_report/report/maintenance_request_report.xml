@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_report_maintenance_request" model="ir.actions.report">
+            <field name="name">Maintenance Request Ticket</field>
+            <field name="model">fleet.maintenance.request</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_report.report_maintenance_request</field>
+            <field name="report_file">custom_report.report_maintenance_request</field>
+            <field name="print_report_name">'Maintenance Request - %s' % (object.name)</field>
+        </record>
+
+        <template id="report_maintenance_request">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="o" t-value="doc"/>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <h2 style="text-align: center; margin: 16px 0; font-size: 17px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">MAINTENANCE TICKET</h2>
+
+                            <table class="table table-sm table-bordered mb-4" style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                                <tbody>
+                                    <tr>
+                                        <th style="width: 25%; background-color: #f8f9fa; padding: 7px 10px;">Request Number</th>
+                                        <td style="width: 25%; padding: 7px 10px;"><span t-field="doc.name"/></td>
+                                        <th style="width: 25%; background-color: #f8f9fa; padding: 7px 10px;">Date</th>
+                                        <td style="width: 25%; padding: 7px 10px;"><span t-field="doc.request_date"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background-color: #f8f9fa; padding: 7px 10px;">Vehicle</th>
+                                        <td style="padding: 7px 10px;"><span t-field="doc.vehicle_id.name"/></td>
+                                        <th style="background-color: #f8f9fa; padding: 7px 10px;">Requested By</th>
+                                        <td style="padding: 7px 10px;"><span t-field="doc.requested_by_id.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background-color: #f8f9fa; padding: 7px 10px;">Priority</th>
+                                        <td colspan="3" style="padding: 7px 10px;"><span t-field="doc.priority"/></td>
+                                    </tr>
+                                    <!-- Service Records inside the same table -->
+                                    <t t-foreach="doc.service_ids" t-as="service">
+                                        <tr>
+                                            <th style="background-color: #f8f9fa; padding: 7px 10px; font-weight: normal;">Vendor</th>
+                                            <td style="padding: 7px 10px;"><span t-field="service.vendor_id.name"/></td>
+                                            <th style="background-color: #f8f9fa; padding: 7px 10px; font-weight: normal;">Service Description</th>
+                                            <td style="padding: 7px 10px;"><span t-field="service.service_description"/></td>
+                                        </tr>
+                                        <tr>
+                                            <th style="background-color: #f8f9fa; padding: 7px 10px; font-weight: normal;">Start Date</th>
+                                            <td style="padding: 7px 10px;"><span t-field="service.start_date"/></td>
+                                            <th style="background-color: #f8f9fa; padding: 7px 10px; font-weight: normal;">End Date</th>
+                                            <td style="padding: 7px 10px;"><span t-field="service.completion_date"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                            
+                            <div class="mb-4">
+                                <strong>Problem Description:</strong><br/>
+                                <span t-field="doc.problem_description"/>
+                            </div>
+
+                            <!-- Signature Section -->
+                            <div style="margin-top: 40px; display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div style="width: 48%;">
+                                    <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #333;">Approved by</div>
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 10px;">Fleet Manager</div>
+                                    <t t-if="doc.fleet_approved_by_id.signature_image">
+                                        <img t-att-src="image_data_uri(doc.fleet_approved_by_id.signature_image)" style="max-height: 80px; max-width: 250px;"/>
+                                    </t>
+                                    <div style="height: 60px; border-bottom: 1px solid #333; display: flex; align-items: flex-end; padding-bottom: 5px; margin-top: 10px;">
+                                        <span t-field="doc.fleet_approved_by_id.name" style="font-size: 14px;"/>
+                                    </div>
+                                </div>
+                                
+                                <!-- Stamp Section -->
+                                <div style="width: 48%; text-align: right;">
+                                    <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #333; text-align: right;">Official Stamp</div>
+                                    <t t-if="doc.env.company.company_stamp">
+                                        <img t-att-src="image_data_uri(doc.env.company.company_stamp)" style="max-width: 150px; max-height: 150px; border: 2px solid #ddd;"/>
+                                    </t>
+                                    <t t-else="">
+                                        <div style="display: inline-block; width: 150px; height: 150px; border: 2px dashed #999; position: relative; background-color: #f9f9f9;">
+                                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #999; text-align: center;">
+                                                <div style="font-size: 12px; font-weight: bold;">OFFICIAL</div>
+                                                <div style="font-size: 12px; font-weight: bold;">STAMP</div>
+                                                <div style="font-size: 10px; margin-top: 5px;">(Upload in Company Settings)</div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>
+

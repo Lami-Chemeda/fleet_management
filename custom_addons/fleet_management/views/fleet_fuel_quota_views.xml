@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_fleet_fuel_quota_list" model="ir.ui.view">
+        <field name="name">fleet.fuel.quota.list</field>
+        <field name="model">fleet.fuel.quota</field>
+        <field name="arch" type="xml">
+            <list string="Fuel Type Quota Configurations" editable="bottom">
+                <field name="fuel_type_id"/>
+                <field name="fuel_quota"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fleet_fuel_quota_form" model="ir.ui.view">
+        <field name="name">fleet.fuel.quota.form</field>
+        <field name="model">fleet.fuel.quota</field>
+        <field name="arch" type="xml">
+            <form string="Fuel Type Quota Configuration">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="fuel_type_id" options="{'no_create': True}"/>
+                            <field name="fuel_quota" string="Monthly Quota Per Vehicle (Liters)"/>
+                            <label for="fuel_quota" string="Set 0 for unlimited quota"/>
+                        </group>
+                    </group>
+                    <group string="Information">
+                        <p class="oe_grey">
+                            <em>This quota applies to EACH vehicle using this fuel type. 
+                            Example: If Gasoline quota is 60L, each gasoline vehicle can use 60L per month.
+                            Vehicles marked as "Special Case" have unlimited quota regardless of this setting.
+                            Electric vehicles do not require fuel quotas as they do not use fuel.</em>
+                        </p>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fleet_fuel_quota" model="ir.actions.act_window">
+        <field name="name">Fuel Quotas</field>
+        <field name="res_model">fleet.fuel.quota</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

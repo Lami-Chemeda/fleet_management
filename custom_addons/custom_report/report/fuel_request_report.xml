@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_report_fuel_request" model="ir.actions.report">
+            <field name="name">Fuel Request Ticket</field>
+            <field name="model">fleet.fuel.request</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_report.report_fuel_request</field>
+            <field name="report_file">custom_report.report_fuel_request</field>
+            <field name="print_report_name">'Fuel Request - %s' % (object.name)</field>
+        </record>
+
+        <template id="report_fuel_request">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="o" t-value="doc"/>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <h2 style="text-align: center; margin: 16px 0; font-size: 17px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">Fuel Request Ticket</h2>
+
+                            <!-- Main Info & Product Details Table -->
+                            <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 16px;">
+                                <tr>
+                                    <td style="width: 25%; background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Request Number</td>
+                                    <td style="width: 25%; padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.name"/></td>
+                                    <td style="width: 25%; background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Request Date</td>
+                                    <td style="width: 25%; padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.request_date"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Driver</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.driver_id.name"/></td>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Priority</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.priority"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Vehicle</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.vehicle_id.name"/></td>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Issue Date</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.issue_date"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Issuer</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.issuer_id.name"/></td>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Reason</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.reason"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Product Name</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.product_name"/></td>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Product Type</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.product_type"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Unit of Measure</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.uom_id.name"/></td>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Requested Qty</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.requested_quantity"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Issued Qty</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd; font-weight: bold;"><span t-field="doc.issued_quantity"/></td>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;"></td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"></td>
+                                </tr>
+                            </table>
+
+                            <!-- Signature Section -->
+                            <div style="margin-top: 40px; display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div style="width: 48%;">
+                                    <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #333;">Approved by</div>
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 10px;">Fleet Manager</div>
+                                    <t t-if="doc.fleet_approved_by_id.signature_image">
+                                        <img t-att-src="image_data_uri(doc.fleet_approved_by_id.signature_image)" style="max-height: 80px; max-width: 250px;"/>
+                                    </t>
+                                    <div style="height: 60px; border-bottom: 1px solid #333; display: flex; align-items: flex-end; padding-bottom: 5px; margin-top: 10px;">
+                                        <span t-field="doc.fleet_approved_by_id.name" style="font-size: 14px;"/>
+                                    </div>
+                                </div>
+                                
+                                <!-- Stamp Section -->
+                                <div style="width: 48%; text-align: right;">
+                                    <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #333; text-align: right;">Official Stamp</div>
+                                    <t t-if="doc.env.company.company_stamp">
+                                        <img t-att-src="image_data_uri(doc.env.company.company_stamp)" style="max-width: 150px; max-height: 150px; border: 2px solid #ddd;"/>
+                                    </t>
+                                    <t t-else="">
+                                        <div style="display: inline-block; width: 150px; height: 150px; border: 2px dashed #999; position: relative; background-color: #f9f9f9;">
+                                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #999; text-align: center;">
+                                                <div style="font-size: 12px; font-weight: bold;">OFFICIAL</div>
+                                                <div style="font-size: 12px; font-weight: bold;">STAMP</div>
+                                                <div style="font-size: 10px; margin-top: 5px;">(Upload in Company Settings)</div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

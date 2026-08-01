@@ -25,3 +25,6 @@ access_fleet_maintenance_request_driver,fleet.maintenance.request.driver,model_f
 access_fleet_maintenance_request_manager,fleet.maintenance.request.manager,model_fleet_maintenance_request,fleet_management.group_fleet_manager,1,1,1,1
 access_fleet_maintenance_service_driver,fleet.maintenance.service.driver,model_fleet_maintenance_service,fleet_management.group_fleet_driver,1,0,0,0
 access_fleet_maintenance_service_manager,fleet.maintenance.service.manager,model_fleet_maintenance_service,fleet_management.group_fleet_manager,1,1,1,1
+access_fleet_reject_reason_wizard_user,fleet.reject.reason.wizard.user,model_fleet_reject_reason_wizard,fleet_management.group_fleet_user,1,1,1,1
+access_fleet_fuel_quota_driver,fleet.fuel.quota.driver,model_fleet_fuel_quota,fleet_management.group_fleet_driver,1,0,0,0
+access_fleet_fuel_quota_manager,fleet.fuel.quota.manager,model_fleet_fuel_quota,fleet_management.group_fleet_manager,1,1,1,1

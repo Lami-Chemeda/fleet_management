@@ -1,5 +1,6 @@
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, ValidationError
+from odoo.osv import expression
 
 
 class FleetMaintenanceRequest(models.Model):
@@ -9,6 +10,7 @@ class FleetMaintenanceRequest(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(string='Request Number', required=True, copy=False, readonly=True, default='New')
+    is_manager = fields.Boolean(compute='_compute_is_manager')
     vehicle_id = fields.Many2one('fleet.vehicle', string='Vehicle', required=True, tracking=True)
     requested_by_id = fields.Many2one(
         'hr.employee',
@@ -45,6 +47,7 @@ class FleetMaintenanceRequest(models.Model):
         required=True,
         tracking=True,
     )
+    rejection_reason = fields.Text(string='Rejection Reason', readonly=True, copy=False, tracking=True)
     service_ids = fields.One2many('fleet.maintenance.service', 'maintenance_request_id', string='Maintenance Services')
     total_service_cost = fields.Monetary(
         string='Total Service Cost',
@@ -62,6 +65,23 @@ class FleetMaintenanceRequest(models.Model):
     def _compute_total_service_cost(self):
         for request in self:
             request.total_service_cost = sum(request.service_ids.mapped('cost'))
+
+    @api.model
+    def _search(self, domain, offset=0, limit=None, order=None):
+        """
+        Override search to implement visibility rules:
+        - Fleet Manager: All requests.
+        - Dept Manager: Requests from employees in their department.
+        - Regular User: Own maintenance requests only.
+        """
+        if not self.env.su and not self.env.user.has_group('fleet_management.group_fleet_manager'):
+            user_employee = self.env.user.employee_id
+            if self.env.user.has_group('fleet_management.group_department_manager') and user_employee.department_id:
+                domain = expression.AND([domain, [('requested_by_id.department_id', '=', user_employee.department_id.id)]])
+            else:
+                domain = expression.AND([domain, [('requested_by_id.user_id', '=', self.env.uid)]])
+        
+        return super()._search(domain, offset=offset, limit=limit, order=order)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -141,6 +161,20 @@ class FleetMaintenanceRequest(models.Model):
                 'odometer': request.vehicle_id.current_odometer,
             })
 
+    def action_open_reject_wizard(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Reject Request',
+            'res_model': 'fleet.reject.reason.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_request_model': self._name,
+                'default_request_id': self.id,
+            },
+        }
+
     def action_reject(self):
         self._check_fleet_manager()
         self.write({'state': 'rejected'})
@@ -148,3 +182,19 @@ class FleetMaintenanceRequest(models.Model):
     def action_reset_to_draft(self):
         self._check_fleet_manager()
         self.write({'state': 'draft'})
+
+    @api.depends_context('uid')
+    def _compute_is_manager(self):
+        for request in self:
+            request.is_manager = self.env.user.has_group('fleet_management.group_fleet_manager')
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        employee = self.env.user.employee_id
+        if employee:
+            vehicle = self.env['fleet.vehicle'].search([('current_driver_id', '=', employee.id)], limit=1)
+            if vehicle:
+                if 'vehicle_id' in fields_list and not res.get('vehicle_id'):
+                    res['vehicle_id'] = vehicle.id
+        return res

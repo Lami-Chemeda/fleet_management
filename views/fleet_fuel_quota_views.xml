@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_fleet_fuel_quota_list" model="ir.ui.view">
+        <field name="name">fleet.fuel.quota.list</field>
+        <field name="model">fleet.fuel.quota</field>
+        <field name="arch" type="xml">
+            <list string="Fuel Quota Configurations" editable="bottom">
+                <field name="vehicle_id"/>
+                <field name="fuel_quota"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fleet_fuel_quota_form" model="ir.ui.view">
+        <field name="name">fleet.fuel.quota.form</field>
+        <field name="model">fleet.fuel.quota</field>
+        <field name="arch" type="xml">
+            <form string="Fuel Quota Configuration">
+                <sheet>
+                    <group>
+                        <field name="vehicle_id"/>
+                        <field name="fuel_quota"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fleet_fuel_quota" model="ir.actions.act_window">
+        <field name="name">Fuel Quotas</field>
+        <field name="res_model">fleet.fuel.quota</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_report_trip_ticket" model="ir.actions.report">
+            <field name="name">Trip Ticket</field>
+            <field name="model">fleet.trip.request</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_report.report_trip_ticket</field>
+            <field name="report_file">custom_report.report_trip_ticket</field>
+            <field name="print_report_name">'Trip Ticket - %s' % (object.name)</field>
+        </record>
+
+        <template id="report_trip_ticket">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="o" t-value="doc"/>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <h2 style="text-align: center; margin: 16px 0; font-size: 17px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">Trip Ticket</h2>
+
+                            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                                <tr>
+                                    <td style="width: 35%; background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Request Number</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.name"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Requester</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.requester_id.name"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Department</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.department_id.name"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Start Place</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.start_place"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Destination</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.destination"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Request Date</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.request_date"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Start Date</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.start_date"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">End Date</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.end_date"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Number of People</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.number_of_people"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Purpose</td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.purpose"/></td>
+                                </tr>
+
+                                <!-- Vehicle & Driver rows (no header row) -->
+                                <t t-foreach="doc.assignment_ids" t-as="assignment">
+                                    <tr>
+                                        <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Vehicle</td>
+                                        <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="assignment.vehicle_id.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">License Plate</td>
+                                        <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="assignment.vehicle_id.license_plate"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Driver</td>
+                                        <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="assignment.driver_id.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Assignment Date</td>
+                                        <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="assignment.assignment_date"/></td>
+                                    </tr>
+                                </t>
+
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Authorized By<br/><span style="font-weight: normal; font-size: 11px; color: #888;">Department Manager</span></td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.dept_approved_by_id.name"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f5f5f5; font-weight: bold; padding: 7px 10px; border: 1px solid #ddd;">Approved By<br/><span style="font-weight: normal; font-size: 11px; color: #888;">Fleet Manager</span></td>
+                                    <td style="padding: 7px 10px; border: 1px solid #ddd;"><span t-field="doc.fleet_approved_by_id.name"/></td>
+                                </tr>
+                            </table>
+
+                            <!-- Signature Block placed directly below the table -->
+                            <div style="margin-top: 40px; display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div style="width: 48%;">
+                                    <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #333;">Authorized by</div>
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 10px;">Department Manager</div>
+                                    <t t-if="doc.dept_approved_by_id.signature_image">
+                                        <img t-att-src="image_data_uri(doc.dept_approved_by_id.signature_image)" style="max-height: 80px; max-width: 250px;"/>
+                                    </t>
+                                    <div style="height: 60px; border-bottom: 1px solid #333; display: flex; align-items: flex-end; padding-bottom: 5px; margin-top: 10px;">
+                                        <span t-field="doc.dept_approved_by_id.name" style="font-size: 14px;"/>
+                                    </div>
+                                </div>
+                                
+                                <!-- Stamp Section -->
+                                <div style="width: 48%; text-align: right;">
+                                    <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #333; text-align: right;">Official Stamp</div>
+                                    <t t-if="doc.env.company.company_stamp">
+                                        <img t-att-src="image_data_uri(doc.env.company.company_stamp)" style="max-width: 150px; max-height: 150px; border: 2px solid #ddd;"/>
+                                    </t>
+                                    <t t-else="">
+                                        <div style="display: inline-block; width: 150px; height: 150px; border: 2px dashed #999; position: relative; background-color: #f9f9f9;">
+                                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #999; text-align: center;">
+                                                <div style="font-size: 12px; font-weight: bold;">OFFICIAL</div>
+                                                <div style="font-size: 12px; font-weight: bold;">STAMP</div>
+                                                <div style="font-size: 10px; margin-top: 5px;">(Upload in Company Settings)</div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+                                <div style="width: 48%;">
+                                    <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #333;">Approved by</div>
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 10px;">Fleet Manager</div>
+                                    <t t-if="doc.fleet_approved_by_id.signature_image">
+                                        <img t-att-src="image_data_uri(doc.fleet_approved_by_id.signature_image)" style="max-height: 80px; max-width: 250px;"/>
+                                    </t>
+                                    <div style="height: 60px; border-bottom: 1px solid #333; display: flex; align-items: flex-end; padding-bottom: 5px; margin-top: 10px;">
+                                        <span t-field="doc.fleet_approved_by_id.name" style="font-size: 14px;"/>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

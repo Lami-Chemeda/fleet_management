@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_fleet_finish_trip_wizard_form" model="ir.ui.view">
+        <field name="name">fleet.finish.trip.wizard.form</field>
+        <field name="model">fleet.finish.trip.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Finish Trip Confirmation">
+                <group>
+                    <field name="trip_request_id" invisible="1"/>
+                    <div class="alert alert-info">
+                        <strong>Confirm Trip Completion</strong>
+                        <p>Are you sure you want to finish this trip?</p>
+                    </div>
+                </group>
+                <footer>
+                    <button name="action_confirm_finish" type="object" string="OK" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

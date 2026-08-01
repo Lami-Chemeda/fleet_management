@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ======================================================== -->
+    <!-- CUSTOM VEHICLE RECORDS ACTION                            -->
+    <!-- ======================================================== -->
+    <record id="action_fleet_vehicle_records" model="ir.actions.act_window">
+        <field name="name">Vehicle Records</field>
+        <field name="res_model">fleet.vehicle</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Manage your fleet vehicles
+            </p>
+        </field>
+    </record>
+
+    <!-- ======================================================== -->
+    <!-- CUSTOM VEHICLE HISTORY ACTION                            -->
+    <!-- ======================================================== -->
+    <record id="action_fleet_vehicle_history" model="ir.actions.act_window">
+        <field name="name">Vehicle History</field>
+        <field name="res_model">fleet.vehicle.history</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ======================================================== -->
+    <!-- CUSTOM DRIVERS ACTION                                    -->
+    <!-- ======================================================== -->
+    <record id="action_fleet_drivers" model="ir.actions.act_window">
+        <field name="name">Drivers</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_fleet_driver', '=', True)]</field>
+    </record>
+
+    <!-- ======================================================== -->
+    <!-- MENUS                                                    -->
+    <!-- ======================================================== -->
+    
+    <!-- Parent Vehicles Menu -->
+    <menuitem id="menu_fleet_management_vehicles"
+              name="Vehicles"
+              parent="menu_fleet_management_root"
+              groups="fleet_management.group_fleet_manager"
+              sequence="10"/>
+
+    <!-- Vehicle Records -->
+    <menuitem id="menu_fleet_management_vehicle_records"
+              name="Vehicle Records"
+              parent="menu_fleet_management_vehicles"
+              action="action_fleet_vehicle_records"
+              groups="fleet_management.group_fleet_manager"
+              sequence="10"/>
+
+    <!-- Vehicle History -->
+    <menuitem id="menu_fleet_management_vehicle_history"
+              name="Vehicle History"
+              parent="menu_fleet_management_vehicles"
+              action="action_fleet_vehicle_history"
+              groups="fleet_management.group_fleet_manager"
+              sequence="20"/>
+
+    <!-- Drivers -->
+    <menuitem id="menu_fleet_management_drivers"
+              name="Drivers"
+              parent="menu_fleet_management_root"
+              action="action_fleet_drivers"
+              groups="fleet_management.group_fleet_manager"
+              sequence="15"/>
+
+    <!-- ======================================================== -->
+    <!-- REST OF YOUR MENUS                                       -->
+    <!-- ======================================================== -->
+    <menuitem id="menu_fleet_management_trip"
+              name="Trip Management"
+              parent="menu_fleet_management_root"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_trip_requests"
+              name="Vehicle Requests"
+              parent="menu_fleet_management_trip"
+              action="action_fleet_trip_request"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_assignments"
+              name="Vehicle Assignments"
+              parent="menu_fleet_management_trip"
+              action="action_fleet_vehicle_assignment"
+              groups="fleet_management.group_fleet_manager,fleet_management.group_department_manager,fleet_management.group_fleet_driver"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_fuel"
+              name="Fuel Management"
+              parent="menu_fleet_management_root"
+              groups="fleet_management.group_fleet_manager,fleet_management.group_fleet_driver"
+              sequence="30"/>
+
+    <menuitem id="menu_fleet_management_fuel_requests"
+              name="Fuel Requests"
+              parent="menu_fleet_management_fuel"
+              action="action_fleet_fuel_request"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_fuel_issues"
+              name="Fuel Issues"
+              parent="menu_fleet_management_fuel"
+              action="action_fleet_fuel_issue"
+              groups="fleet_management.group_fleet_manager"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_fuel_configuration"
+              name="Configuration"
+              parent="menu_fleet_management_fuel"
+              groups="base.group_system"
+              sequence="30"/>
+
+    <record id="action_fleet_fuel_type" model="ir.actions.act_window">
+        <field name="name">Fuel Types</field>
+        <field name="res_model">fleet.fuel.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_fleet_management_fuel_quotas"
+              name="Fuel Quotas"
+              parent="menu_fleet_management_fuel_configuration"
+              action="action_fleet_fuel_quota"
+              groups="base.group_system"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_fuel_quotas"
+              name="Fuel Quotas"
+              parent="menu_fleet_management_fuel_configuration"
+              action="action_fleet_fuel_quota"
+              groups="base.group_system"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_fuel_types"
+              name="Fuel Types"
+              parent="menu_fleet_management_fuel_configuration"
+              action="action_fleet_fuel_type"
+              groups="base.group_system"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_maintenance"
+              name="Maintenance"
+              parent="menu_fleet_management_root"
+              groups="fleet_management.group_fleet_manager,fleet_management.group_fleet_driver"
+              sequence="40"/>
+
+    <menuitem id="menu_fleet_management_maintenance_requests"
+              name="Maintenance Requests"
+              parent="menu_fleet_management_maintenance"
+              action="action_fleet_maintenance_request"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_service_records"
+              name="Service Records"
+              parent="menu_fleet_management_maintenance"
+              action="action_fleet_maintenance_service"
+              groups="fleet_management.group_fleet_manager"
+              sequence="20"/>
+</odoo>

@@ -14,12 +14,14 @@ fuel requests, maintenance requests, external garages, and fleet reports.
         'hr',
         'contacts',
         'fleet',
+        'custom_notification',
         'web',  # Added this line for login template inheritance
     ],
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
         'data/sequence_data.xml',
+        'views/fleet_reject_reason_wizard_views.xml',
         'views/fleet_vehicle_views.xml',
         'views/hr_employee_views.xml',
         'views/res_partner_views.xml',
@@ -30,6 +32,7 @@ fuel requests, maintenance requests, external garages, and fleet reports.
         'views/fleet_fuel_issue_views.xml',
         'views/fleet_maintenance_request_views.xml',
         'views/fleet_maintenance_service_views.xml',
+        'views/fleet_fuel_quota_views.xml',
         'views/fleet_report_views.xml',
         'views/fleet_menu_views.xml',
         'views/login_branding_views.xml',

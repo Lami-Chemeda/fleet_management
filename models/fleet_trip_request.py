@@ -1,5 +1,6 @@
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, ValidationError
+from odoo.osv import expression
 
 
 class FleetTripRequest(models.Model):
@@ -18,10 +19,37 @@ class FleetTripRequest(models.Model):
     )
     department_id = fields.Many2one('hr.department', string='Department', related='requester_id.department_id', store=True, readonly=True)
     purpose = fields.Text(string='Purpose', required=True)
+    start_place = fields.Char(string='Start Place', tracking=True)
     destination = fields.Char(string='Destination', required=True)
+    number_of_people = fields.Integer(string='Number of People', tracking=True)
     request_date = fields.Datetime(string='Request Date', default=fields.Datetime.now, required=True)
     start_date = fields.Datetime(string='Start Date', required=True, tracking=True)
     end_date = fields.Datetime(string='End Date', required=True, tracking=True)
+    rejection_reason = fields.Text(string='Rejection Reason', readonly=True, copy=False, tracking=True)
+    
+    # NEW FIELDS FOR REJECTION TRACKING
+    rejected_by = fields.Char(
+        string='Rejected By',
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    rejected_by_role = fields.Selection(
+        selection=[
+            ('department_manager', 'Department Manager'),
+            ('fleet_manager', 'Fleet Manager'),
+        ],
+        string='Rejected By Role',
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    rejection_details_display = fields.Html(
+        string='Rejection Details',
+        compute='_compute_rejection_details_display',
+        readonly=True,
+    )
+    
     state = fields.Selection(
         [
             ('draft', 'Draft'),
@@ -42,9 +70,38 @@ class FleetTripRequest(models.Model):
     requester_executed = fields.Boolean(string='Requester Executed', copy=False, tracking=True)
     driver_executed = fields.Boolean(string='Driver Executed', copy=False, tracking=True)
     can_execute_current_user = fields.Boolean(
-        string='Can Execute',
+        string='Can Finish Trip',
         compute='_compute_can_execute_current_user',
     )
+    can_edit_requester = fields.Boolean(
+        string='Can Edit Requester',
+        compute='_compute_can_edit_requester',
+    )
+
+    @api.depends_context('uid')
+    def _compute_can_edit_requester(self):
+        can_edit = (
+            self.env.user.has_group('fleet_management.group_department_manager')
+        )
+        for request in self:
+            request.can_edit_requester = can_edit
+
+    @api.model
+    def _search(self, domain, offset=0, limit=None, order=None):
+        """
+        Override search to implement visibility rules:
+        - Fleet Manager: All requests.
+        - Dept Manager: Requests in their department.
+        - Regular User: Own requests only.
+        """
+        if not self.env.su and not self.env.user.has_group('fleet_management.group_fleet_manager'):
+            user_employee = self.env.user.employee_id
+            if self.env.user.has_group('fleet_management.group_department_manager') and user_employee.department_id:
+                domain = expression.AND([domain, [('department_id', '=', user_employee.department_id.id)]])
+            else:
+                domain = expression.AND([domain, [('requester_id.user_id', '=', self.env.uid)]])
+        
+        return super()._search(domain, offset=offset, limit=limit, order=order)
 
     @api.depends('state', 'requester_id', 'assignment_ids.status', 'assignment_ids.driver_id')
     @api.depends_context('uid')
@@ -65,11 +122,38 @@ class FleetTripRequest(models.Model):
                 )
             )
 
+    # NEW COMPUTE METHOD FOR REJECTION DETAILS DISPLAY
+    @api.depends('rejection_reason', 'rejected_by', 'rejected_by_role', 'state')
+    def _compute_rejection_details_display(self):
+        for request in self:
+            if request.state == 'rejected' and request.rejection_reason:
+                role_display = dict(self._fields['rejected_by_role'].selection).get(
+                    request.rejected_by_role, ''
+                )
+                request.rejection_details_display = f"""
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Rejected by {role_display}: {request.rejected_by or 'Unknown'}</strong><br/>
+                        <strong>Reason:</strong> {request.rejection_reason}
+                    </div>
+                """
+            else:
+                request.rejection_details_display = False
+
     @api.constrains('start_date', 'end_date')
     def _check_trip_dates(self):
         for request in self:
             if request.start_date and request.end_date and request.end_date < request.start_date:
                 raise ValidationError('End Date must be after Start Date.')
+            if request.start_date and request.request_date and request.start_date < request.request_date:
+                raise ValidationError('Start Date must be after the Request Date.')
+
+    # NEW CONSTRAINT FOR NUMBER OF PEOPLE
+    @api.constrains('number_of_people')
+    def _check_number_of_people(self):
+        """Ensure number of people is greater than 0"""
+        for request in self:
+            if request.number_of_people <= 0:
+                raise ValidationError('Number of people must be greater than 0.')
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -79,6 +163,10 @@ class FleetTripRequest(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
+        if 'assignment_ids' in vals:
+            for request in self:
+                if request.state in ['allocated', 'completed', 'cancelled', 'rejected']:
+                    raise ValidationError('You cannot add or modify vehicle assignments once the trip has been allocated or finished.')
         result = super().write(vals)
         if vals.get('state') == 'completed':
             self._return_completed_trip_assignments()
@@ -137,14 +225,14 @@ class FleetTripRequest(models.Model):
         )
         self._complete_trip()
 
-    def action_execute(self):
+    def action_finish_trip(self):
         current_employee = self.env.user.employee_id
         if not current_employee:
-            raise AccessError('Your user must be linked to an employee to execute a trip.')
+            raise AccessError('Your user must be linked to an employee to finish a trip.')
 
         for request in self:
             if request.state != 'allocated':
-                raise ValidationError('Only allocated trips can be executed.')
+                raise ValidationError('Only allocated trips can be finished.')
 
             vals = {}
             is_requester = request.requester_id == current_employee
@@ -157,7 +245,7 @@ class FleetTripRequest(models.Model):
             if is_driver:
                 vals['driver_executed'] = True
             if not vals:
-                raise AccessError('Only the requester or assigned Driver can execute this trip.')
+                raise AccessError('Only the requester or assigned Driver can finish this trip.')
 
             request.write(vals)
             if request.requester_executed and request.driver_executed:
@@ -173,21 +261,40 @@ class FleetTripRequest(models.Model):
             if assigned_assignments:
                 assigned_assignments.sudo().action_return_vehicle()
 
+    def action_open_reject_wizard(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Reject Request',
+            'res_model': 'fleet.reject.reason.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_request_model': self._name,
+                'default_request_id': self.id,
+            },
+        }
+
     def action_reject(self):
+        """Handles the rejection of a trip request based on its current state."""
         for request in self:
             if request.state == 'submitted':
                 request._check_group(
                     'fleet_management.group_department_manager',
                     'Only Department Managers can reject submitted vehicle requests.',
                 )
-            else:
+            elif request.state in ['department_approved', 'fleet_approved']:
                 request._check_group(
                     'fleet_management.group_fleet_manager',
                     'Only Fleet Managers can reject requests after department approval.',
                 )
+            else:
+                raise ValidationError('This request cannot be rejected in its current state.')
+            
             request.state = 'rejected'
 
     def action_cancel(self):
+        """Cancels the request, restricted to the requester or department manager."""
         for request in self:
             if request.state not in ['draft', 'submitted']:
                 raise ValidationError('Vehicle requests can only be cancelled before approval.')
@@ -208,4 +315,51 @@ class FleetTripRequest(models.Model):
             'state': 'draft',
             'requester_executed': False,
             'driver_executed': False,
+            'rejection_reason': False,
+            'rejected_by': False,
+            'rejected_by_role': False,
         })
+    
+    # NEW HELPER METHODS FOR REJECTION VISIBILITY
+    def can_see_rejection_reason(self):
+        """Check if current user can see the rejection reason"""
+        self.ensure_one()
+        current_employee = self.env.user.employee_id
+        
+        # Requester can always see rejection reason
+        if self.requester_id == current_employee:
+            return True
+        
+        # Department manager can see rejection reason (even if rejected by fleet manager)
+        if self.env.user.has_group('fleet_management.group_department_manager'):
+            return True
+        
+        # Fleet manager can see all rejection reasons
+        if self.env.user.has_group('fleet_management.group_fleet_manager'):
+            return True
+        
+        # Driver assigned to this trip can see rejection reason
+        assigned_drivers = self.assignment_ids.filtered(
+            lambda a: a.status == 'assigned'
+        ).mapped('driver_id')
+        if current_employee in assigned_drivers:
+            return True
+        
+        return False
+
+    def get_rejection_details(self):
+        """Get formatted rejection details"""
+        self.ensure_one()
+        if not self.rejection_reason:
+            return False
+        
+        role_display = dict(self._fields['rejected_by_role'].selection).get(
+            self.rejected_by_role, 'Unknown'
+        )
+        
+        return {
+            'reason': self.rejection_reason,
+            'rejected_by': self.rejected_by or 'Unknown',
+            'rejected_by_role': role_display,
+            'rejected_date': self.write_date if self.rejection_reason else False,
+        }

@@ -1,12 +1,12 @@
 from odoo import api, fields, models
-from odoo.exceptions import AccessError
+from odoo.exceptions import AccessError, ValidationError
 
 
 class FleetVehicle(models.Model):
     _inherit = 'fleet.vehicle'
 
-    chassis_number = fields.Char(string='VIN / Chassis Number', required=True, copy=False, index=True)
-    engine_number = fields.Char(string='Engine Number', copy=False)
+    # chassis_number field removed; using vin_sn
+    chassis_number = fields.Char(string='Chassis Number', related='vin_sn', readonly=False)
     ownership_type = fields.Selection(
         [
             ('company', 'Company'),
@@ -33,14 +33,15 @@ class FleetVehicle(models.Model):
     )
     current_driver_id = fields.Many2one('hr.employee', string='Current Driver', tracking=True)
     current_odometer = fields.Float(string='Current Odometer')
+    special_case = fields.Boolean(string='Special Case', default=False, tracking=True)
 
-    _sql_constraints = [
-        (
-            'fleet_vehicle_chassis_number_unique',
-            'unique(chassis_number)',
-            'The VIN / Chassis Number must be unique for each vehicle.',
-        ),
-    ]
+
+
+    @api.constrains('registration_date', 'create_date')
+    def _check_registration_dates(self):
+        for vehicle in self:
+            if vehicle.registration_date and vehicle.create_date and vehicle.registration_date < vehicle.create_date.date():
+                raise ValidationError('The Official Registration Date must be on or after the date the vehicle was registered in the system.')
 
     def _check_fleet_vehicle_manager_access(self):
         if self.env.is_superuser():
@@ -78,6 +79,7 @@ class FleetVehicle(models.Model):
             'fleet_status',
             'current_driver_id',
             'current_odometer',
+            'special_case',
         }
         if protected_fields.intersection(vals):
             self._check_fleet_vehicle_manager_access()

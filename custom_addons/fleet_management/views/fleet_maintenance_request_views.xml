@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_fleet_maintenance_request_list" model="ir.ui.view">
+        <field name="name">fleet.maintenance.request.list</field>
+        <field name="model">fleet.maintenance.request</field>
+        <field name="arch" type="xml">
+            <list string="Maintenance Requests">
+                <field name="name"/>
+                <field name="vehicle_id"/>
+                <field name="requested_by_id"/>
+                <field name="priority" widget="badge"/>
+                <field name="request_date"/>
+                <field name="total_service_cost"/>
+                <field name="currency_id"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fleet_maintenance_request_form" model="ir.ui.view">
+        <field name="name">fleet.maintenance.request.form</field>
+        <field name="model">fleet.maintenance.request</field>
+        <field name="arch" type="xml">
+            <form string="Maintenance Request">
+                <header>
+                    <button name="action_submit" type="object" string="Submit" class="btn-primary" groups="fleet_management.group_fleet_driver" invisible="state != 'draft'"/>
+                    <button name="action_approve" type="object" string="Approve" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'submitted'"/>
+                    <button name="action_send_to_garage" type="object" string="Send To Garage" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'approved'"/>
+                    <button name="action_complete" type="object" string="Complete" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'sent_to_garage'"/>
+                    <button name="action_close" type="object" string="Close" class="btn-primary" groups="fleet_management.group_fleet_manager" invisible="state != 'completed'"/>
+                    <button name="%(custom_report.action_report_maintenance_request)d" type="action" string="Print Ticket" class="btn-secondary" invisible="state in ['draft', 'submitted', 'rejected']"/>
+                    
+                    <!-- Reject button - Hidden after approval (only visible in submitted state) -->
+                    <button name="action_open_reject_wizard" type="object" string="Reject" 
+                            groups="fleet_management.group_fleet_manager" 
+                            invisible="state not in ['submitted']"/>
+                    
+                    <button name="action_reset_to_draft" type="object" string="Reset To Draft" groups="fleet_management.group_fleet_manager" invisible="state != 'rejected'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,sent_to_garage,completed,closed"/>
+                </header>
+                <sheet>
+                    <field name="is_manager" invisible="1"/>
+                    <field name="is_editable" invisible="1"/>
+                    <field name="show_as_label" invisible="1"/>
+                    
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            
+                            <!-- Vehicle - ALWAYS readonly and shown as label (even in draft) -->
+                            <label for="vehicle_id" string="Vehicle"/>
+                            <div>
+                                <field name="vehicle_id" readonly="1" class="oe_inline"/>
+                            </div>
+                            
+                            <!-- Requested By - ALWAYS readonly and shown as label (even in draft) -->
+                            <label for="requested_by_id" string="Requested By"/>
+                            <div>
+                                <field name="requested_by_id" readonly="1" class="oe_inline"/>
+                            </div>
+                            
+                            <!-- Request Date - ALWAYS readonly, auto-set from PC (even in draft) -->
+                            <label for="request_date" string="Request Date"/>
+                            <div>
+                                <field name="request_date" readonly="1" class="oe_inline"/>
+                            </div>
+                        </group>
+                        <group>
+                            <!-- Priority - Editable only in draft state -->
+                            <field name="priority" 
+                                   readonly="not is_editable"/>
+                        </group>
+                    </group>
+                    
+                    <!-- Problem Description - Editable only in draft state -->
+                    <group string="Problem Details">
+                        <field name="problem_description" 
+                               placeholder="Please describe the maintenance issue in detail..."
+                               readonly="not is_editable"
+                               colspan="2"/>
+                        <label for="attachment_file" string="Attachment"/>
+                        <div class="o_row" colspan="2">
+                            <field name="attachment_file" filename="attachment_filename" readonly="not is_editable" widget="binary"/>
+                            <button name="action_preview_attachment" type="object" string="View Attachment" icon="fa-eye" class="btn-secondary" invisible="not attachment_file"/>
+                        </div>
+                        <field name="attachment_filename" invisible="1"/>
+                    </group>
+                    
+                    <group>
+                        <field name="rejection_reason" readonly="1" invisible="state != 'rejected'"/>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Service Records" groups="fleet_management.group_fleet_manager">
+                            <field name="service_ids">
+                                <list editable="bottom">
+                                    <field name="vendor_id"/>
+                                    <field name="service_description"/>
+                                    <field name="start_date"/>
+                                    <field name="completion_date"/>
+                                    <field name="cost"/>
+                                    <field name="currency_id"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fleet_maintenance_request" model="ir.actions.act_window">
+        <field name="name">Maintenance Requests</field>
+        <field name="res_model">fleet.maintenance.request</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

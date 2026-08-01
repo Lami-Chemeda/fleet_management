@@ -7,7 +7,7 @@
             <list string="Vehicles">
                 <field name="name"/>
                 <field name="license_plate"/>
-                <field name="chassis_number"/>
+                <field name="vin_sn"/>
                 <field name="model_id"/>
                 <field name="vehicle_type"/>
                 <field name="ownership_type"/>
@@ -30,8 +30,10 @@
                             <field name="license_plate"/>
                             <field name="model_id"/>
                             <field name="vehicle_type"/>
+                            <field name="fuel_type"/>
                             <field name="ownership_type"/>
                             <field name="fleet_status"/>
+                            <field name="special_case"/>
                         </group>
                         <group string="Registration">
                             <field name="vin_sn"/>

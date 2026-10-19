@@ -1,0 +1,1342 @@
+// Template Theme: customize this file for your theme.
+// This file contains styles for the custom navigation bar and top bar.
+
+.o_web_client {
+    // Set the default font family for the entire application.
+    font-family: "Spline Sans", sans-serif;
+    background: var(--my-theme-bg, #f8f8f5);
+    --my-theme-accent: #f6c026;
+    --my-theme-brand-start: #2f74bd;
+    --my-theme-brand-end: #4ba6e5;
+    --my-theme-surface: #ffffff;
+    --tt-apps-row-height: 80px;
+    --my-theme-sidebar-width: 250px;
+    --my-theme-topbar-height: 80px;
+    padding-top: 0 !important;
+
+}
+
+.o_web_client.my_theme_sidebar_collapsed {
+    --my-theme-sidebar-width: 84px;
+}
+
+.o_action_manager,
+.my_theme_subnav {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    @media (min-width: 992px) {
+        
+        margin-left: var(--my-theme-sidebar-width) !important;
+        width: calc(100% - var(--my-theme-sidebar-width)) !important;
+    }
+}
+
+.o_navbar.my_theme_navbar {
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    z-index: 300;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: var(--my-theme-topbar-bg);
+    border: none;
+    --o-navbar-height: var(--my-theme-topbar-height);
+
+    > div:not(.my_theme_subnav):not(.my_theme_topbar):not(.my_theme_apps_row) {
+        margin: 0 !important;
+    }
+}
+
+// Ensure all text elements in the navbar use the theme text color.
+.o_navbar.my_theme_navbar,
+.o_navbar.my_theme_navbar a,
+.o_navbar.my_theme_navbar .dropdown-toggle,
+.o_navbar.my_theme_navbar .o_menu_brand,
+.o_navbar.my_theme_navbar .o_nav_entry {
+    color: var(--my-theme-text);
+}
+
+// The fixed top bar containing search and systray.
+.my_theme_topbar {
+    background: var(--my-theme-topbar-bg);
+    padding: 0 24px 0 0;
+    height: var(--my-theme-topbar-height) !important;
+    display: flex;
+    align-items: stretch;
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    z-index: 10;
+    // border-bottom: 1px solid #e5e7eb;
+    margin: 0 !important;
+    color: var(--my-theme-topbar-text, #1f2937);
+
+    @media (min-width: 992px) {
+        margin-left: var(--my-theme-sidebar-width) !important;
+        width: calc(100% - var(--my-theme-sidebar-width)) !important;
+    }
+}
+
+.my_theme_topbar,
+.my_theme_topbar a,
+.my_theme_topbar .dropdown-toggle,
+.my_theme_topbar .o_menu_brand,
+.my_theme_topbar .o_nav_entry {
+    color: var(--my-theme-topbar-text, #1f2937);
+}
+
+.my_theme_topbar .my_theme_app_name {
+    color: var(--my-theme-topbar-text, #1f2937) !important;
+}
+
+.o_navbar.my_theme_navbar .o_main_navbar {
+    display: flex;
+    border-bottom: none;
+    background: transparent;
+    align-items: center;
+    padding: 0;
+    gap: 16px;
+    width: 100%;
+    height: 100%;
+}
+
+// Left section of the sidebar (Brand/Logo).
+.my_theme_left {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: relative; 
+    height: var(--my-theme-topbar-height);
+    min-height: var(--my-theme-topbar-height);
+    overflow: hidden;
+    background-color: var(--my-theme-left-bg-color, transparent);
+    background-image: var(--my-theme-left-bg-image, none);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    flex-shrink: 0;
+}
+
+.my_theme_brand_sash {
+    display: none;
+}
+
+.my_theme_brand {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    font-weight: 700;
+    color: var(--my-theme-left-text, var(--my-theme-company-name-text, #ffffff));
+    position: relative;
+    z-index: 2;
+    padding: 0 20px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.my_theme_brand_text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    width: 100%;
+}
+
+// Icon/Logo container.
+.my_theme_brand_icon {
+    background: transparent !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 60px;
+    font-size: 18px;
+    overflow: hidden;
+    min-width: 60px;
+    min-height: 60px;
+    width: 60px;
+    height: 60px;
+    padding-block: 8px;
+}
+
+.my_theme_brand_icon.has-logo {
+    background: #ffffff;
+}
+
+.my_theme_brand_icon img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+
+.my_theme_brand_name {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: none;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    white-space: normal;
+    overflow: hidden;
+    line-height: 1.2;
+    color: var(--my-theme-left-text, var(--my-theme-company-name-text, #ffffff));
+}
+
+.my_theme_brand_tagline {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--my-theme-left-text, var(--my-theme-company-name-text, #ffffff));
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+// Center section: Search Bar (desktop only)
+.my_theme_search {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: flex-end;
+    align-self: center;
+    min-width: 40px;
+    padding-left: 40px;
+    position: relative;
+}
+
+.my_theme_search_inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 16px;
+    border-radius: 12px;
+    background: var(--my-theme-topbar-search-bg, #f9fafb);
+    border: 1px solid var(--my-theme-topbar-search-border, #e5e7eb);
+    box-shadow: none;
+    width: 100%;
+    max-width: 360px;
+    height: 38px;
+    color: var(--my-theme-topbar-search-text, #4b5563);
+}
+
+.my_theme_search_popover.dropdown-menu {
+    display: block;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    min-width: 320px;
+    max-width: 420px;
+    width: 100%;
+    z-index: 1000;
+}
+
+.my_theme_search_popover_results {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 280px;
+    overflow: auto;
+    // Custom slim scrollbar
+    scrollbar-width: thin;
+    scrollbar-color: #e5e7eb transparent;
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: #e5e7eb;
+        border-radius: 10px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background: #cbd5e1;
+    }
+}
+
+.my_theme_search_popover .o_command_palette_footer {
+    margin-top: 8px;
+    padding: 10px 8px 6px;
+    border-top: 1px solid #e5e7eb;
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.my_theme_search_popover .o_namespace {
+    cursor: pointer;
+}
+
+.my_theme_search_popover_item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    color: #111827;
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.my_theme_search_popover_item:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.my_theme_search_popover_icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.my_theme_search_popover_icon img {
+    width: 16px;
+    height: 16px;
+}
+
+.my_theme_search_popover_hint {
+    font-size: 13px;
+    color: #6b7280;
+    padding: 4px 2px 8px;
+}
+
+.my_theme_search_inner .fa-search,
+.my_theme_search_mobile_input .fa-search {
+    color: var(--my-theme-topbar-search-placeholder, #4b5563);
+}
+
+.my_theme_search_input {
+    flex: 1 1 auto;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 14px;
+    color: var(--my-theme-topbar-search-text, #4b5563);
+}
+
+.my_theme_search_input::placeholder {
+    color: var(--my-theme-topbar-search-placeholder, #4b5563);
+    opacity: 0.6;
+}
+
+.my_theme_search_mobile {
+    position: fixed;
+    inset: 0;
+    background: #ffffff;
+    z-index: 2000;
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.my_theme_search_mobile.is-open {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+@media (min-width: 540px) {
+    .my_theme_search_mobile {
+        display: none;
+    }
+}
+
+.my_theme_search_mobile_header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.my_theme_search_mobile_close {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    border: none;
+    background: #f3f4f6;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #111827;
+}
+
+.my_theme_search_mobile_input {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border-radius: 12px;
+    background: var(--my-theme-topbar-search-bg, #f9fafb);
+    border: 1px solid var(--my-theme-topbar-search-border, #e5e7eb);
+}
+
+.my_theme_search_mobile_body {
+    padding: 16px;
+    overflow: auto;
+    flex: 1 1 auto;
+    scrollbar-width: thin;
+    scrollbar-color: #e5e7eb transparent;
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: #e5e7eb;
+        border-radius: 10px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background: #cbd5e1;
+    }
+}
+
+.my_theme_search_mobile_title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6b7280;
+    margin-bottom: 12px;
+}
+
+.my_theme_search_mobile_history {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.my_theme_search_mobile_history_item {
+    border: none;
+    background: #f9fafb;
+    color: #111827;
+    padding: 10px 12px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+}
+
+.my_theme_search_mobile_empty,
+.my_theme_search_mobile_hint {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+@media (max-width: 539px) {
+    .my_theme_search {
+        padding-left: 8px;
+    }
+
+    .my_theme_search_inner {
+        width: 36px;
+        max-width: 36px;
+        height: 36px;
+        padding: 0;
+        justify-content: center;
+    }
+
+    .my_theme_search .my_theme_search_input {
+        display: none;
+    }
+
+    .my_theme_search_mobile .my_theme_search_input {
+        display: block;
+        width: 100%;
+    }
+
+    .my_theme_search_popover {
+        display: none;
+    }
+}
+
+// Keyboard shortcut indicator in search bar.
+.my_theme_search_kbd {
+    display: none;
+}
+
+// Systray (right side icons like notifications, user menu).
+.my_theme_systray {
+    gap: 12px;
+    align-items: center;
+    align-self: center;
+}
+
+.my_theme_navbar .o_menu_systray .badge {
+    background-color: var(--my-theme-badge-bg, #1e3a8a);
+    color: var(--my-theme-badge-text, #ffffff) !important;
+    text-shadow: none;
+}
+
+.my_theme_navbar .o_menu_systray .badge,
+.my_theme_navbar .o_menu_systray .badge *,
+.my_theme_navbar .o_menu_systray [class*="badge"] {
+    color: var(--my-theme-badge-text, #ffffff) !important;
+}
+
+.my_theme_navbar .o_menu_systray,
+.my_theme_navbar .o_menu_systray button,
+.my_theme_navbar .o_menu_systray a,
+.my_theme_navbar .o_menu_systray .dropdown-toggle,
+.my_theme_navbar .o_menu_systray i,
+.my_theme_navbar .o_menu_systray span,
+.my_theme_navbar .o_menu_systray .oi,
+.my_theme_navbar .o_menu_systray .fa,
+.my_theme_navbar .o_menu_systray svg {
+    color: var(--my-theme-topbar-text, #1f2937) !important;
+}
+
+.my_theme_systray .o_systray_item > button,
+.my_theme_systray .o_systray_item > a,
+.my_theme_systray .o_systray_item .dropdown-toggle {
+    border-radius: 999px;
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--my-theme-topbar-text, #1f2937);
+    background: transparent;
+    border: 1px solid transparent;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.my_theme_systray .o_systray_item > button,
+.my_theme_systray .o_systray_item > a,
+.my_theme_systray .o_systray_item .dropdown-toggle,
+.my_theme_systray .o_systray_item > button i,
+.my_theme_systray .o_systray_item > a i,
+.my_theme_systray .o_systray_item .dropdown-toggle i,
+.my_theme_systray .o_systray_item > button span,
+.my_theme_systray .o_systray_item > a span,
+.my_theme_systray .o_systray_item .dropdown-toggle span {
+    color: var(--my-theme-topbar-text, #1f2937) !important;
+}
+
+.my_theme_systray .o_systray_item > button:hover,
+.my_theme_systray .o_systray_item > a:hover,
+.my_theme_systray .o_systray_item .dropdown-toggle:hover {
+    background: transparent;
+    border-color: transparent;
+    color: inherit;
+}
+
+.my_theme_navbar .o_menu_systray button:hover,
+.my_theme_navbar .o_menu_systray button:focus,
+.my_theme_navbar .o_menu_systray button:active,
+.my_theme_navbar .o_menu_systray .dropdown-toggle:hover,
+.my_theme_navbar .o_menu_systray .dropdown-toggle:focus,
+.my_theme_navbar .o_menu_systray .dropdown-toggle:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    border-color: transparent !important;
+    color: inherit !important;
+    box-shadow: none !important;
+}
+
+.my_theme_navbar .o-mail-DiscussSystray-class:hover,
+.my_theme_navbar .o-mail-DiscussSystray-class.show {
+    background-color: transparent !important;
+}
+
+.my_theme_navbar .o-mail-DiscussSystray-class:hover button,
+.my_theme_navbar .o-mail-DiscussSystray-class:hover .dropdown-toggle,
+.my_theme_navbar .o-mail-DiscussSystray-class button:hover,
+.my_theme_navbar .o-mail-DiscussSystray-class .dropdown-toggle:hover {
+    background-color: transparent !important;
+    border-color: transparent !important;
+    color: inherit !important;
+}
+
+.my_theme_navbar .o-mail-DiscussSystray-class:hover i,
+.my_theme_navbar .o-mail-DiscussSystray-class button:hover i,
+.my_theme_navbar .o-mail-DiscussSystray-class .dropdown-toggle:hover i {
+    color: inherit !important;
+}
+
+.my_theme_navbar .o-mail-DiscussSystray-class .dropdown > button:hover,
+.my_theme_navbar .o-mail-DiscussSystray-class .dropdown > button:focus,
+.my_theme_navbar .o-mail-DiscussSystray-class .dropdown.show > button {
+    background-color: transparent !important;
+    border-color: transparent !important;
+    color: inherit !important;
+    box-shadow: none !important;
+}
+
+.my_theme_systray .o_user_menu {
+    padding-left: 14px;
+    margin-left: 14px;
+    border-left: 1px solid #e5e7eb;
+}
+
+.my_theme_systray .o_user_menu .my_theme_user_toggle,
+.my_theme_systray .o_user_menu .dropdown-toggle {
+    width: auto;
+    height: auto;
+    padding: 6px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: transparent;
+    // border: 1px solid #e5e7eb;
+    border-radius: 0px;
+}
+
+.my_theme_systray .o_user_menu .my_theme_user_toggle,
+.my_theme_systray .o_user_menu .my_theme_user_toggle *,
+.my_theme_systray .o_user_menu .dropdown-toggle,
+.my_theme_systray .o_user_menu .dropdown-toggle * {
+    color: var(--my-theme-topbar-text, #1f2937) !important;
+}
+
+.my_theme_systray .o_user_menu .o_user_avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+}
+
+.my_theme_systray .o_user_menu .o_user_name,
+.my_theme_systray .o_user_menu .oe_topbar_name {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.1;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.my_theme_systray .o_user_menu .dropdown-toggle,
+.my_theme_systray .o_user_menu .o_user_name,
+.my_theme_systray .o_user_menu .oe_topbar_name {
+    color: var(--my-theme-topbar-text, #1f2937);
+}
+
+.my_theme_navbar .o_switch_company_menu .oe_topbar_name,
+.my_theme_navbar .o_switch_company_menu .dropdown-item .oe_topbar_name {
+    color: var(--my-theme-topbar-text, #1f2937) !important;
+}
+
+.my_theme_navbar .o_switch_company_menu .oe_topbar_name {
+    display: none !important;
+}
+
+.my_theme_navbar .o_switch_company_menu i.fa-building {
+    display: inline-block !important;
+}
+
+.my_theme_navbar .o_switch_company_menu button {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.my_theme_navbar .o_switch_company_menu button::after {
+    display: none !important;
+}
+
+.my_theme_systray .o_user_menu:hover .oe_topbar_name,
+.my_theme_systray .o_user_menu .dropdown-toggle:hover .oe_topbar_name,
+.o_switch_company_menu:hover .oe_topbar_name,
+.o_switch_company_menu .dropdown-item:hover .oe_topbar_name {
+    color: var(--my-theme-topbar-text, #1f2937);
+    font-weight: 700;
+}
+
+.o_web_client .dropdown-header.dropdown-menu_group {
+    font-weight: 700;
+}
+
+// Sidebar containing the brand and app pills.
+.my_theme_apps_row {
+    width: var(--my-theme-sidebar-width, 250px);
+    height: 100vh !important;
+    background: var(--my-theme-sidebar-bg);
+    // border-right: 1px solid #e5e7eb;
+    margin: 0 !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    padding-top: 0;
+}
+
+.my_theme_main_menus {
+    display: flex;
+    align-items: center;
+    height: 30px;
+    color: var(--my-theme-sidebar-text, #4b5563);
+    font-size: 12px;
+    // border-top: #929292 solid 1px;
+    margin: 10px 10px 0px 10px;
+    padding-left: 15px;
+}
+
+.my_theme_main_menus_row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px 10px 0 10px;
+    min-height: 30px;
+}
+
+.my_theme_main_menus_row .my_theme_main_menus {
+    margin: 0;
+    padding-left: 15px;
+    flex: 1 1 auto;
+}
+
+.my_theme_sidebar_collapse {
+    width: 30px;
+    height: 30px;
+    border-radius: 0;
+    color: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.my_theme_sidebar_collapse:hover,
+.my_theme_sidebar_collapse:focus {
+    color: inherit;
+    background: transparent !important;
+    text-decoration: none;
+    box-shadow: none !important;
+}
+
+.my_theme_sidebar_collapse_icon {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    background-color: var(--my-theme-sidebar-icon, #4b5563);
+    -webkit-mask-image: url('/lami_pine_backend_theme/static/src/img/apps/collapse.png');
+    mask-image: url('/lami_pine_backend_theme/static/src/img/apps/collapse.png');
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    transition: transform 0.2s ease;
+}
+
+.my_theme_sidebar_collapse.is-collapsed .my_theme_sidebar_collapse_icon {
+    transform: rotate(180deg);
+}
+
+// Vertical scroller for app pills in the sidebar.
+.my_theme_apps_scroller {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 20px;
+    padding-inline: 12px;
+    width: 100%;
+    flex: 1 1 auto;
+}
+
+.my_theme_apps_scroller::-webkit-scrollbar {
+    display: none;
+}
+
+.my_theme_apps_row .my_theme_app_pill,
+.my_theme_apps_row .my_theme_app_pill .my_theme_app_label {
+    color: var(--my-theme-sidebar-text, #4b5563);
+}
+
+.my_theme_apps_row .my_theme_app_pill.is-active,
+.my_theme_apps_row .my_theme_app_pill.is-active .my_theme_app_label {
+    color: var(--my-theme-sidebar-active-text, #1f6fb2);
+}
+
+// Individual app pill styling.
+.my_theme_app_pill {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-radius: 8px 12px 12px 8px;
+    background: transparent;
+    border: 1px solid transparent;
+    position: relative;
+    font-size: 14px;
+    font-weight: normal;
+    color: var(--my-theme-sidebar-text, #4b5563);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.my_theme_app_pill:hover {
+    border-color: #e5e7eb;
+    background: var(--my-theme-sidebar-hover-bg, #fdfefe);
+    color: var(--my-theme-sidebar-hover-text, #1f2937);
+}
+
+// Active app pill styling.
+.my_theme_app_pill.is-active {
+    background: var(--my-theme-sidebar-active-bg, #ffffff);
+    border-color: transparent;
+    color: var(--my-theme-sidebar-active-text, #1f6fb2);
+    font-weight: bold;
+    box-shadow: none;
+}
+
+.my_theme_app_pill.is-active::before {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    height: calc(100% - 12px);
+    width: 4px;
+    background-color: var(--my-theme-sidebar-active-indicator, #1f6fb2);
+    border-radius: 4px;
+}
+
+.my_theme_app_pill > * {
+    position: relative;
+    z-index: 1;
+}
+
+.my_theme_app_icon {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+}
+
+.my_theme_app_icon_tint {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    position: relative;
+    isolation: isolate;
+}
+
+.my_theme_app_icon img {
+    width: 20px;
+    height: 20px;
+    display: block;
+    filter: saturate(var(--my-theme-sidebar-icon-saturate, 1));
+}
+
+.my_theme_app_icon_tint::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--my-theme-sidebar-icon, #4b5563);
+    -webkit-mask-image: var(--my-theme-app-icon-url);
+    mask-image: var(--my-theme-app-icon-url);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    mix-blend-mode: var(--my-theme-sidebar-icon-blend-mode, hue);
+    opacity: var(--my-theme-sidebar-icon-opacity, 1);
+    pointer-events: none;
+}
+
+.my_theme_app_label {
+    display: inline-block;
+    color: inherit;
+}
+
+.my_theme_app_pill.is-active .my_theme_app_icon {
+    display: inline-flex;
+    background: transparent;
+    color: inherit;
+}
+
+.my_theme_app_pill.is-active .my_theme_app_icon_tint::after {
+    background: var(--my-theme-sidebar-active-icon, #1f6fb2);
+    mix-blend-mode: var(--my-theme-sidebar-active-icon-blend-mode, hue);
+    opacity: var(--my-theme-sidebar-active-icon-opacity, 1);
+}
+
+.my_theme_app_pill.is-active .my_theme_app_icon img {
+    filter: saturate(var(--my-theme-sidebar-active-icon-saturate, 1));
+}
+
+.my_theme_app_pill.is-active .my_theme_app_icon i {
+    color: inherit;
+}
+
+// Sidebar footer for fixed items like Settings.
+.my_theme_sidebar_footer {
+    border-top: 1px solid #e5e7eb;
+    padding: 16px 24px;
+    margin-top: auto;
+    background: transparent;
+}
+
+.my_theme_settings_link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--my-theme-sidebar-footer-text, #6b7280);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.my_theme_settings_link,
+.my_theme_settings_link i,
+.my_theme_settings_link span {
+    color: var(--my-theme-sidebar-footer-text, #6b7280);
+}
+
+.my_theme_settings_link i {
+    font-size: 18px;
+    width: 20px;
+    text-align: center;
+    color: var(--my-theme-sidebar-icon, #4b5563);
+}
+
+.my_theme_settings_link:hover {
+    color: var(--my-theme-sidebar-hover-text, #1f2937);
+}
+
+.my_theme_settings_link:hover i,
+.my_theme_settings_link:hover span {
+    color: var(--my-theme-sidebar-hover-text, #1f2937);
+}
+
+.my_theme_settings_link.is-active {
+    color: var(--my-theme-sidebar-footer-active-text, var(--my-theme-sidebar-active-text, #1f6fb2));
+}
+
+.my_theme_settings_link.is-active i,
+.my_theme_settings_link.is-active span {
+    color: var(--my-theme-sidebar-footer-active-text, var(--my-theme-sidebar-active-text, #1f6fb2));
+}
+
+@media (min-width: 992px) {
+    .my_theme_apps_row.my_theme_sidebar_collapsed .my_theme_left {
+        background-image: none;
+    }
+
+    .my_theme_apps_row.my_theme_sidebar_collapsed .my_theme_brand {
+        justify-content: center;
+        padding: 0;
+        width: 100%;
+    }
+
+    .my_theme_apps_row.my_theme_sidebar_collapsed .my_theme_brand_icon {
+        width: 60px;
+        height: 60px;
+        padding-block: 8px;
+    }
+
+    .my_theme_apps_row.my_theme_sidebar_collapsed .my_theme_brand_text,
+    .my_theme_apps_row.my_theme_sidebar_collapsed .my_theme_app_label,
+    .my_theme_apps_row.my_theme_sidebar_collapsed .my_theme_settings_link span,
+    .my_theme_apps_row.my_theme_sidebar_collapsed .my_theme_main_menus {
+        display: none;
+    }
+
+    .my_theme_apps_row.my_theme_sidebar_collapsed .my_theme_main_menus_row {
+        justify-content: center;
+        margin: 10px 0 0 0;
+    }
+
+    .my_theme_apps_row.my_theme_sidebar_collapsed .my_theme_apps_scroller {
+        padding-inline: 8px;
+    }
+
+    .my_theme_apps_row.my_theme_sidebar_collapsed .my_theme_app_pill {
+        justify-content: center;
+        padding: 10px;
+    }
+
+    .my_theme_apps_row.my_theme_sidebar_collapsed .my_theme_sidebar_footer {
+        padding: 10px 8px;
+    }
+
+    .my_theme_apps_row.my_theme_sidebar_collapsed .my_theme_settings_link {
+        justify-content: center;
+        padding: 8px;
+    }
+
+    .my_theme_apps_row.my_theme_sidebar_collapsed .my_theme_settings_link i {
+        width: auto;
+        margin: 0;
+    }
+}
+
+// Sub-navigation bar (menu sections within an app).
+.my_theme_subnav {
+    padding: 0px 10px;
+    background: var(--my-theme-bg, #f8f8f5);
+    position: relative;
+    top: auto;
+    padding-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 5;
+}
+
+.my_theme_subnav_scroller {
+    flex: 1 1 auto;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.my_theme_subnav_scroller::-webkit-scrollbar {
+    display: none;
+}
+
+.my_theme_subnav .o_menu_sections {
+    gap: 10px;
+    align-items: center;
+    margin-left: 10px;
+    width: 100%;
+    justify-content: flex-start !important;
+    padding-left: 25px;
+    margin-block: 5px;
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    display: flex !important;
+}
+
+.my_theme_subnav .o_menu_sections::-webkit-scrollbar { display: none; }
+
+.my_theme_subnav .o_menu_sections .o_dropdown_group {
+    justify-content: flex-start !important;
+}
+
+.my_theme_subnav .o_menu_sections > *,
+.my_theme_subnav .o_menu_sections .o_nav_entry,
+.my_theme_subnav .o_menu_sections .dropdown,
+.my_theme_subnav .o_menu_sections .o_menu_sections_more {
+    margin-left: 0 !important;
+}
+
+.my_theme_subnav .o_menu_sections .ms-auto {
+    margin-left: 0 !important;
+}
+
+.my_theme_subnav .o_menu_sections > *,
+.my_theme_subnav .o_menu_sections .o_nav_entry,
+.my_theme_subnav .o_menu_sections .dropdown,
+.my_theme_subnav .o_menu_sections .o_menu_sections_more {
+    flex: 0 0 auto;
+    width: auto;
+    white-space: nowrap;
+}
+
+// Styling for sub-navigation entries and dropdown toggles.
+.my_theme_subnav .o_nav_entry,
+.my_theme_subnav .dropdown-toggle {
+    font-size: 14px;
+    font-weight: 400;
+    color: #6b7280;
+    padding: 8px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.my_theme_subnav .o_nav_entry:hover,
+.my_theme_subnav .dropdown-toggle:hover {
+    color: #1f2937;
+    font-weight: 700;
+    background: transparent;
+}
+
+.my_theme_subnav .o_nav_entry:active,
+.my_theme_subnav .dropdown-toggle:active {
+    font-weight: 700;
+}
+
+// Active state for sub-navigation entries.
+.my_theme_subnav .o_nav_entry.active,
+.my_theme_subnav .o_nav_entry.o_active,
+.my_theme_subnav .o_nav_entry[aria-current="page"],
+.my_theme_subnav .dropdown.show > .dropdown-toggle,
+.my_theme_subnav .dropdown-toggle[aria-expanded="true"] {
+    color: var(--my-theme-pill-active-text);
+    font-weight: 700;
+    background: transparent;
+    border-color: transparent;
+}
+
+// Dropdown menu styling in sub-navigation.
+.my_theme_subnav .dropdown-menu {
+    background: var(--my-theme-bg);
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 8px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+    min-width: 220px;
+}
+
+.my_theme_subnav .dropdown-menu .dropdown-item,
+.my_theme_subnav .dropdown-menu .o_menu_item {
+    border-radius: 10px;
+    padding: 8px 12px;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.my_theme_subnav .dropdown-menu .dropdown-item:hover,
+.my_theme_subnav .dropdown-menu .dropdown-item:focus,
+.my_theme_subnav .dropdown-menu .o_menu_item:hover,
+.my_theme_subnav .dropdown-menu .o_menu_item:focus {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.my_theme_subnav .dropdown-menu .dropdown-item.active:not(:hover),
+.my_theme_subnav .dropdown-menu .dropdown-item.focus:not(:hover),
+.my_theme_subnav .dropdown-menu .dropdown-item:focus-visible:not(:hover),
+.my_theme_subnav .dropdown-menu .o_menu_item.active:not(:hover),
+.my_theme_subnav .dropdown-menu .o_menu_item.focus:not(:hover),
+.my_theme_subnav .dropdown-menu .o_menu_item:focus-visible:not(:hover) {
+    background: transparent;
+    color: #0f172a;
+}
+
+.my_theme_subnav .dropdown-menu .dropdown-divider {
+    border-top: 1px solid #e5e7eb;
+    margin: 6px 4px;
+}
+
+// Scroll buttons for horizontal scrollers.
+.my_theme_scroll_btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #6b7280;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    z-index: 2;
+}
+
+.my_theme_scroll_btn:hover {
+    background: #f1f5f9;
+    border-color: #d1d5db;
+    color: #111827;
+}
+
+.my_theme_apps_row.is-overflowing .my_theme_scroll_btn {
+    display: inline-flex;
+}
+
+.btnwrap_transparent {
+    height: 100px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+// Dropdown menu styling in the main navbar.
+.o_navbar.my_theme_navbar .o_menu_sections .dropdown-menu {
+    background: var(--my-theme-bg);
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 10px;
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.14);
+}
+
+.o_navbar.my_theme_navbar .o_menu_sections .dropdown-menu .dropdown-item,
+.o_navbar.my_theme_navbar .o_menu_sections .dropdown-menu .o_menu_item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.o_navbar.my_theme_navbar .o_menu_sections .dropdown-menu .dropdown-item:hover,
+.o_navbar.my_theme_navbar .o_menu_sections .dropdown-menu .dropdown-item:focus,
+.o_navbar.my_theme_navbar .o_menu_sections .dropdown-menu .o_menu_item:hover,
+.o_navbar.my_theme_navbar .o_menu_sections .dropdown-menu .o_menu_item:focus {
+    background: #eef2f7;
+    color: #0f172a;
+}
+
+.o_navbar.my_theme_navbar .o_menu_sections .dropdown-menu .dropdown-item.active:not(:hover),
+.o_navbar.my_theme_navbar .o_menu_sections .dropdown-menu .dropdown-item.focus:not(:hover),
+.o_navbar.my_theme_navbar .o_menu_sections .dropdown-menu .dropdown-item:focus-visible:not(:hover),
+.o_navbar.my_theme_navbar .o_menu_sections .dropdown-menu .o_menu_item.active:not(:hover),
+.o_navbar.my_theme_navbar .o_menu_sections .dropdown-menu .o_menu_item.focus:not(:hover),
+.o_navbar.my_theme_navbar .o_menu_sections .dropdown-menu .o_menu_item:focus-visible:not(:hover) {
+    background: transparent;
+    color: #0f172a;
+}
+
+.o_navbar.my_theme_navbar .o_navbar_apps_menu {
+    margin-right: 6px;
+}
+
+// Hide breadcrumbs in the custom navbar.
+.o_navbar.my_theme_navbar .o_navbar_breadcrumbs {
+    display: none;
+}
+
+// User block styling in the topbar.
+.my_theme_user_block {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    flex-direction: row-reverse;
+}
+
+.my_theme_user_text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.05;
+    text-align: right;
+}
+
+.my_theme_user_name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.my_theme_user_role {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+// Mobile Responsiveness (< 992px)
+@media (max-width: 991.98px) {
+    // Topbar adjustments
+    .my_theme_topbar {
+        padding-left: 12px;
+    }
+
+    // Sidebar: Hidden off-canvas by default
+    .my_theme_apps_row {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        width: 280px !important; // Slightly wider than default or fixed
+        max-width: 80vw;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+
+    // Sidebar: Open state
+    .my_theme_apps_row.my_theme_mobile_open {
+        transform: translateX(0);
+    }
+
+    // Hamburger Menu Button
+    .my_theme_hamburger {
+        font-size: 20px;
+        color: var(--my-theme-text);
+        padding: 0 12px 0 0;
+        margin-right: 8px;
+        border: none;
+        background: transparent;
+        &:focus { box-shadow: none; }
+    }
+
+    // Close Sidebar Button
+    button.my_theme_close_sidebar.btn-link {
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: var(--my-theme-topbar-height);
+        width: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        font-size: 18px;
+        color: #000000 !important;
+        opacity: 0.8;
+        &:hover { opacity: 1; }
+    }
+
+    .my_theme_sidebar_collapse {
+        display: none;
+    }
+
+    // Sidebar Backdrop
+    .my_theme_mobile_backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 190; // Just below the sidebar (z-index 200)
+    }
+}
+
+// Additional breakpoint for screens < 1140px: Reduce search bar width to prevent cropping
+@media (max-width: 1139.98px) {
+    .my_theme_search_inner {
+        max-width: 280px;
+    }
+}
+
+// Ultra small screens < 600px
+@media (max-width: 599.98px) {
+    .my_theme_search_inner {
+        max-width: 180px;
+        padding: 6px 10px;
+    }
+    
+    .my_theme_search {
+        padding-left: 0;
+    }
+}
+
+
+// Hide elements marked as hide-mobile on small screens
+@media (max-width: 991.98px) {
+    .my_theme_hide_mobile {
+        display: none !important;
+    }
+    // Exception: Apps row uses transform, so don't display:none it
+    .my_theme_apps_row.my_theme_hide_mobile {
+        display: flex !important;
+    }
+}

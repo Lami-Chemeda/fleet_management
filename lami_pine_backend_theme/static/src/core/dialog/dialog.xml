@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Template Theme: customize this file for your theme. -->
+
+<templates xml:space="preserve">
+
+    <!-- Inherit and extend the standard Odoo Dialog -->
+	<t 
+		t-name="pine_backend_theme_dialog.Dialog"
+		t-inherit="web.Dialog" 
+		t-inherit-mode="extension" 
+	>
+        <!-- Dynamically set the modal size based on component state -->
+	    <xpath expr="//div[@t-attf-class='modal-{{props.size}}']" position="attributes">
+	    	<attribute name="t-attf-class">modal-{{ this.data?.size || 'lg' }}</attribute>
+	    </xpath>
+	</t>
+
+    <!-- Inherit and extend the standard Odoo Dialog Header -->
+	<t 
+		t-name="pine_backend_theme_dialog.Dialog.header"
+		t-inherit="web.Dialog.header" 
+		t-inherit-mode="extension" 
+	>
+        <!-- Adjust the modal title layout -->
+	    <xpath expr="//h4[hasclass('modal-title')]" position="attributes">
+	    	<attribute name="class" add="flex-shrink-0 w-75" separator=" " />
+	    </xpath>
+
+        <!-- Customize the expand button style -->
+	    <xpath expr="//button[@t-on-click='onExpand']" position="attributes">
+	    	<attribute name="class">fa fa-lg fa-external-link btn o_expand_button</attribute>
+	    	<attribute name="style">margin-top: 2px !important;</attribute>
+	    </xpath>
+
+        <!-- Add a custom button to toggle dialog size -->
+	    <xpath expr="//t[@t-if='!fullscreen']" position="before">
+	    	<button 
+				t-if="!fullscreen"
+				type="button" 
+				class="btn float-end me-1 tt_btn_dialog_size" 
+				t-on-click="() => this.onClickDialogSizeToggle()"
+			>
+				<i t-attf-class="fa fa-lg {{ this.data?.size === 'fs' ? 'fa-compress' : 'fa-expand' }}" />
+			</button>
+	    </xpath>
+	</t>
+	
+</templates>

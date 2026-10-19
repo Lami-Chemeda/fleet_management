@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_fleet_budget_tree" model="ir.ui.view">
+        <field name="name">fleet.budget.tree</field>
+        <field name="model">fleet.budget</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="department_id"/>
+                <field name="period_start"/>
+                <field name="period_end"/>
+                <field name="budgeted_fuel"/>
+                <field name="actual_fuel"/>
+                <field name="budgeted_maintenance"/>
+                <field name="actual_maintenance"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fleet_budget_form" model="ir.ui.view">
+        <field name="name">fleet.budget.form</field>
+        <field name="model">fleet.budget</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. Q1 2024 Logistics Budget"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="department_id"/>
+                            <field name="analytic_account_id"/>
+                        </group>
+                        <group>
+                            <field name="period_start"/>
+                            <field name="period_end"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Budget vs Actual">
+                            <group>
+                                <group string="Fuel">
+                                    <field name="budgeted_fuel"/>
+                                    <field name="actual_fuel"/>
+                                </group>
+                                <group string="Maintenance">
+                                    <field name="budgeted_maintenance"/>
+                                    <field name="actual_maintenance"/>
+                                </group>
+                                <group string="Insurance">
+                                    <field name="budgeted_insurance"/>
+                                    <field name="actual_insurance"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fleet_budget" model="ir.actions.act_window">
+        <field name="name">Fleet Budgets</field>
+        <field name="res_model">fleet.budget</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

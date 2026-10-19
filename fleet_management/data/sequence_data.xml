@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="seq_fleet_trip_request" model="ir.sequence">
+        <field name="name">Fleet Trip Request</field>
+        <field name="code">fleet.trip.request</field>
+        <field name="prefix">TRIP/</field>
+        <field name="padding">5</field>
+    </record>
+
+    <record id="seq_fleet_fuel_request" model="ir.sequence">
+        <field name="name">Fleet Fuel Request</field>
+        <field name="code">fleet.fuel.request</field>
+        <field name="prefix">FUEL/</field>
+        <field name="padding">5</field>
+    </record>
+
+    <record id="seq_fleet_maintenance_request" model="ir.sequence">
+        <field name="name">Fleet Maintenance Request</field>
+        <field name="code">fleet.maintenance.request</field>
+        <field name="prefix">MAINT/</field>
+        <field name="padding">5</field>
+    </record>
+</odoo>

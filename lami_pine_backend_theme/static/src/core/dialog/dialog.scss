@@ -1,0 +1,11 @@
+// Template Theme: customize this file for your theme.
+// This file contains styles for custom dialog (modal) components.
+
+// Styling for the button that toggles dialog size (e.g., fullscreen).
+.tt_btn_dialog_size {
+	color: $btn-close-color;
+	opacity: $btn-close-opacity;
+	&:hover {
+	    opacity: $btn-close-hover-opacity;
+	}
+}

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- KPI Pivot and Graph Views for Incidents -->
+    <record id="view_fleet_incident_pivot" model="ir.ui.view">
+        <field name="name">fleet.incident.pivot</field>
+        <field name="model">fleet.incident</field>
+        <field name="arch" type="xml">
+            <pivot string="Incident Analysis" display_quantity="true">
+                <field name="incident_type" type="row"/>
+                <field name="date" interval="month" type="col"/>
+                <field name="repair_cost" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_fleet_incident_graph" model="ir.ui.view">
+        <field name="name">fleet.incident.graph</field>
+        <field name="model">fleet.incident</field>
+        <field name="arch" type="xml">
+            <graph string="Incidents by Type" type="bar">
+                <field name="incident_type" type="row"/>
+                <field name="repair_cost" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_fleet_incident_kpi" model="ir.actions.act_window">
+        <field name="name">Incident KPI</field>
+        <field name="res_model">fleet.incident</field>
+        <field name="view_mode">graph,pivot,list</field>
+    </record>
+
+    <!-- Additional KPIs would typically link to specific standard Odoo dashboard menus or use board.board -->
+</odoo>

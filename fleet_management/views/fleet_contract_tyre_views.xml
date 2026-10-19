@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_fleet_vehicle_contract_tree" model="ir.ui.view">
+        <field name="name">fleet.vehicle.contract.tree</field>
+        <field name="model">fleet.vehicle.contract</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="vehicle_id"/>
+                <field name="vendor_id"/>
+                <field name="contract_type"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fleet_vehicle_contract_form" model="ir.ui.view">
+        <field name="name">fleet.vehicle.contract.form</field>
+        <field name="model">fleet.vehicle.contract</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="vehicle_id"/>
+                            <field name="vendor_id"/>
+                            <field name="contract_type"/>
+                        </group>
+                        <group>
+                            <field name="monthly_cost"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                        </group>
+                    </group>
+                    <group string="Terms and Conditions">
+                        <field name="notes" nolabel="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fleet_vehicle_contract" model="ir.actions.act_window">
+        <field name="name">Vehicle Contracts</field>
+        <field name="res_model">fleet.vehicle.contract</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_fleet_vehicle_tyre_tree" model="ir.ui.view">
+        <field name="name">fleet.vehicle.tyre.tree</field>
+        <field name="model">fleet.vehicle.tyre</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="replacement_alert == True">
+                <field name="name"/>
+                <field name="vehicle_id"/>
+                <field name="position"/>
+                <field name="current_mileage"/>
+                <field name="expected_life"/>
+                <field name="replacement_alert" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fleet_vehicle_tyre_form" model="ir.ui.view">
+        <field name="name">fleet.vehicle.tyre.form</field>
+        <field name="model">fleet.vehicle.tyre</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="vehicle_id"/>
+                            <field name="position"/>
+                        </group>
+                        <group>
+                            <field name="install_date"/>
+                            <field name="install_mileage"/>
+                            <field name="expected_life"/>
+                            <field name="current_mileage"/>
+                            <field name="replacement_alert"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fleet_vehicle_tyre" model="ir.actions.act_window">
+        <field name="name">Vehicle Tyres</field>
+        <field name="res_model">fleet.vehicle.tyre</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

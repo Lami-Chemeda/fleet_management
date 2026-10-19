@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Template Theme: customize this file for your theme. -->
+
+<odoo>
+
+    <!-- Inherit the standard Odoo Settings form to add theme customization options -->
+	<record id="view_res_config_settings_colors_form" model="ir.ui.view">
+	    <field name="name">res.config.settings.form</field>
+	    <field name="model">res.config.settings</field>
+	    <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+	    <field name="arch" type="xml">
+            <!-- Add a new 'Theme Settings' tab after 'General Settings' -->
+	    	<xpath expr="//app[@name='general_settings']" position="after">
+                <app data-string="Theme Settings" string="Theme Settings" name="pine_backend_theme_settings" logo="/lami_pine_backend_theme/static/description/logo_black.png" groups="base.group_user">
+                    <block title="Theme" id="pine_backend_theme_settings">
+
+                        <!-- Background assets and logos used on system-wide branding -->
+                        <setting string="Theme Images" company_dependent="1" help="Image assets used by sidebar, home hero, and auth pages.">
+                            <div class="w-50 row">
+                                <label for="theme_left_bg_image" string="Sidebar Brand Background" class="o_light_label mb-1"/>
+                                <field name="theme_left_bg_image" widget="image" class="ml-4 pine_square_image"/>
+                            </div>
+                            <div class="w-50 row mt-2">
+                                <label for="theme_hero_section_bg" string="Hero Section Background" class="o_light_label mb-1"/>
+                                <field name="theme_hero_section_bg" widget="image" class="ml-4 pine_square_image"/>
+                            </div>
+                            <div class="w-50 row mt-2">
+                                <label for="theme_login_page_logo" string="Login Page Logo" class="o_light_label mb-1"/>
+                                <field name="theme_login_page_logo" widget="image" class="ml-4 pine_square_image"/>
+                            </div>
+                            <div class="w-50 row mt-2">
+                                <label for="theme_login_left_panel_bg_image" string="Login Left Panel Background" class="o_light_label mb-1"/>
+                                <field name="theme_login_left_panel_bg_image" widget="image" class="ml-4 pine_square_image"/>
+                            </div>
+                        </setting>
+
+                        <!-- Visual configuration for Login/Signup/Reset Password -->
+                        <setting string="Auth Pages Layout &amp; Branding" help="Shared behavior for Login, Reset Password, and Signup pages.">
+                            <div class="w-50 row">
+                                <label for="theme_login_show_info_panel" string="Show Left Info Panel" class="d-block w-75 py-2"/>
+                                <field name="theme_login_show_info_panel" class="d-block w-25 p-0 m-0"/>
+                            </div>
+                            <div class="w-50 column mt-2">
+                                <label for="theme_login_brand_text" string="Login and Reset Brand Text" class="o_light_label mb-1 d-block w-50"/>
+                                <field name="theme_login_brand_text" placeholder="Enter auth page brand text" class="ml-4 w-50"/>
+                            </div>
+                        </setting>
+
+                        <!-- Theming colors for the authentication flow -->
+                        <setting string="Auth Pages Colors" help="Shared colors for info panel, form panel, and secondary actions on auth pages.">
+                            <div class="w-50 row">
+                                <label for="theme_color_login_left_panel_bg" string="Left Panel Background" class="d-block w-75 py-2"/>
+                                <field name="theme_color_login_left_panel_bg" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_login_right_panel_bg" string="Right Panel Background" class="d-block w-75 py-2"/>
+                                <field name="theme_color_login_right_panel_bg" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_login_left_panel_overlay" string="Left Panel Image Overlay" class="d-block w-75 py-2"/>
+                                <field name="theme_color_login_left_panel_overlay" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_login_left_panel_overlay_opacity" string="Left Panel Overlay Opacity" class="d-block w-75 py-2"/>
+                                <field name="theme_login_left_panel_overlay_opacity" class="d-block w-25 p-0 m-0"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_login_company_text" string="Company Text Color" class="d-block w-75 py-2"/>
+                                <field name="theme_color_login_company_text" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_login_motto_text" string="Motto Text Color" class="d-block w-75 py-2"/>
+                                <field name="theme_color_login_motto_text" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_login_primary_button" string="Login/Reset Button Background" class="d-block w-75 py-2"/>
+                                <field name="theme_color_login_primary_button" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_login_other_button" string="Other Buttons Background" class="d-block w-75 py-2"/>
+                                <field name="theme_color_login_other_button" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_login_other_button_text" string="Other Buttons Text" class="d-block w-75 py-2"/>
+                                <field name="theme_color_login_other_button_text" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 column">
+                                <label for="theme_motto" string="Motto" class="o_light_label mb-1 d-block w-50"/>
+                                <field name="theme_motto" placeholder="Enter company motto here" class="ml-4 w-50"/>
+                            </div>
+                        </setting>
+
+                        <!-- Settings to control the hero section header on the home screen -->
+                        <setting string="Home Hero Typography" help="Control kicker, title, and lead text on the home hero section.">
+                            <div class="w-50 row">
+                                <label for="theme_color_home_kicker" string="Kicker Color" class="d-block w-75 py-2"/>
+                                <field name="theme_color_home_kicker" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_home_kicker_size" string="Kicker Size (px)" class="d-block w-75 py-2"/>
+                                <field name="theme_home_kicker_size" class="d-block w-25 p-0 m-0"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_home_kicker_weight" string="Kicker Weight" class="d-block w-75 py-2"/>
+                                <field name="theme_home_kicker_weight" class="d-block w-25 p-0 m-0"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_home_title" string="Title Color" class="d-block w-75 py-2"/>
+                                <field name="theme_color_home_title" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_home_title_size" string="Title Size (px)" class="d-block w-75 py-2"/>
+                                <field name="theme_home_title_size" class="d-block w-25 p-0 m-0"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_home_title_weight" string="Title Weight" class="d-block w-75 py-2"/>
+                                <field name="theme_home_title_weight" class="d-block w-25 p-0 m-0"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_home_lead" string="Lead Color" class="d-block w-75 py-2"/>
+                                <field name="theme_color_home_lead" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_home_lead_size" string="Lead Size (px)" class="d-block w-75 py-2"/>
+                                <field name="theme_home_lead_size" class="d-block w-25 p-0 m-0"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_home_lead_weight" string="Lead Weight" class="d-block w-75 py-2"/>
+                                <field name="theme_home_lead_weight" class="d-block w-25 p-0 m-0"/>
+                            </div>
+                        </setting>
+                        <!-- Functional UI colors for elements like text, buttons and backgrounds -->
+                        <setting string="Core Colors" help="Global theme foundation colors used throughout backend views.">
+                            <div class="w-50 row">
+                                <label for="theme_color_theme_primary" string="Primary" class="d-block w-75 py-2"/>
+                                <field name="theme_color_theme_primary" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_theme_background" string="Background" class="d-block w-75 py-2"/>
+                                <field name="theme_color_theme_background" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_theme_text" string="Text" class="d-block w-75 py-2"/>
+                                <field name="theme_color_theme_text" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_theme_text_muted" string="Muted Text" class="d-block w-75 py-2"/>
+                                <field name="theme_color_theme_text_muted" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_theme_button" string="Button" class="d-block w-75 py-2"/>
+                                <field name="theme_color_theme_button" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_theme_button_text" string="Button Text" class="d-block w-75 py-2"/>
+                                <field name="theme_color_theme_button_text" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                        </setting>
+
+                        <!-- Customizing colors for main interface areas -->
+                        <setting string="Navigation Colors" help="Colors for hero overlay, sidebar, top bar, and bottom app labels.">
+                            <div class="w-50 row">
+                                <label for="theme_color_hero_overlay_start" string="Hero Overlay Start" class="d-block w-75 py-2"/>
+                                <field name="theme_color_hero_overlay_start" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_hero_overlay_end" string="Hero Overlay End" class="d-block w-75 py-2"/>
+                                <field name="theme_color_hero_overlay_end" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_hero_overlay_opacity" string="Hero Overlay Opacity" class="d-block w-75 py-2"/>
+                                <field name="theme_hero_overlay_opacity" class="d-block w-25 p-0 m-0"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_sidebar_background" string="Sidebar Background" class="d-block w-75 py-2"/>
+                                <field name="theme_color_sidebar_background" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_sidebar_text" string="Sidebar Text" class="d-block w-75 py-2"/>
+                                <field name="theme_color_sidebar_text" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_sidebar_icon" string="Sidebar Icon" class="d-block w-75 py-2"/>
+                                <field name="theme_color_sidebar_icon" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_sidebar_footer_text" string="Bottom Apps Text" class="d-block w-75 py-2"/>
+                                <field name="theme_color_sidebar_footer_text" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_topbar_background" string="Top Bar Background" class="d-block w-75 py-2"/>
+                                <field name="theme_color_topbar_background" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_topbar_text" string="Top Bar Text" class="d-block w-75 py-2"/>
+                                <field name="theme_color_topbar_text" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_topbar_search_background" string="Top Bar Search Background" class="d-block w-75 py-2"/>
+                                <field name="theme_color_topbar_search_background" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_topbar_search_border" string="Top Bar Search Border" class="d-block w-75 py-2"/>
+                                <field name="theme_color_topbar_search_border" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_topbar_search_placeholder" string="Top Bar Search Placeholder" class="d-block w-75 py-2"/>
+                                <field name="theme_color_topbar_search_placeholder" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_topbar_search_text" string="Top Bar Search Text" class="d-block w-75 py-2"/>
+                                <field name="theme_color_topbar_search_text" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_left_background" string="Brand Background" class="d-block w-75 py-2"/>
+                                <field name="theme_color_left_background" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_left_text" string="Brand Text" class="d-block w-75 py-2"/>
+                                <field name="theme_color_left_text" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                        </setting>
+
+                        <!-- Highlighting colors for selected and hovered menus -->
+                        <setting string="Sidebar State Colors" help="Active and hover state colors for sidebar menus and bottom apps/settings items.">
+                            <div class="w-50 row">
+                                <label for="theme_color_sidebar_active_indicator" string="Active Indicator" class="d-block w-75 py-2"/>
+                                <field name="theme_color_sidebar_active_indicator" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_sidebar_active_background" string="Active Background" class="d-block w-75 py-2"/>
+                                <field name="theme_color_sidebar_active_background" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_sidebar_active_text" string="Active Text" class="d-block w-75 py-2"/>
+                                <field name="theme_color_sidebar_active_text" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_sidebar_active_icon" string="Active Menu Icon" class="d-block w-75 py-2"/>
+                                <field name="theme_color_sidebar_active_icon" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_sidebar_footer_active_text" string="Apps and Setting Menu Active" class="d-block w-75 py-2"/>
+                                <field name="theme_color_sidebar_footer_active_text" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_sidebar_hover_background" string="Menu Hover Background" class="d-block w-75 py-2"/>
+                                <field name="theme_color_sidebar_hover_background" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_sidebar_hover_text" string="Menu Hover Text" class="d-block w-75 py-2"/>
+                                <field name="theme_color_sidebar_hover_text" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                        </setting>
+
+                        <!-- Status indicator styles for various views -->
+                        <setting string="Badge Colors" help="Badge palette used across kanban/list/dashboard indicators.">
+                            <div class="w-50 row">
+                                <label for="theme_color_badge_background" string="Badge Background" class="d-block w-75 py-2"/>
+                                <field name="theme_color_badge_background" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="theme_color_badge_text" string="Badge Text" class="d-block w-75 py-2"/>
+                                <field name="theme_color_badge_text" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                        </setting>
+
+                        <!-- System-defined utility colors for notifications -->
+                        <setting string="Context Colors" help="System semantic colors for info, success, warning, and danger states.">
+                            <div class="w-50 row">
+                                <label for="color_info_light" string="Info" class="d-block w-75 py-2"/>
+                                <field name="color_info_light" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="color_success_light" string="Success" class="d-block w-75 py-2"/>
+                                <field name="color_success_light" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="color_warning_light" string="Warning" class="d-block w-75 py-2"/>
+                                <field name="color_warning_light" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                            <div class="w-50 row">
+                                <label for="color_danger_light" string="Danger" class="d-block w-75 py-2"/>
+                                <field name="color_danger_light" class="d-block w-25 p-0 m-0" widget="color"/>
+                            </div>
+                        </setting>
+
+                        <!-- Maintenance and administrative tools for the theme -->
+                        <setting string="Theme Actions" help="Reset all Pine theme settings to defaults.">
+                            <button
+                                name="action_reset_all_theme_settings"
+                                icon="oi-arrow-right"
+                                type="object"
+                                string="Reset All Theme Settings"
+                                class="btn-link"
+                            />
+                        </setting>
+                    </block>
+                </app>
+	    	</xpath>
+	    </field>
+	</record>
+	
+</odoo>

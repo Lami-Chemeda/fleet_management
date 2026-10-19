@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Template Theme: customize this file for your theme. -->
+
+<templates xml:space="preserve">
+
+  <!-- Inherit and extend the standard Odoo UserMenu -->
+  <t t-name="lami_pine_backend_theme.UserMenu" t-inherit="web.UserMenu" t-inherit-mode="extension">
+    <!-- Replace the default user menu toggle button with a custom one -->
+    <xpath expr="//button" position="replace">
+      <button class="py-1 py-lg-0 my_theme_user_toggle">
+        <span class="my_theme_user_block">
+          <!-- User avatar -->
+          <img class="o_avatar o_user_avatar rounded" t-att-src="source" alt="User"/>
+          <span class="my_theme_user_text">
+            <!-- User name -->
+            <span class="my_theme_user_name" t-esc="userName"/>
+            <!-- User role (added via JS patch in user_menu.js) -->
+            <span class="my_theme_user_role" t-esc="userRole"/>
+          </span>
+        </span>
+      </button>
+    </xpath>
+  </t>
+
+</templates>

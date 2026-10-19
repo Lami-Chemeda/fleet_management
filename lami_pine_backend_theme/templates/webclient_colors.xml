@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Template Theme: customize this file for your theme. -->
+
+<odoo>
+	
+    <!-- Inherit the webclient bootstrap to customize the browser's theme color -->
+    <template id="my_theme_webclient_bootstrap_colors" inherit_id="web.webclient_bootstrap">
+        <!-- Replace the standard theme-color meta tag with a dynamic one based on the color scheme -->
+        <xpath expr="//meta[@name='theme-color']" position="replace">
+            <meta 
+            	name="theme-color" 
+            	t-att-content="'#242733' if request.httprequest.cookies.get('color_scheme') == 'dark' else '#714B67'"
+            />
+        </xpath>
+    </template>
+    
+</odoo>

@@ -1,0 +1,12 @@
+// Template Theme: customize this file for your theme.
+// This file contains reusable SCSS mixins for the theme.
+
+// Mixin to hide scrollbars while maintaining scroll functionality.
+// Useful for clean sidebars or horizontal menus.
+@mixin tt-disable-scrollbar {
+	scrollbar-width: none; // Firefox
+	-ms-overflow-style: none; // IE and Edge
+    &::-webkit-scrollbar {
+	  display: none; // Chrome, Safari, and Opera
+	}
+}

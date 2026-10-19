@@ -1,0 +1,1375 @@
+// Template Theme: customize this file for your theme.
+// This file contains styles for the Apps Menu (the full-screen app launcher).
+
+.o_navbar_apps_menu .dropdown-toggle {
+	padding: 0px 14px !important;
+}
+
+// Toggle Button Icon Switching
+.my_theme_apps_toggle {
+    // Ensure icons are centered and behave well
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; // Tap area without visual container
+    height: 40px;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    position: relative;
+    z-index: 10001; // Stay above the sidebar menu
+    transition: transform 0.2s ease;
+    
+    i { 
+        font-size: 20px;
+        color: #0f172a;
+        font-weight: 900;
+        transition: transform 0.2s ease, opacity 0.2s ease, color 0.2s ease;
+    }
+
+    &:hover {
+        transform: translateY(-1px);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(47, 116, 189, 0.25) !important;
+    }
+    
+    // Default state: Show bars, hide times
+    .fa-times { 
+        display: none !important; 
+    }
+    
+    // Open state: Hide bars, show times
+    &.show, &[aria-expanded="true"] {
+        .fa-bars { 
+            display: none !important; 
+        }
+        .fa-times { 
+            display: inline-block !important; 
+            animation: fadeInRotate 0.3s forwards;
+        }
+    }
+}
+
+@keyframes fadeInRotate {
+    from { opacity: 0; transform: rotate(-90deg); }
+    to { opacity: 1; transform: rotate(0deg); }
+}
+
+.my_theme_apps_header {
+    width: 100%;
+    padding: 22px 28px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.my_theme_apps_heading {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.my_theme_apps_title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+}
+
+.my_theme_apps_subtitle {
+    font-size: 11px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+
+.my_theme_apps_search {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(255, 255, 255, 0.85);
+    color: #475569;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-align: left;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+    cursor: pointer;
+}
+
+.my_theme_apps_search i {
+    font-size: 14px;
+}
+
+.my_theme_apps_search_hint {
+    margin-left: auto;
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.my_theme_apps_search:hover {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.12);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    color: #1f2937;
+}
+
+.my_theme_apps_search:focus-visible {
+    outline: none;
+    border-color: rgba(47, 116, 189, 0.4);
+    box-shadow: 0 0 0 3px rgba(47, 116, 189, 0.2);
+}
+
+.my_theme_apps_list {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0 28px 28px;
+}
+	
+// The main container for the apps menu dropdown.
+.tt_app_menu.dropdown-menu {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch;
+    right: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    max-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: none;
+    border-radius: 0;
+    user-select: none;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    z-index: 9998; // Content z-index
+    
+    // Glassmorphism background effect
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    // Large Display: Centering the apps list on large screens.
+    @include media-breakpoint-up(lg) {
+        padding: {
+            left: 20vw;
+            right: 20vw;
+        }
+        .my_theme_apps_header{
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .my_theme_apps_header,
+        .my_theme_apps_list {
+            padding-left: 0;
+            padding-right: 0;
+        }
+    }
+
+    // Grid System: Column adjustments for icon spacing.
+    .o_app {
+        margin-top: 20px;
+        width: percentage(1/3); // 3 columns on mobile
+        background: none !important;
+        @include media-breakpoint-up(sm) {
+            width: percentage(1/4); // 4 columns on small screens
+        }
+        @include media-breakpoint-up(md) {
+            width: percentage(1/6); // 6 columns on medium+ screens
+        }
+
+       	> a {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+      		.tt_app_icon {
+            	width: 100%;
+            	padding: 10px;
+            	max-width: 70px;
+            	border-radius: 0.375rem;
+            	background-color: $white;
+            	transform-origin: center bottom;
+            	transition: box-shadow ease-in 0.1s, transform ease-in 0.1s;
+            	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2), 0 4px 4px rgba(0, 0, 0, 0.02);
+            }
+            .tt_app_name {
+                color: $tt-appsmenu-color; 
+            }
+       	}
+
+        // Hover effect for app icons.
+        &:hover {
+            .tt_app_icon {
+                box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2), 0 8px 8px rgba(0, 0, 0, 0.03);
+    			transform: translateY(-2px);
+            }
+        }
+    }
+}
+
+// Mobile Sidebar Layout: Overrides standard dropdown behavior on smaller devices (less than 901px).
+@media (max-width: 900px) {
+    .tt_app_menu.dropdown-menu::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.38);
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .tt_app_menu.dropdown-menu {
+        // Position as a fixed sidebar coming from the RIGHT
+        position: fixed !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        left: auto !important;
+        right: 0 !important; // Anchored to right
+        
+        // Dynamic Width
+        width: 85vw;
+        max-width: 400px;
+
+        height: 100vh !important;
+        max-height: 100vh !important;
+        
+        transform: none !important; // Reset popper transforms
+        margin: 0 !important;
+        
+        // Glassmorphism / Theme Design
+        border: none;
+        border-left: 1px solid rgba(255, 255, 255, 0.4);
+        border-top-left-radius: 24px;
+        border-bottom-left-radius: 24px;
+        background: rgba(255, 255, 255, 0.92) !important;
+        background: linear-gradient(160deg, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 0.95) 100%) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        box-shadow: -5px 0 35px rgba(0, 0, 0, 0.15); // Shadow to the left
+        
+        padding: 0 !important;
+        
+        display: flex !important;
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        overflow-y: hidden !important;
+        overflow-x: hidden;
+        z-index: 9999;
+        
+        // Animate entrance
+        animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+
+        .my_theme_apps_header {
+            padding: 72px 16px 12px;
+            background: rgba(255, 255, 255, 0.7);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+        }
+
+        .my_theme_apps_search_hint {
+            display: none;
+        }
+
+        /* Apps List Container */
+        .my_theme_apps_list {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 0 16px 20px 16px;
+            gap: 10px;
+        }
+
+        /* Mobile Systray at bottom of sidebar */
+        .my_theme_mobile_systray {
+            flex: 0 0 auto;
+            // Translucent footer to match glass theme
+            background: rgba(255, 255, 255, 0.6);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 16px 20px;
+            display: flex !important;
+            flex-direction: row-reverse;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+
+            /* Cleanup utility icons */
+            .o_systray_item {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                .dropdown-toggle::after { display: none !important; }
+
+                .dropdown-toggle {
+                    background: rgba(255, 255, 255, 0.8);
+                    border: 1px solid rgba(0,0,0,0.06);
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+                    width: 42px;
+                    height: 42px;
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 0;
+                    color: #64748b;
+                    margin: 0;
+                    transition: all 0.2s;
+                    
+                    i {
+                        font-size: 18px;
+                        margin: 0;
+                        transform: none !important;
+                    }
+                    
+                    &:active {
+                        transform: scale(0.95);
+                        background: #fff;
+                    }
+                }
+                
+                .o_notification_counter {
+                    top: -2px;
+                    right: -2px;
+                    background: #ef4444;
+                    font-size: 10px;
+                    box-shadow: 0 0 0 2px #fff;
+                }
+            }
+
+            .o_user_menu {
+                 flex: 1 1 auto;
+                 display: flex;
+                 justify-content: flex-end;
+                 
+                 .dropdown-toggle {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    background: transparent;
+                    border: none;
+                    box-shadow: none;
+                    padding: 4px;
+                    width: auto;
+                    height: auto;
+                    
+                    &::after { display: none !important; }
+
+                    .o_user_avatar {
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 12px; // Squircle for modern feel
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                        object-fit: cover;
+                    }
+
+                    .oe_topbar_name {
+                        display: block !important;
+                        font-family: inherit;
+                        font-weight: 700;
+                        color: #1e293b;
+                        font-size: 15px;
+                        text-align: right;
+                    }
+                 }
+            }
+        }
+
+        .o_app {
+            width: 100% !important;
+            margin-top: 0 !important;
+            padding: 0 !important;
+            border-bottom: none !important; // No full borders, use card style
+
+            > a {
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-start;
+                padding: 12px 16px;
+                gap: 16px;
+                height: auto;
+                background: rgba(255, 255, 255, 0.5); // Subtle card bg
+                border-radius: 16px;
+                border: 1px solid transparent;
+                transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+                
+                .tt_app_icon {
+                    width: 46px; 
+                    height: 46px;
+                    max-width: 46px;
+                    padding: 8px;
+                    border-radius: 12px;
+                    background-color: #fff;
+                    border: 1px solid rgba(0,0,0,0.05);
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+                    margin-bottom: 0; 
+                    transition: transform 0.2s;
+                }
+                
+                .tt_app_name {
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: #475569;
+                    text-align: left;
+                    margin-top: 0;
+                    letter-spacing: -0.01em;
+                }
+            }
+            
+            &:hover {
+                > a {
+                   background: #fff;
+                   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                   transform: translateX(-4px); // Slight pull interaction
+                }
+                
+                > a .tt_app_name {
+                    color: #0f172a;
+                }
+                .tt_app_icon {
+                    transform: scale(1.05);
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+                }
+            }
+        }
+    }
+}
+
+// Small Mobile: Adjusts sidebar width for very narrow screens.
+@media (max-width: 480px) {
+    .tt_app_menu.dropdown-menu {
+        max-width: 300px;
+    }
+}
+
+// Ultra Mobile: Scaling down apps menu toggle and titles for compact displays.
+@media (max-width: 575.98px) {
+    .my_theme_apps_toggle {
+        width: 36px;
+        height: 36px;
+    }
+
+    .my_theme_apps_title {
+        font-size: 16px;
+    }
+
+    .my_theme_apps_subtitle {
+        letter-spacing: 0.1em;
+    }
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+// ==========================================
+// NEW REDESIGN STYLES (HB_code.html Match)
+// ==========================================
+
+// Override wrapper to fullscreen on mobile
+@media (max-width: 900px) {
+    .tt_app_menu.dropdown-menu {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        left: 0 !important;
+        right: 0 !important;
+        background: #f9fafb !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        transform: none !important;
+    }
+}
+
+.my_theme_menu_wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    background-color: #f9fafb;
+    color: #0f172a;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+    position: relative;
+}
+
+.my_theme_menu_header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background-color: #ffffff;
+}
+
+.my_theme_menu_title {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+    color: #0f172a;
+    letter-spacing: -0.025em;
+}
+
+.my_theme_menu_close_btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f1f5f9;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    color: #475569;
+    transition: background-color 0.2s;
+    
+    &:hover, &:active {
+        background-color: #e2e8f0;
+    }
+    
+    i, span {
+        font-size: 20px;
+    }
+}
+
+.my_theme_menu_search_container {
+    flex: 0 0 auto;
+    padding: 16px 20px;
+}
+
+.my_theme_menu_search_input_wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: #f1f5f9;
+    border-radius: 16px;
+    padding: 12px 14px;
+    transition: all 0.2s;
+    
+    &:focus-within {
+        background-color: #ffffff;
+        box-shadow: 0 0 0 2px #3b82f6;
+    }
+}
+
+.my_theme_search_icon {
+    color: #94a3b8;
+    font-size: 18px;
+    margin-right: 12px;
+}
+
+.my_theme_menu_search_input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: #1e293b;
+    width: 100%;
+    
+    &::placeholder {
+        color: #64748b;
+    }
+}
+
+.my_theme_menu_apps_list {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 0 20px 100px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.my_theme_menu_apps_grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.my_theme_app_item_container {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    background: transparent !important;
+    &:hover, &:focus {
+        background: transparent !important;
+    }
+}
+
+.my_theme_app_item_btn {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 16px;
+    background-color: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 16px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    text-decoration: none;
+    transition: all 0.1s ease;
+    cursor: pointer;
+    text-align: left;
+    
+    &:hover, &:active {
+        background-color: #f1f5f9;
+        border-color: #e2e8f0;
+        transform: scale(0.98);
+    }
+}
+
+.my_theme_app_icon_box {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent !important;
+    border-radius: 12px;
+    margin-right: 16px;
+}
+
+.my_theme_app_item_container:nth-child(7n+1) .my_theme_app_icon_box { background-color: #dbeafe; color: #2563eb; }
+.my_theme_app_item_container:nth-child(7n+2) .my_theme_app_icon_box { background-color: #d1fae5; color: #059669; }
+.my_theme_app_item_container:nth-child(7n+3) .my_theme_app_icon_box { background-color: #ffedd5; color: #ea580c; }
+.my_theme_app_item_container:nth-child(7n+4) .my_theme_app_icon_box { background-color: #f3e8ff; color: #9333ea; }
+.my_theme_app_item_container:nth-child(7n+5) .my_theme_app_icon_box { background-color: #fce7f3; color: #db2777; }
+.my_theme_app_item_container:nth-child(7n+6) .my_theme_app_icon_box { background-color: #e0e7ff; color: #4f46e5; }
+.my_theme_app_item_container:nth-child(7n+7) .my_theme_app_icon_box { background-color: #e2e8f0; color: #475569; }
+
+.my_theme_app_icon_img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.my_theme_app_text_box {
+    flex: 1;
+    min-width: 0;
+}
+
+.my_theme_app_name {
+    display: block;
+    font-weight: bold !important;
+    font-size: 24px !important;
+    color: #1e293b !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-left: 10px;
+}
+
+.my_theme_app_chevron {
+    color: #cbd5e1;
+    font-size: 20px;
+    margin-left: 8px;
+}
+
+.my_theme_menu_bottom_bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    padding: 16px 20px 32px;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid #f1f5f9;
+    z-index: 10;
+}
+
+.my_theme_menu_systray {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+// --- HB Mobile Design ---
+
+@media (max-width: 901px) {
+    .my_theme_menu_wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ffffff; /* bg-background-light / white */
+        display: flex;
+        flex-direction: column;
+        z-index: 9999;
+        font-family: 'Inter', sans-serif;
+        color: #0f172a; /* text-slate-900 */
+    }
+
+    .tt_mobile_header {
+        padding: 16px 20px 8px; /* px-5 pt-4 pb-2 */
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .tt_mobile_title {
+        font-size: 24px; /* text-2xl */
+        font-weight: 700; /* font-bold */
+        letter-spacing: -0.025em; /* tracking-tight */
+        margin: 0;
+        color: #0f172a;
+    }
+
+    .tt_mobile_close_btn {
+        width: 40px; /* w-10 */
+        height: 40px; /* h-10 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f1f5f9; /* bg-slate-100 */
+        border-radius: 9999px; /* rounded-full */
+        border: none;
+        cursor: pointer;
+        color: #475569; /* text-slate-600 */
+        font-size: 20px;
+    }
+
+    .tt_mobile_search_container {
+        padding: 16px 20px; /* px-5 py-4 */
+    }
+
+    .tt_mobile_search_box {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        background-color: #f1f5f9; /* bg-slate-100 */
+        border-radius: 16px; /* rounded-2xl */
+        padding: 14px 16px; /* py-3.5 pr-4 pl-11 roughly */
+    }
+    
+    .tt_mobile_search_box .fa-search {
+        position: absolute;
+        left: 16px;
+        color: #94a3b8; /* text-slate-400 */
+        font-size: 18px;
+    }
+
+    .tt_mobile_search_input {
+        width: 100%;
+        padding-left: 32px; /* pl-11 space */
+        background: transparent;
+        border: none;
+        outline: none;
+        font-size: 14px; /* text-sm */
+        color: #0f172a;
+    }
+    .tt_mobile_search_input::placeholder {
+        color: #64748b; /* placeholder-slate-500 */
+    }
+    .tt_mobile_search_box:focus-within {
+        background-color: #ffffff;
+        box-shadow: 0 0 0 2px #3B82F6; /* ring-2 ring-primary */
+    }
+
+    .tt_mobile_apps_list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0 20px 96px; /* px-5 pb-24 */
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .tt_mobile_apps_list::-webkit-scrollbar {
+        display: none;
+    }
+
+    .tt_mobile_grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px; /* gap-3 */
+    }
+
+    .tt_mobile_app_card {
+        display: flex;
+        align-items: center;
+        padding: 16px; /* p-4 */
+        background-color: #f8fafc; /* bg-slate-50 */
+        border-radius: 16px; /* rounded-2xl */
+        border: 1px solid #f1f5f9; /* border-slate-100 */
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+        transition: all 0.2s;
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .tt_mobile_app_card:active {
+        transform: scale(0.98);
+        background-color: #f1f5f9;
+    }
+
+    .tt_card_icon_box {
+        width: 48px; /* w-12 */
+        height: 48px; /* h-12 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #e0f2fe; /* bg-blue-100 approx */ 
+        border-radius: 12px; /* rounded-xl */
+        margin-right: 16px; /* mr-4 */
+        flex-shrink: 0;
+    }
+    
+    .tt_app_icon_img {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+    }
+
+    .tt_card_content {
+        flex: 1;
+        text-align: left;
+    }
+
+    .tt_card_title {
+        display: block;
+        font-weight: 600; /* font-semibold */
+        color: #1e293b; /* text-slate-800 */
+        font-size: 16px;
+    }
+
+    .tt_card_subtitle {
+        display: block;
+        font-size: 12px; /* text-xs */
+        color: #64748b; /* text-slate-500 */
+        margin-top: 2px;
+    }
+
+    .tt_card_chevron {
+        color: #cbd5e1; /* text-slate-300 */
+        font-size: 20px;
+    }
+
+    .tt_mobile_bottom {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        padding: 16px 20px 32px; /* px-5 pb-8 pt-4 */
+        background-color: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .tt_mobile_user_row {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .tt_systray_item {
+        margin-left: 8px;
+    }
+}
+
+// --- Revised Mobile Menu Styling (Fixes & New Bottom Section) ---
+
+@media (max-width: 901px) {
+    // 1. Right Sidebar with fixed width
+    .my_theme_menu_wrapper {
+        right: 0 !important;
+        left: auto !important;
+        width: 85%;
+        max-width: 320px;
+        box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+        border-left: 1px solid #e2e8f0;
+    }
+
+    // Hide external toggle when menu is open? 
+    // Usually Odoo handles the backdrop and clicking outside closes it. 
+    // We just ensure the menu looks correct.
+    
+    // 2. Clear out previous bottom section styles
+    .tt_mobile_bottom {
+        display: none !important; 
+    }
+
+    // 3. Compact Apps Card
+    .tt_mobile_app_card {
+        padding: 10px 12px !important;
+    }
+    .tt_card_icon_box {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 8px !important;
+        margin-right: 12px !important;
+    }
+    .tt_app_icon_img {
+        width: 20px !important;
+        height: 20px !important;
+    }
+    .tt_card_title {
+        font-size: 14px !important;
+    }
+    
+    // 4. Bottom Section: Profile List + User Info
+    .tt_mobile_bottom_section {
+        margin-top: auto;
+        border-top: 1px solid #f1f5f9;
+        background-color: #ffffff;
+    }
+
+    .tt_profile_menu_list {
+        padding: 16px 20px;
+    }
+    
+    .tt_profile_header {
+        font-size: 13px;
+        color: #94a3b8;
+        font-weight: 500;
+        margin-bottom: 12px;
+    }
+    
+    .tt_profile_item {
+        display: flex;
+        align-items: center;
+        padding: 10px 0;
+        cursor: pointer;
+        color: #334155;
+        transition: color 0.2s;
+    }
+    .tt_profile_item:hover {
+        color: #0f172a;
+    }
+    
+    .tt_profile_icon {
+        font-size: 18px;
+        width: 24px;
+        margin-right: 12px;
+        color: #64748b;
+        text-align: center;
+    }
+    
+    .tt_profile_text {
+        font-size: 15px;
+        font-weight: 500;
+        flex: 1;
+    }
+
+    // User Info Row at very bottom (Integrated Systray)
+    .tt_mobile_user_row {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        border-top: 1px solid #f1f5f9;
+        background: #ffffff;
+        min-height: 70px;
+    }
+    
+    .tt_user_identity_wrapper {
+        cursor: pointer;
+        overflow: hidden;
+        padding: 4px;
+        border-radius: 12px;
+        transition: background 0.2s;
+        
+        &:hover {
+            background: #f1f5f9;
+        }
+    }
+    
+    .tt_hide_sys_item {
+        opacity: 0;
+        pointer-events: none;
+        width: 0;
+        height: 0;
+        overflow: hidden;
+        position: absolute;
+    }
+    
+    .tt_user_avatar_box {
+        width: 44px;
+        height: 44px;
+        border-radius: 50% !important; // Fully rounded
+        overflow: hidden;
+        margin-right: 12px;
+        border: 2px solid #f1f5f9;
+        flex-shrink: 0;
+    }
+    .tt_user_avatar_img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50% !important;
+    }
+    
+    .tt_user_info_box {
+        flex: 1;
+        overflow: hidden;
+        margin-right: 8px;
+    }
+    
+    .tt_user_name {
+        display: block;
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.2;
+    }
+    
+    .tt_user_email {
+        display: block;
+        font-size: 11px;
+        color: #94a3b8;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 2px;
+    }
+
+    .tt_mobile_systray_strip {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        .tt_systray_item_wrap {
+            .o_systray_item {
+                display: flex;
+                align-items: center;
+                list-style: none;
+
+                .dropdown-toggle, button {
+                    background: #f8fafc !important;
+                    border: 1px solid #f1f5f9 !important;
+                    width: 38px;
+                    height: 38px;
+                    border-radius: 10px !important; // Soft rounded corners
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #64748b !important;
+                    padding: 0 !important;
+                    transition: all 0.2s;
+                    box-shadow: none !important;
+
+                    &::after { display: none !important; }
+
+                    i, .fa {
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        font-size: 16px !important;
+                    }
+
+                    &:active {
+                        background: #e2e8f0 !important;
+                        transform: scale(0.95);
+                    }
+                }
+
+                // Badge styling
+                .o_notification_counter {
+                    background: #ef4444 !important;
+                    border: 2px solid #fff !important;
+                    border-radius: 10px !important;
+                    font-size: 9px !important;
+                    padding: 1px 4px !important;
+                    top: -4px !important;
+                    right: -4px !important;
+                    min-width: 16px;
+                }
+            }
+        }
+    }
+    
+    .tt_user_chevron {
+        color: #cbd5e1;
+        font-size: 14px;
+        padding: 8px;
+        cursor: pointer;
+    }
+    
+    // Adjust Padding of Apps List to account for bottom section
+    .tt_mobile_apps_list {
+        padding-bottom: 20px !important;
+    }
+}
+
+// Ensure popovers from the footer open upwards and stay visible
+.o_popover, .dropdown-menu {
+    &.o-mail-MessagingMenu, &.o_user_menu, &.o-mail-ActivityMenu {
+        @media (max-width: 901px) {
+            z-index: 100010 !important; // Higher than sidebar
+        }
+    }
+}
+
+// --- Fixes for Transparency and Close Button ---
+
+// Ensure the backdrop of the dropdown (apps menu) is transparent or handled
+.dropdown-menu.tt_app_menu {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9990 !important;
+    pointer-events: none; // Allow clicks on backdrop to close if handled by Odoo
+}
+
+// Enable pointer events on our actual sidebar
+.my_theme_menu_wrapper {
+    pointer-events: auto;
+    // ensure background is white for the sidebar itself
+    background-color: #ffffff;
+}
+
+// Hide the "Old" Close Button (Toggle) when menu is open
+// We do this by ensuring the sidebar is on top of it, OR hiding it via the 'show' class if possible.
+// The toggle usually has z-index 10001. We will push it down or the sidebar up.
+@media (max-width: 901px) {
+    .my_theme_apps_toggle {
+        z-index: 9000 !important; // Lower than sidebar (9999)
+    }
+    
+    // Also style the systray items in the profile list
+    .tt_profile_menu_list .o_nav_entry,
+    .tt_profile_menu_list .dropdown {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 0 !important;
+        justify-content: flex-start;
+        color: #334155;
+    }
+    
+    .tt_profile_menu_list .fa {
+        font-size: 18px;
+        margin-right: 12px;
+        width: 24px;
+        text-align: center;
+    }
+    
+    // If systray items are just icons, we might want to make them bigger
+    .tt_profile_menu_list .o_nav_entry {
+        padding: 12px 0 !important;
+    }
+}
+
+// --- Strict Fixes for Toggle and Close Button ---
+
+@media (max-width: 901px) {
+    // Force hide the external toggle button when the menu is open.
+    // We target the toggle button when the menu wrapper is present/visible? 
+    // Usually handled by 'dropdown' state but we can try z-index manipulation again or just hide one if we know which one.
+    
+    // The "Old" toggle is .my_theme_apps_toggle. 
+    // The "New" close button is inside .tt_mobile_header -> .tt_mobile_close_btn.
+    
+    // Ensure the external toggle is behind the overlay/menu
+    .my_theme_apps_toggle {
+        z-index: 5 !important; 
+    }
+    
+    .my_theme_menu_wrapper {
+        z-index: 10005 !important; /* Top of everything */
+    }
+    
+    // Make sure transparency works by resetting background only on the sidebar element, not the container
+    .dropdown-menu.tt_app_menu {
+        background-color: transparent !important; 
+    }
+    
+    // Ensure the user row is visible
+    .tt_mobile_user_row {
+        display: flex !important;
+    }
+}
+
+// --- Final Fix for Blur and Double Close Button ---
+
+// 1. Remove ANY blur from the dropdown container (the empty space)
+.dropdown-menu.tt_app_menu {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: transparent !important; // Re-assert transparency
+}
+
+// 2. Hide the 'my_theme_apps_toggle' button when the dropdown is OPEN.
+// The dropdown menu is usually a sibling of the toggle or inside the same parent.
+// When open, the parent or the toggle has '.show'.
+// If we can't target it via sibling selector, we use a global approach or trust z-index.
+// But since z-index failed to hide it (maybe it's fixed position), let's try specific hiding.
+
+@media (max-width: 901px) {
+    // When the apps menu is open, the dropdown-menu 'tt_app_menu' is present in the DOM and visible.
+    // If the toggle is still visible, let's force push it back OR make it invisible if we can detect the state.
+    // However, CSS cannot select "previous sibling" or "parent".
+    // Alternatively, we style the close button inside the sidebar to be the ONLY focus.
+    
+    // Attempt to force the toggle to be lower z-index again, but stronger.
+    body .o_navbar .my_theme_apps_toggle {
+        z-index: 1 !important; 
+    }
+    
+    // Ensure the sidebar is definitely on top.
+    body .dropdown-menu.tt_app_menu .my_theme_menu_wrapper {
+        z-index: 99999 !important;
+        position: fixed; // Ensure it breaks out of stacking context if needed
+        right: 0;
+        top: 0;
+        bottom: 0;
+    }
+    
+    // If the old button is the "Times" icon showing up, hide the times icon specifically?
+    // The toggle switches from bars to times.
+    // We can just hide the times icon on mobile if we never want to use the toggle to close it (since we have a sidebar close button).
+    .my_theme_apps_toggle .fa-times {
+        display: none !important;
+    }
+    // Also ensure the bars icon is shown or hidden? 
+    // If we want the toggle to "disappear" or "look like it's gone under", we can just keep the bars.
+    // But if the user says "two close buttons", they see the X. So hiding the X solves it.
+}
+
+// --- Styles for Mapped Systray Items ---
+
+@media (max-width: 901px) {
+    // 1. Styling for individual systray items in the list
+    .tt_profile_item.mapped_systray_item {
+        display: flex;
+        align-items: center;
+        padding: 0; // The component inside will have padding
+        cursor: pointer;
+        
+        // Target the button or dropdown toggle inside the component
+        .dropdown-toggle, button {
+            display: flex !important;
+            align-items: center;
+            width: 100%;
+            background: transparent !important;
+            border: none !important;
+            padding: 12px 0 !important;
+            color: #334155 !important;
+            text-align: left;
+            box-shadow: none !important;
+            font-size: 15px;
+            font-weight: 500;
+            
+            &::after { display: none !important; } // Remove caret
+            
+            i, .fa {
+                font-size: 18px;
+                width: 24px;
+                margin-right: 12px;
+                color: #64748b;
+                text-align: center;
+                flex-shrink: 0;
+            }
+            
+            // Try to find labels or badges
+            .o_notification_counter {
+                margin-left: auto;
+                position: static !important;
+                background: #f1f5f9;
+                color: #64748b;
+                font-size: 11px;
+                padding: 2px 6px;
+                border-radius: 6px;
+                border: 1px solid #e2e8f0;
+            }
+        }
+    }
+
+    // 2. Styling for UserMenu in the footer
+    .tt_mobile_user_row_mapped {
+        display: flex;
+        align-items: center;
+        border-top: 1px solid #f1f5f9;
+        background: #f8fafc;
+        
+        // Hide standard Odoo user menu elements we don't want
+        .o_user_menu {
+            width: 100%;
+            
+            .dropdown-toggle {
+                display: flex !important;
+                align-items: center;
+                padding: 16px 20px !important;
+                width: 100%;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                color: inherit !important;
+                
+                &::after { 
+                    content: "\f107"; // fa-angle-down
+                    font-family: FontAwesome;
+                    margin-left: auto;
+                    border: none;
+                    color: #94a3b8;
+                    font-size: 16px;
+                }
+
+                .o_user_avatar {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    margin-right: 12px;
+                    border: 1px solid #e2e8f0;
+                    object-fit: cover;
+                }
+
+                .oe_topbar_name {
+                    flex: 1;
+                    display: flex !important;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: #0f172a;
+                    line-height: 1.2;
+                    
+                    // Email/Username placeholder if Odoo doesn't provide it in the same span
+                    &::after {
+                        content: attr(data-username) "Administrator"; // Fallback or search standard class
+                        font-size: 12px;
+                        color: #64748b;
+                        font-weight: 400;
+                        margin-top: 2px;
+                        display: block;
+                    }
+                }
+            }
+        }
+    }
+}

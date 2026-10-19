@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <!-- Inherit and patch the SettingsPage template to use custom icons -->
+    <t t-name="lami_pine_backend_theme.SettingsPage" t-inherit="web.SettingsPage" t-inherit-mode="extension">
+        <xpath expr="//div[contains(@class, 'settings_tab')]//span[contains(@class, 'icon')]" position="attributes">
+            <attribute name="t-attf-style">background : url('{{getModuleIcon(module)}}') no-repeat center;background-size:contain;</attribute>
+        </xpath>
+    </t>
+
+</templates>

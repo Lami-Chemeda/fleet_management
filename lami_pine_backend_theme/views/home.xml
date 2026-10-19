@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Template Theme: customize this file for your theme. -->
+<odoo>
+    <record id="action_pine_backend_theme_home" model="ir.actions.client">
+        <field name="name">Home</field>
+        <field name="tag">lami_pine_backend_theme.home</field>
+        <field name="path">home</field>
+    </record>
+
+    <menuitem id="menu_pine_backend_theme_home_root" name="Home" action="action_pine_backend_theme_home" sequence="1" web_icon="lami_pine_backend_theme,static/src/img/apps/home.png" groups="base.group_user" />
+</odoo>

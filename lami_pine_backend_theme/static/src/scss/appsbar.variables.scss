@@ -1,0 +1,17 @@
+// Template Theme: customize this file for your theme.
+// These variables control the appearance of the Apps Bar (sidebar or top bar depending on layout).
+
+// Default text color for items in the app bar.
+$tt-appbar-color: #dee2e6 !default;
+
+// Color for the active/selected item in the app bar.
+$tt-appbar-active: $o-brand-primary !default;
+
+// Background color for the app bar.
+$tt-appbar-background: #111827 !default;
+
+// Width of the sidebar when it is expanded (large screens).
+$tt-sidebar-large-width: 146px !default;
+
+// Width of the sidebar when it is collapsed (small screens or minimized state).
+$tt-sidebar-small-width: 46px !default;

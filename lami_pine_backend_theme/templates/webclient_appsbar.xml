@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Template Theme: customize this file for your theme. -->
+
+<odoo>
+	
+    <!-- Inherit the webclient bootstrap to add custom body classes -->
+	<template id="my_theme_webclient_bootstrap_appsbar" name="Web Client" inherit_id="web.webclient_bootstrap">
+        <!-- Add a class to the <body> tag based on the user's sidebar preference -->
+        <xpath expr="//t[@t-set='body_classname']" position="after">
+        	<t t-set="body_sidebar_classname" t-value="'tt_sidebar_type_' + request.env.user.sidebar_type or 'large'"/>
+            <t t-set="body_classname" t-value="'%s %s' % (body_classname, body_sidebar_classname)"/>
+        </xpath>
+    </template>
+    
+</odoo>

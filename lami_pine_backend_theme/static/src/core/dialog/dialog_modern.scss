@@ -1,0 +1,103 @@
+// Modern modal/dialog styling for lami_pine_backend_theme
+// Applies to OWL Dialog (web.Dialog) and legacy Bootstrap-style modals.
+
+// Keep values derived from existing Bootstrap/Odoo variables (no new palette).
+$tt-modal-radius: $border-radius-lg * 1.25;
+$tt-modal-shadow: $box-shadow-lg;
+$tt-modal-backdrop: rgba($black, 0.55);
+$tt-modal-border: rgba($black, 0.08);
+
+// 1) Backdrops
+// OWL Dialog does not render a separate .modal-backdrop element.
+// In that case, the .modal itself covers the viewport, so we style it.
+.o_dialog > .modal {
+    background-color: $tt-modal-backdrop;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+// Legacy/bootstrap modal backdrop
+.modal-backdrop,
+.modal-backdrop.show {
+    background-color: $tt-modal-backdrop;
+    opacity: 1;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+// 2) Modal container
+.modal {
+    // Ensure the dim/blur layer looks consistent when a backdrop is not used.
+    &.d-block {
+        background-color: $tt-modal-backdrop;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    .modal-dialog {
+        // Slightly more modern spacing and reduce harsh edges.
+        margin-top: $modal-dialog-margin-y-sm-up;
+        margin-bottom: $modal-dialog-margin-y-sm-up;
+    }
+
+    .modal-content {
+        border-radius: $tt-modal-radius;
+        border: 1px solid $tt-modal-border;
+        box-shadow: $tt-modal-shadow;
+        overflow: hidden;
+        background-clip: padding-box;
+    }
+
+    .modal-header,
+    .modal-footer {
+        border: 0;
+    }
+
+    .modal-header {
+        padding: 0.9rem 1.1rem;
+        // Subtle separation without divider lines.
+        background-color: rgba($black, 0.02);
+
+        .modal-title {
+            font-weight: 600;
+            letter-spacing: 0.1px;
+        }
+
+        .btn-close,
+        .o_expand_button,
+        .tt_btn_dialog_size {
+            // Make header actions feel lighter.
+            opacity: 0.7;
+            &:hover {
+                opacity: 1;
+            }
+        }
+    }
+
+    .modal-body {
+        padding: 1.1rem;
+    }
+
+    .modal-footer {
+        padding: 0.85rem 1.1rem 1.1rem;
+        gap: map-get($spacers, 2);
+        background-color: rgba($black, 0.01);
+    }
+}
+
+// 3) Fullscreen dialogs: keep Odoo behavior but preserve modern look
+@include media-breakpoint-down(sm) {
+    .modal.o_technical_modal.o_modal_full,
+    .modal.o_modal_full {
+        .modal-dialog {
+            margin: 0;
+            height: 100%;
+
+            .modal-content {
+                height: 100%;
+                border-radius: 0;
+                border: 0;
+            }
+        }
+    }
+}

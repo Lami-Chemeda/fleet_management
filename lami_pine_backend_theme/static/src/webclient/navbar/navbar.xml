@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Template Theme: customize this file for your theme. -->
+
+<templates xml:space="preserve">
+
+  <!-- Inherit and extend the standard Odoo NavBar component -->
+  <t t-name="lami_pine_backend_theme.NavBar" t-inherit="web.NavBar" t-inherit-mode="extension">
+    <!-- 
+      We replace the entire standard Odoo header with our custom themed layout.
+      This includes the topbar (brand/search), the apps row (pills), and the sub-navigation.
+    -->
+    <xpath expr="//header[contains(@class, 'o_navbar')]" position="replace">
+      <header class="o_navbar my_theme_navbar" t-ref="root">
+      
+      <!-- Section 1: Fixed Topbar 
+           Contains search in the middle, and system icons (systray) on the right. 
+      -->
+      <div class="my_theme_topbar">
+        <nav
+          class="o_main_navbar d-print-none my_theme_mainbar"
+          data-command-category="disabled"
+        >
+          <!-- 1.1 Mobile Hamburger Menu -->
+          <button class="my_theme_hamburger d-lg-none btn btn-link" t-on-click="toggleMobileSidebar">
+             <i class="fa fa-bars fa-lg"></i>
+          </button>
+          
+          <div class="my_theme_app_name d-none d-md-block ms-3 fs-4 fw-bold text-dark me-auto">
+            <t t-if="currentApp" t-esc="currentApp.name"/>
+          </div>
+
+          <!-- 1.2 Search Bar: Opens a popover dropdown -->
+          <div class="my_theme_search" role="search" t-ref="searchContainer" t-on-click="toggleSearchPopover">
+            <div class="my_theme_search_inner">
+              <i class="fa fa-search" aria-hidden="true"></i>
+              <input
+                class="my_theme_search_input"
+                type="search"
+                placeholder="Search modules, sub-modules..."
+                aria-label="Search"
+                t-ref="searchInput"
+                t-on-input="onSearchInput"
+                t-on-click.stop=""
+              />
+              <div class="o_popover dropdown-menu my_theme_search_popover" t-if="searchState.open" t-on-click.stop="">
+                <div class="popover-body">
+                  <div class="my_theme_search_popover_results">
+                    <t t-if="!searchState.query">
+                      <div class="my_theme_search_popover_hint">Start typing to search menus or users.</div>
+                    </t>
+                    <t t-if="searchState.loading">
+                      <div class="my_theme_search_popover_hint">Searching...</div>
+                    </t>
+                    <t t-if="searchState.query and !searchState.loading and searchState.results.length === 0">
+                      <div class="my_theme_search_popover_hint">No results found.</div>
+                    </t>
+                    <a
+                      t-foreach="searchState.results"
+                      t-as="command"
+                      t-key="command.id"
+                      class="my_theme_search_popover_item"
+                      t-att-href="command.href"
+                      t-on-click.prevent="() => this.onSearchSelect(command)"
+                    >
+                      <span class="my_theme_search_popover_icon">
+                        <t t-if="command.iconUrl">
+                          <img t-att-src="command.iconUrl" alt="" />
+                        </t>
+                        <t t-else="">
+                          <i class="fa fa-search" aria-hidden="true"></i>
+                        </t>
+                      </span>
+                      <span t-out="command.name"/>
+                    </a>
+                  </div>
+                  <t t-set="footerTips" t-value="getSearchFooterTips()"/>
+                  <div class="o_command_palette_footer" t-if="footerTips.length">
+                    <span>
+                      <span class="fw-bolder text-primary">TIP</span> — search for
+                      <t t-foreach="footerTips" t-as="tip" t-key="tip.namespace">
+                        <t t-if="!(tip_first || tip_last)">, </t>
+                        <t t-if="tip_last and !tip_first"> and </t>
+                        <span class="o_namespace btn-link text-primary cursor-pointer" t-on-click="() => this.applySearchNamespace(tip.namespace)">
+                          <span t-out="tip.namespace" class="fw-bolder text-primary"/><t t-out="tip.name"/>
+                        </span>
+                      </t>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mobile Search Overlay (small screens) -->
+          <div class="my_theme_search_mobile" t-att-class="{ 'is-open': searchState.mobileOpen }">
+            <div class="my_theme_search_mobile_header">
+              <button class="my_theme_search_mobile_close" type="button" t-on-click="closeMobileSearch">
+                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+              </button>
+              <div class="my_theme_search_mobile_input">
+                <i class="fa fa-search" aria-hidden="true"></i>
+                <input
+                  class="my_theme_search_input"
+                  type="search"
+                  placeholder="Search modules, sub-modules..."
+                  aria-label="Search"
+                  t-ref="searchInputMobile"
+                  t-on-input="onSearchInput"
+                />
+              </div>
+            </div>
+            <div class="my_theme_search_mobile_body">
+              <t t-if="!searchState.query">
+                <div class="my_theme_search_mobile_title">Recent searches</div>
+                <div class="my_theme_search_mobile_history" t-if="searchState.history.length">
+                  <button
+                    t-foreach="searchState.history"
+                    t-as="term"
+                    t-key="term"
+                    class="my_theme_search_mobile_history_item"
+                    t-on-click="() => this.onHistorySelect(term)"
+                    type="button"
+                  >
+                    <i class="fa fa-history" aria-hidden="true"></i>
+                    <span t-esc="term"/>
+                  </button>
+                </div>
+                <div class="my_theme_search_mobile_empty" t-else="">No recent searches.</div>
+              </t>
+              <t t-else="">
+                <t t-if="searchState.loading">
+                  <div class="my_theme_search_mobile_hint">Searching...</div>
+                </t>
+                <t t-if="!searchState.loading and searchState.results.length === 0">
+                  <div class="my_theme_search_mobile_hint">No results found.</div>
+                </t>
+                <div class="my_theme_search_mobile_results" t-if="searchState.results.length">
+                  <a
+                    t-foreach="searchState.results"
+                    t-as="command"
+                    t-key="command.id"
+                    class="my_theme_search_popover_item"
+                    t-att-href="command.href"
+                    t-on-click.prevent="() => this.onSearchSelect(command)"
+                  >
+                    <span class="my_theme_search_popover_icon">
+                      <t t-if="command.iconUrl">
+                        <img t-att-src="command.iconUrl" alt="" />
+                      </t>
+                      <t t-else="">
+                        <i class="fa fa-search" aria-hidden="true"></i>
+                      </t>
+                    </span>
+                    <span t-out="command.name"/>
+                  </a>
+                </div>
+              </t>
+            </div>
+          </div>
+
+          <!-- 1.3 Desktop Systray: Notifications, Activities, and User Menu -->
+          <div class="o_menu_systray d-flex flex-shrink-0 my_theme_systray" role="menu">
+            <t t-foreach="systrayItems" t-as="item" t-key="item.key">
+              <div t-att-data-index="item.index"/>
+              <ErrorHandler onError="error => this.handleItemError(error, item)">
+                <t t-component="item.Component" t-props="item.props"/>
+              </ErrorHandler>
+            </t>
+          </div>
+
+          <!-- 1.4 Mobile Hamburger: Appears only on small screens via CSS -->
+          <div class="d-none my_theme_show_mobile ms-auto pe-3">
+              <div class="my_theme_mobile_logo me-3" t-on-click="onLogoClick">
+                 <img t-att-src="getCompanyLogo()" alt="Logo" style="height: 45px;"/>
+              </div>
+              <t t-call="web.NavBar.AppsMenu">
+                <t t-set="apps" t-value="appMenuService.getAppsMenuItems()" />
+              </t>
+          </div>
+        </nav>
+      </div>
+
+      <!-- Backdrop for mobile sidebar -->
+      <div class="my_theme_mobile_backdrop" t-if="mobileSidebarState.isOpen" t-on-click="closeMobileSidebar"></div>
+
+      <!-- Section 2: Fixed Sidebar (Vertical Desktop Navigation)
+           Contains Brand Header and App Pills.
+      -->
+      <div class="my_theme_apps_row" t-att-class="{ 'my_theme_mobile_open': mobileSidebarState.isOpen, 'my_theme_sidebar_collapsed': sidebarState.collapsed }" t-ref="appsRow">
+        
+        <!-- 2.1 Brand Header in Sidebar -->
+        <div class="my_theme_left" t-attf-style="background-image: {{ getBrandBackgroundUrl() }}; background-size: cover; background-position: center;">
+          <div class="my_theme_brand" t-on-click="onLogoClick" style="cursor: pointer;">
+            <div class="my_theme_brand_icon" t-att-class="{'has-logo': companyService.currentCompany}" aria-hidden="true">
+              <img t-att-src="getCompanyLogo()" alt="Company logo"/>
+            </div>
+            <div class="my_theme_brand_text">
+              <span class="my_theme_brand_name" t-esc="companyService.currentCompany.name" t-att-title="companyService.currentCompany.name"/>
+            </div>
+          </div>
+          <!-- Close Button (Mobile Only) -->
+          <button class="my_theme_close_sidebar d-lg-none btn btn-link text-dark" t-on-click="closeMobileSidebar">
+            <i class="fa fa-times fa-lg"></i>
+          </button>
+        </div>
+
+        <div class="my_theme_main_menus_row">
+          <div class="my_theme_main_menus">Main menus</div>
+          <button
+            class="my_theme_sidebar_collapse btn btn-link"
+            t-att-class="{ 'is-collapsed': sidebarState.collapsed }"
+            type="button"
+            t-on-click="toggleSidebarCollapse"
+            t-att-aria-label="sidebarState.collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+            t-att-title="sidebarState.collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+          >
+            <span
+              class="my_theme_sidebar_collapse_icon"
+              aria-hidden="true"
+            />
+          </button>
+        </div>
+
+        <!-- Scrollable container for App Pills -->
+        <div class="my_theme_apps_scroller" t-ref="appsScroller">
+          <a
+            t-foreach="getApps()"
+            t-as="app"
+            t-key="app.id"
+            class="my_theme_app_pill"
+            t-att-class="{'is-active': currentApp &amp;&amp; currentApp.id === app.id}"
+            t-att-href="getMenuItemHref(app)"
+            t-att-data-menu-xmlid="app.xmlid"
+            t-att-data-section="app.id"
+            t-on-click.prevent="() => this.onNavBarDropdownItemSelection(app)"
+          >
+            <!-- Show app icon for all apps in sidebar -->
+            <span class="my_theme_app_icon">
+              <span class="my_theme_app_icon_tint" t-attf-style="--my-theme-app-icon-url: url('{{ getAppIcon(app) }}');">
+                <img
+                  t-att-src="getAppIcon(app)"
+                  alt=""
+                />
+              </span>
+            </span>
+            <span class="my_theme_app_label" t-out="app.label or app.name"/>
+          </a>
+        </div>
+        <!-- Settings App at the Bottom -->
+        <div class="my_theme_sidebar_footer" t-if="getSettingsApp() or getAppsApp()">
+          <t t-if="getAppsApp()">
+            <t t-set="appsApp" t-value="getAppsApp()"/>
+            <a
+              class="my_theme_settings_link"
+              t-att-class="{'is-active': currentApp &amp;&amp; currentApp.id === appsApp.id}"
+              t-att-href="getMenuItemHref(appsApp)"
+              t-att-data-menu-xmlid="appsApp.xmlid"
+              t-att-data-section="appsApp.id"
+              t-on-click.prevent="() => this.onNavBarDropdownItemSelection(appsApp)"
+            >
+              <i class="fa fa-th-large" aria-hidden="true"></i>
+              <span t-out="appsApp.label or appsApp.name"/>
+            </a>
+          </t>
+
+          <t t-if="getSettingsApp()">
+            <t t-set="settingsApp" t-value="getSettingsApp()"/>
+            <a
+              class="my_theme_settings_link"
+              t-att-class="{'is-active': currentApp &amp;&amp; currentApp.id === settingsApp.id}"
+              t-att-href="getMenuItemHref(settingsApp)"
+              t-att-data-menu-xmlid="settingsApp.xmlid"
+              t-att-data-section="settingsApp.id"
+              t-on-click.prevent="() => this.onNavBarDropdownItemSelection(settingsApp)"
+            >
+              <i class="fa fa-cog" aria-hidden="true"></i>
+              <span t-out="settingsApp.label or settingsApp.name"/>
+            </a>
+          </t>
+        </div>
+      </div>
+
+      <!-- Section 3: Sub-navigation 
+           Displays the menus and submenus for the currently selected app.
+      -->
+      <div class="my_theme_subnav" t-if="currentAppSections.length">
+        <t t-call="web.NavBar.SectionsMenu">
+          <t t-set="sections" t-value="currentAppSections" />
+        </t>
+      </div>
+    </header>
+    </xpath>
+  </t>
+
+  <!-- 
+    Customizing the Apps Menu Drawer.
+    This replaces the standard dropdown with our high-end glassmorphism sidebar (on mobile)
+    or grid menu (on desktop).
+  -->
+  <t
+    t-name="lami_pine_backend_theme.NavBar.AppsMenu"
+    t-inherit="web.NavBar.AppsMenu"
+    t-inherit-mode="extension"
+  >
+    <xpath expr="." position="replace">
+      <t>
+        <t t-if="!isScopedApp">
+          <AppsMenu menuClass="'tt_app_menu'">
+            <button class="my_theme_apps_toggle" type="button" data-hotkey="h" title="Home Menu" aria-label="Open apps menu">
+              <i class="fa fa-bars" aria-hidden="true"/>
+              <i class="fa fa-times" aria-hidden="true"/>
+            </button>
+
+            <!-- Sidebar Content -->
+            <t t-set-slot="content">
+              <!-- Mobile Menu Wrapper (Design from HB_code.html) -->
+              <div class="my_theme_menu_wrapper bg-white">
+                  
+                  <!-- Header -->
+                  <header class="tt_mobile_header">
+                    <h1 class="tt_mobile_title">Menu</h1>
+                  </header>
+
+                  <!-- Search -->
+                  <div class="tt_mobile_search_container">
+                    <div class="tt_mobile_search_box">
+                         <span class="fa fa-search text-slate-400"></span>
+                         <input type="text" 
+                                class="tt_mobile_search_input" 
+                                placeholder="Search apps, reports or tools..." 
+                                t-on-change="(ev) => this._onSearchChange(ev)"/>
+                    </div>
+                  </div>
+
+                  <!-- Main Apps List -->
+                  <main class="tt_mobile_apps_list hide-scrollbar">
+                    <div class="tt_mobile_grid">
+                      <t t-foreach="this.appMenuService.getAppsMenuItems()" t-as="app" t-key="app.id">
+                        <a t-att-href="app.href" 
+                           class="tt_mobile_app_card"
+                           t-att-data-menu-xmlid="app.xmlid"
+                           t-att-data-section="app.id"
+                           t-on-click="() => this.onNavBarDropdownItemSelection(app)">
+                           
+                            <div class="tt_card_icon_box">
+                              <img t-att-src="getAppIcon(app)" class="tt_app_icon_img"/>
+                            </div>
+                           
+                           <div class="tt_card_content">
+                                <span class="tt_card_title"><t t-out="app.label"/></span>
+                           </div>
+                        </a>
+                      </t>
+                    </div>
+                  </main>
+
+                  <!-- Bottom Section: "Profil" List + User Info -->
+                  <div class="tt_mobile_bottom_section">
+                      
+                      <div class="tt_profile_menu_list">
+                          <div class="tt_profile_header">Profil</div>
+                          
+                          <div class="tt_profile_item" t-on-click="() => this.onMobileAction('settings')">
+                              <span class="fa fa-cog tt_profile_icon"></span>
+                              <span class="tt_profile_text">Settings</span>
+                          </div>
+                          
+                          <div class="tt_profile_item" t-on-click="() => this.onMobileAction('logout')">
+                              <span class="fa fa-sign-out tt_profile_icon"></span>
+                              <span class="tt_profile_text">Log out</span>
+                          </div>
+                      </div>
+
+                      <!-- User Info Row: Real Systray Integration -->
+                      <div class="tt_mobile_user_row">
+                           <div class="tt_user_identity_wrapper d-flex align-items-center flex-grow-1" t-on-click="() => this.triggerSystrayClick('.o_user_menu')">
+                               
+                               <!-- Hidden UserMenu Anchor (for correct popup positioning) -->
+                               <div class="tt_hide_sys_item">
+                                    <t t-foreach="systrayItems" t-as="item" t-key="item.key">
+                                        <t t-if="item.key === 'web.user_menu'">
+                                             <ErrorHandler onError="error => this.handleItemError(error, item)">
+                                                 <t t-component="item.Component" t-props="item.props"/>
+                                             </ErrorHandler>
+                                        </t>
+                                    </t>
+                               </div>
+
+                               <div class="tt_user_avatar_box">
+                                    <t t-if="user and user.uid">
+                                      <img t-attf-src="/web/image?model=res.users&amp;field=avatar_128&amp;id={{user.uid}}" class="tt_user_avatar_img"/>
+                                    </t>
+                                    <t t-else="">
+                                      <img src="/web/static/img/user_menu_avatar.png" class="tt_user_avatar_img"/>
+                                    </t>
+                               </div>
+                               <div class="tt_user_info_box">
+                                    <span class="tt_user_name"><t t-esc="user.name"/></span>
+                                    <span class="tt_user_email"><t t-esc="user.username"/></span>
+                               </div>
+                           </div>
+                           
+                           <div class="tt_mobile_systray_strip d-flex align-items-center">
+                                <t t-foreach="systrayItems" t-as="item" t-key="item.key">
+                                    <!-- Hide UserMenu from the strip (it's now inside the identity wrapper) -->
+                                    <div t-if="item.key !== 'web.user_menu'" class="tt_systray_item_wrap">
+                                         <ErrorHandler onError="error => this.handleItemError(error, item)">
+                                             <t t-component="item.Component" t-props="item.props"/>
+                                         </ErrorHandler>
+                                    </div>
+                                </t>
+                                <span class="fa fa-angle-down tt_user_chevron ms-2" t-on-click="() => this.triggerSystrayClick('.o_user_menu')"></span>
+                           </div>
+                      </div>
+                  </div>
+
+                  <!-- Hidden systray proxy for triggering actions -->
+                  <div class="tt_systray_proxy d-none">
+                      <t t-foreach="systrayItems" t-as="item" t-key="item.key">
+                          <ErrorHandler onError="error => this.handleItemError(error, item)">
+                              <t t-component="item.Component" t-props="item.props"/>
+                          </ErrorHandler>
+                      </t>
+                  </div>
+
+              </div>
+            </t>
+          </AppsMenu>
+        </t>
+        <t t-else="">
+          <div class="mx-2"/>
+        </t>
+      </t>
+    </xpath>
+  </t>
+
+</templates>

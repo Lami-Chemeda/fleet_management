@@ -1,0 +1,8 @@
+.NavbarMenuContainer {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+.o_NavbarMenu_toggler {
+    margin-left: 10px; /* Ensure some spacing from the search bar */
+}

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_fleet_driver_score_tree" model="ir.ui.view">
+        <field name="name">fleet.driver.score.tree</field>
+        <field name="model">fleet.driver.score</field>
+        <field name="arch" type="xml">
+            <list decoration-success="score &gt;= 90" decoration-warning="score &gt;= 70 and score &lt; 90" decoration-danger="score &lt; 70">
+                <field name="driver_id"/>
+                <field name="period"/>
+                <field name="trips_completed"/>
+                <field name="incidents_count"/>
+                <field name="score"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fleet_driver_score_form" model="ir.ui.view">
+        <field name="name">fleet.driver.score.form</field>
+        <field name="model">fleet.driver.score</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="driver_id"/>
+                            <field name="period"/>
+                        </group>
+                        <group>
+                            <field name="score" widget="gauge" style="width:120px;height:90px;"/>
+                        </group>
+                    </group>
+                    <group string="Metrics">
+                        <group>
+                            <field name="trips_completed"/>
+                            <field name="punctuality"/>
+                        </group>
+                        <group>
+                            <field name="incidents_count"/>
+                            <field name="harsh_braking_events"/>
+                            <field name="fuel_efficiency"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fleet_driver_score" model="ir.actions.act_window">
+        <field name="name">Driver Scorecards</field>
+        <field name="res_model">fleet.driver.score</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

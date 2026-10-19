@@ -1,0 +1,22 @@
+.pine_square_image {
+    .o_field_image {
+        width: 96px;
+        height: 96px;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .o_field_image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .o_field_image .o_field_image_controls,
+    .o_field_image .o_field_image_controls button {
+        width: 100%;
+        height: 100%;
+        border-radius: 12px;
+    }
+}
+

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Template Theme: customize this file for your theme. -->
+<odoo>
+
+    <!-- Inherit the main Odoo layout to inject custom styles and fonts -->
+    <template id="layout" inherit_id="web.layout">
+        <xpath expr="//link[@rel='shortcut icon']" position="replace">
+            <link
+                rel="shortcut icon"
+                type="image/x-icon"
+                href="/lami_pine_backend_theme/static/description/OTech_favicon.ico"
+            />
+        </xpath>
+
+        <!-- Inject custom CSS variables and Google Fonts into the <head> -->
+        <xpath expr="//head" position="inside">
+            <!-- Fetch theme parameters from System Parameters (ir.config_parameter) -->
+            <t t-set="my_theme_params" t-value="request.env['ir.config_parameter'].sudo()"/>
+            <t t-set="sidebar_icon_color" t-value="(my_theme_params.get_param('lami_pine_backend_theme.color_sidebar_icon', '#4B5563') or '').strip()"/>
+            <t t-set="sidebar_active_icon_color" t-value="(my_theme_params.get_param('lami_pine_backend_theme.color_sidebar_active_icon', '#1F6FB2') or '').strip()"/>
+            <t t-set="is_white_sidebar_icon" t-value="sidebar_icon_color.lower() in ['#fff', '#ffffff']"/>
+            <t t-set="is_white_sidebar_active_icon" t-value="sidebar_active_icon_color.lower() in ['#fff', '#ffffff']"/>
+            <t t-set="left_bg_image_url" t-value="('/web/image?model=res.company&amp;field=left_bg_image&amp;id=%s' % request.env.company.id) if request.env.company.left_bg_image else ''"/>
+            <t t-set="login_left_panel_bg_image_url" t-value="('/web/image?model=res.company&amp;field=login_left_panel_bg_image&amp;id=%s' % request.env.company.id) if request.env.company.login_left_panel_bg_image else ''"/>
+            <t t-set="hero_bg_image_url" t-value="('/web/image?model=res.company&amp;field=hero_section_bg&amp;id=%s' % request.env.company.id) if request.env.company.hero_section_bg else '/lami_pine_backend_theme/static/src/img/hero_bg.jpg'"/>
+            <style>
+                :root,
+                .o_web_client {
+                    /* These CSS variables are used throughout the theme's SCSS files.
+                       They are dynamically populated from the Odoo configuration. */
+                    --my-theme-primary: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_theme_primary', '#3058cf')"/>;
+                    --my-theme-bg: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_theme_background', '#FAFCFF')"/>;
+                    --my-theme-text: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_theme_text', '#111827')"/>;
+                    --my-theme-muted: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_theme_text_muted', '#6B7280')"/>;
+                    --my-theme-hover: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_theme_text_hover', '#1F2937')"/>;
+                    --my-theme-button: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_theme_button', '#3058cf')"/>;
+                    --my-theme-button-text: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_theme_button_text', '#FFFFFF')"/>;
+                    --my-theme-appbar-active: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_appbar_active', '#3058cf')"/>;
+                    --my-theme-hero-overlay-start: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_hero_overlay_start', '#ECF7FF')"/>;
+                    --my-theme-hero-overlay-end: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_hero_overlay_end', '#004474')"/>;
+                    --my-theme-hero-overlay-opacity: <t t-esc="(my_theme_params.get_param('lami_pine_backend_theme.hero_overlay_opacity', '0.75') or '0.75').strip()"/>;
+                    --my-theme-sidebar-bg: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_sidebar_background', '#ECF7FF')"/>;
+                    --my-theme-sidebar-text: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_sidebar_text', '#4B5563')"/>;
+                    --my-theme-sidebar-icon: <t t-esc="sidebar_icon_color or '#4B5563'"/>;
+                    --my-theme-sidebar-icon-blend-mode: <t t-esc="'normal' if is_white_sidebar_icon else 'hue'"/>;
+                    --my-theme-sidebar-icon-opacity: <t t-esc="'0.85' if is_white_sidebar_icon else '1'"/>;
+                    --my-theme-sidebar-icon-saturate: <t t-esc="'0' if is_white_sidebar_icon else '1'"/>;
+                    --my-theme-sidebar-footer-text: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_sidebar_footer_text', '#6B7280')"/>;
+                    --my-theme-sidebar-footer-active-text: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_sidebar_footer_active_text', '#1F6FB2')"/>;
+                    --my-theme-company-name-text: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_company_name_text', '#FFFFFF')"/>;
+                    --my-theme-left-bg-color: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_left_background', '#ECF7FF')"/>;
+                    --my-theme-left-text: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_left_text', '#000000')"/>;
+                    <t t-if="left_bg_image_url">
+                        --my-theme-left-bg-image: url('<t t-esc="left_bg_image_url"/>');
+                    </t>
+                    <t t-else="">
+                        --my-theme-left-bg-image: none;
+                    </t>
+                    <t t-if="hero_bg_image_url">
+                        --my-theme-hero-bg-image: url('<t t-esc="hero_bg_image_url"/>');
+                    </t>
+                    <t t-else="">
+                        --my-theme-hero-bg-image: none;
+                    </t>
+                    --my-theme-topbar-bg: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_topbar_background', '#ECF7FF')"/>;
+                    --my-theme-topbar-text: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_topbar_text', '#1F2937')"/>;
+                    --my-theme-topbar-search-bg: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_topbar_search_background', '#F9FAFB')"/>;
+                    --my-theme-topbar-search-border: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_topbar_search_border', '#E5E7EB')"/>;
+                    --my-theme-topbar-search-placeholder: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_topbar_search_placeholder', '#4B5563')"/>;
+                    --my-theme-topbar-search-text: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_topbar_search_text', '#4B5563')"/>;
+                    --my-theme-sidebar-active-indicator: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_sidebar_active_indicator', '#1F6FB2')"/>;
+                    --my-theme-sidebar-active-bg: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_sidebar_active_background', '#FFFFFF')"/>;
+                    --my-theme-sidebar-active-text: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_sidebar_active_text', '#1F6FB2')"/>;
+                    --my-theme-sidebar-active-icon: <t t-esc="sidebar_active_icon_color or '#1F6FB2'"/>;
+                    --my-theme-sidebar-active-icon-blend-mode: <t t-esc="'normal' if is_white_sidebar_active_icon else 'hue'"/>;
+                    --my-theme-sidebar-active-icon-opacity: <t t-esc="'0.85' if is_white_sidebar_active_icon else '1'"/>;
+                    --my-theme-sidebar-active-icon-saturate: <t t-esc="'0' if is_white_sidebar_active_icon else '1'"/>;
+                    --my-theme-sidebar-hover-bg: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_sidebar_hover_background', '#FDFEFE')"/>;
+                    --my-theme-sidebar-hover-text: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_sidebar_hover_text', '#1F2937')"/>;
+                    --my-theme-badge-bg: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_badge_background', '#1E3A8A')"/>;
+                    --my-theme-badge-text: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_badge_text', '#FFFFFF')"/>;
+                    --my-theme-login-left-panel-bg: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_login_left_panel_bg', '#E0F2FE')"/>;
+                    --my-theme-login-right-panel-bg: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_login_right_panel_bg', '#FFFFFF')"/>;
+                    --my-theme-login-left-panel-overlay: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_login_left_panel_overlay', '#0F172A')"/>;
+                    --my-theme-login-left-panel-overlay-opacity: <t t-esc="(my_theme_params.get_param('lami_pine_backend_theme.login_left_panel_overlay_opacity', '0.28') or '0.28').strip()"/>;
+                    <t t-if="login_left_panel_bg_image_url">
+                        --my-theme-login-left-panel-image: url('<t t-esc="login_left_panel_bg_image_url"/>');
+                    </t>
+                    <t t-else="">
+                        --my-theme-login-left-panel-image: none;
+                    </t>
+                    --my-theme-login-company-text: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_login_company_text', '#1E3A8A')"/>;
+                    --my-theme-login-motto-text: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_login_motto_text', '#64748B')"/>;
+                    --my-theme-login-primary-button: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_login_primary_button', '#3058cf')"/>;
+                    --my-theme-login-other-button: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_login_other_button', '#E2E8F0')"/>;
+                    --my-theme-login-other-button-text: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_login_other_button_text', '#1E293B')"/>;
+                    --my-theme-home-kicker-color: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_home_kicker', '#000000')"/>;
+                    --my-theme-home-title-color: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_home_title', '#002046')"/>;
+                    --my-theme-home-lead-color: <t t-esc="my_theme_params.get_param('lami_pine_backend_theme.color_home_lead', '#2D3D5B')"/>;
+                    --my-theme-home-kicker-size: <t t-esc="(my_theme_params.get_param('lami_pine_backend_theme.home_kicker_size', '20') or '20').strip()"/>px;
+                    --my-theme-home-title-size: <t t-esc="(my_theme_params.get_param('lami_pine_backend_theme.home_title_size', '40') or '40').strip()"/>px;
+                    --my-theme-home-lead-size: <t t-esc="(my_theme_params.get_param('lami_pine_backend_theme.home_lead_size', '16') or '16').strip()"/>px;
+                    --my-theme-home-kicker-weight: <t t-esc="(my_theme_params.get_param('lami_pine_backend_theme.home_kicker_weight', '700') or '700').strip()"/>;
+                    --my-theme-home-title-weight: <t t-esc="(my_theme_params.get_param('lami_pine_backend_theme.home_title_weight', '800') or '800').strip()"/>;
+                    --my-theme-home-lead-weight: <t t-esc="(my_theme_params.get_param('lami_pine_backend_theme.home_lead_weight', '500') or '500').strip()"/>;
+                    --my-theme-accent: #f6c026;
+                    --my-theme-brand-start: #2f74bd;
+                    --my-theme-brand-end: #4ba6e5;
+                }
+            </style>
+            <!-- Load Google Fonts -->
+            <link rel="preconnect" href="https://fonts.googleapis.com"/>
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+            <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+        </xpath>
+    </template>
+    
+</odoo>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_fleet_fuel_request_list" model="ir.ui.view">
+        <field name="name">fleet.fuel.request.list</field>
+        <field name="model">fleet.fuel.request</field>
+        <field name="arch" type="xml">
+            <list string="Fuel Requests" multi_edit="1" sample="1">
+                <field name="name" decoration-bf="1"/>
+                <field name="vehicle_id"/>
+                <field name="driver_id" widget="many2one_avatar"/>
+                <field name="vehicle_fuel_type" string="Vehicle Fuel Type"/>
+                <field name="requested_quantity" string="Qty (L)"/>
+                <field name="priority" widget="badge" decoration-danger="priority == 'high'" decoration-info="priority == 'low'"/>
+                <field name="state" widget="badge" decoration-info="state == 'approved'" decoration-warning="state == 'issued'" decoration-success="state == 'completed'"/>
+                <field name="request_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fleet_fuel_request_form" model="ir.ui.view">
+        <field name="name">fleet.fuel.request.form</field>
+        <field name="model">fleet.fuel.request</field>
+        <field name="arch" type="xml">
+            <form string="Fuel Request">
+                <header>
+                    <button name="action_submit" type="object" string="Submit" class="btn-primary"
+                            groups="fleet_management.group_fleet_driver" invisible="state != 'draft'"/>
+                    <button name="action_dept_authorize" type="object" string="Authorize" class="btn-primary"
+                            groups="fleet_management.group_department_manager" invisible="state != 'submitted' or is_manager"/>
+                    <button name="action_approve" type="object" string="Approve" class="btn-primary"
+                            groups="fleet_management.group_fleet_manager" invisible="state != 'submitted'"/>
+                    <button name="action_issue" type="object" string="Mark Issued" class="btn-primary"
+                            groups="fleet_management.group_fleet_manager" invisible="state != 'approved'"/>
+                    <button name="action_complete" type="object" string="Complete" class="btn-primary"
+                            groups="fleet_management.group_fleet_manager" invisible="state != 'issued'"/>
+                    <button name="%(lami_custom_report.action_report_fuel_request)d" type="action" string="Print Ticket"
+                            class="btn-secondary"
+                            groups="fleet_management.group_fleet_manager"
+                            invisible="state != 'issued'"/>
+                    <button name="action_open_reject_wizard" type="object" string="Reject"
+                            groups="fleet_management.group_fleet_manager"
+                            invisible="state not in ['submitted']"/>
+                    <button name="action_reset_to_draft" type="object" string="Reset To Draft"
+                            groups="fleet_management.group_fleet_manager" invisible="state != 'rejected'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,issued,completed"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Completed" bg_color="text-bg-success" invisible="state != 'completed'"/>
+                    <widget name="web_ribbon" title="Rejected" bg_color="text-bg-danger" invisible="state != 'rejected'"/>
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+
+                    <field name="is_manager" invisible="1"/>
+                    <field name="is_editable" invisible="1"/>
+                    <field name="show_as_label" invisible="1"/>
+                    <field name="total_issued_quantity" invisible="1"/>
+                    <field name="total_fuel_cost" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
+
+                    <group>
+                        <group>
+                            <field name="vehicle_id" readonly="1" options="{'no_create': True}"/>
+                            <field name="driver_id" readonly="1" widget="many2one_avatar" options="{'no_create': True}"/>
+                            <field name="vehicle_fuel_type" invisible="1"/>
+                            <field name="request_date" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="priority" readonly="not is_editable" widget="priority"/>
+                            <field name="issue_date"
+                                   groups="fleet_management.group_fleet_manager"
+                                   readonly="not is_manager"/>
+                            <field name="issuer_id"
+                                   groups="fleet_management.group_fleet_manager"
+                                   readonly="not is_manager" widget="many2one_avatar"/>
+                        </group>
+                    </group>
+
+                    <group string="Request Details">
+                        <field name="reason"
+                               placeholder="Please provide the reason for this fuel request..."
+                               readonly="not is_editable"/>
+                    </group>
+
+                    <group string="Product Details">
+                        <div colspan="2" style="width:100%;">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Product Name</th>
+                                        <th>Product Type</th>
+                                        <th>Unit of Measure</th>
+                                        <th>Requested Quantity</th>
+                                        <th>Issued Quantity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><field name="product_name" readonly="1" nolabel="1"/></td>
+                                        <td><field name="product_type" readonly="1" nolabel="1"/></td>
+                                        <td><field name="uom_id" readonly="not is_editable" nolabel="1" options="{'no_create': True}"/></td>
+                                        <td><field name="requested_quantity" readonly="not is_editable" nolabel="1"/></td>
+                                        <td><field name="issued_quantity" readonly="not is_manager" nolabel="1"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </group>
+
+                    <group>
+                        <field name="rejection_reason" readonly="1" invisible="state != 'rejected'"/>
+                    </group>
+
+                    <field name="issue_ids" invisible="1">
+                        <list>
+                            <field name="issued_quantity"/>
+                            <field name="issue_date"/>
+                            <field name="issuer_id"/>
+                            <field name="cost"/>
+                            <field name="currency_id"/>
+                            <field name="fuel_request_id" invisible="1"/>
+                        </list>
+                    </field>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fleet_fuel_request" model="ir.actions.act_window">
+        <field name="name">Fuel Requests</field>
+        <field name="res_model">fleet.fuel.request</field>
+        <field name="view_mode">list,form,kanban</field>
+    </record>
+</odoo>

@@ -1,0 +1,539 @@
+// Template Theme: customize this file for your theme.
+// This file contains global styles for the Odoo Web Client.
+
+.o_web_client {
+    display: flex !important;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden !important;
+    // Use theme background and text colors defined in colors.scss
+    background: var(--my-theme-bg, #f8f8f5);
+    color: var(--my-theme-text, #0f172a);
+    --tt-form-primary: var(--my-theme-primary, #1e3a8a);
+    --tt-form-accent: #d4af37;
+    --tt-form-border: #e5e7eb;
+    --tt-form-muted: #6b7280;
+    --tt-form-surface: #ffffff;
+    --tt-form-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+    --o-navbar-badge-bg: var(--my-theme-badge-bg, #1e3a8a);
+    --o-navbar-badge-color: var(--my-theme-badge-text, #ffffff);
+    --o-navbar-badge-text-shadow: none;
+}
+
+html,
+body {
+    overflow-x: hidden;
+}
+
+// Hide the sidebar panel by default if it's not needed in the main layout.
+.o_web_client>.tt_apps_sidebar_panel {
+    display: none !important;
+    width: 0 !important;
+}
+
+// Ensure the action manager takes up the remaining space.
+.o_web_client>.o_action_manager {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden !important;
+    background: var(--my-theme-bg) !important;
+}
+
+// Reset some Odoo default heights and overflows for a more flexible layout.
+.o_web_client .o_action {
+    height: 100% !important;
+    display: flex;
+    flex-flow: column nowrap;
+    overflow: hidden !important;
+}
+
+.o_web_client .o_content {
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    height: 100% !important;
+    position: relative !important;
+    min-width: 0;
+}
+
+@media (min-width: 900.02px) {
+    .o_web_client .my_theme_subnav {
+        margin-left: var(--my-theme-sidebar-width) !important;
+        width: calc(100% - var(--my-theme-sidebar-width));
+    }
+}
+
+// Apply theme background to the control panel.
+.o_web_client .o_control_panel {
+    // background: var(--tt-form-surface, #ffffff);
+    background: transparent;
+    position: static !important;
+    top: auto !important;
+    z-index: 1;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--tt-form-border, #e5e7eb);
+    // box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    font-family: "Inter", "Spline Sans", sans-serif;
+    overflow-x: hidden;
+}
+
+.o_web_client .o_control_panel .o_control_panel_breadcrumbs {
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+    gap: 12px;
+    align-items: center;
+    background-color: transparent;
+}
+
+.o_web_client .o_control_panel .o_breadcrumb {
+    background: transparent;
+    margin-bottom: 0;
+    flex-direction: row !important;
+    align-items: center !important;
+    flex-wrap: nowrap;
+    gap: 6px;
+}
+
+.o_web_client .o_control_panel .o_breadcrumb .breadcrumb {
+    background: transparent;
+}
+
+.o_web_client .o_control_panel .o_breadcrumb.flex-md-column {
+    flex-direction: row !important;
+}
+
+.o_web_client .o_control_panel .o_breadcrumb .breadcrumb-item a {
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.o_web_client .o_control_panel .o_breadcrumb .breadcrumb-item.active,
+.o_web_client .o_control_panel .o_breadcrumb .breadcrumb-item.active a {
+    color: #111827;
+    font-weight: 700;
+}
+
+.o_web_client .o_control_panel .breadcrumb-item+.breadcrumb-item::before {
+    color: #9ca3af;
+}
+
+.o_web_client .o_control_panel .o_breadcrumb>.breadcrumb,
+.o_web_client .o_control_panel .o_breadcrumb>.d-flex {
+    align-items: center;
+}
+
+.o_web_client .o_control_panel .o_breadcrumb>.breadcrumb+.d-flex {
+    gap: 6px;
+}
+
+.o_web_client .o_control_panel .o_breadcrumb>.breadcrumb+.d-flex .o_last_breadcrumb_item::before {
+    content: "/";
+    color: #9ca3af;
+    margin-right: 6px;
+}
+
+.o_web_client .o_control_panel .o_last_breadcrumb_item {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+}
+
+@media (min-width: 992px) {
+    .o_web_client .o_control_panel .o_control_panel_breadcrumbs:has(.o_form_status_indicator_buttons:not(.invisible)) {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto auto;
+        align-items: center;
+        column-gap: 12px;
+        row-gap: 6px;
+    }
+
+    .o_web_client .o_control_panel .o_control_panel_breadcrumbs:has(.o_form_status_indicator_buttons:not(.invisible)) .o_control_panel_main_buttons {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .o_web_client .o_control_panel .o_control_panel_breadcrumbs:has(.o_form_status_indicator_buttons:not(.invisible)) .o_form_status_indicator {
+        grid-column: 1;
+        grid-row: 2;
+        justify-self: start;
+    }
+
+    .o_web_client .o_control_panel .o_control_panel_breadcrumbs:has(.o_form_status_indicator_buttons:not(.invisible)) .o_form_status_indicator_buttons {
+        gap: 6px;
+    }
+
+    .o_web_client .o_control_panel .o_control_panel_breadcrumbs:has(.o_form_status_indicator_buttons:not(.invisible)) .o_breadcrumb {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        align-self: center;
+        min-width: 0;
+    }
+
+    .o_web_client .o_control_panel .o_control_panel_breadcrumbs:has(.o_form_status_indicator_buttons:not(.invisible)) .me-auto {
+        display: none;
+    }
+}
+
+
+
+@media (max-width: 991.98px) {
+    .o_web_client .o_control_panel {
+        height: auto !important;
+        min-height: auto !important;
+
+        .o_control_panel_breadcrumbs {
+            flex-wrap: wrap !important;
+            height: auto !important;
+            min-height: auto !important;
+        }
+
+        .o_breadcrumb {
+            flex-wrap: wrap !important;
+        }
+    }
+}
+
+@media (max-width: 767.98px) {
+    .o_web_client .o_control_panel .o_breadcrumb {
+        flex-wrap: wrap;
+    }
+}
+
+.o_web_client .o_control_panel .o_control_panel_actions,
+.o_web_client .o_control_panel .o_control_panel_navigation {
+    gap: 10px;
+}
+
+.o_web_client .o_control_panel .o_cp_searchview {
+    align-items: center;
+    gap: 0px;
+    --tt-search-bg: #f9fafb;
+    --tt-search-border: #e5e7eb;
+}
+
+.o_web_client .o_control_panel .o_cp_searchview .o_searchview {
+    background: var(--tt-search-bg);
+    border: 1px solid var(--tt-search-border);
+    border-right: 0;
+    border-radius: 12px 0 0 12px;
+    box-shadow: none;
+    min-height: 38px;
+    padding: 6px 16px;
+    transition: border-color 0.2s ease;
+}
+
+.o_web_client .o_control_panel .o_cp_searchview .o_searchview:focus-within {
+    border-color: #d1d5db;
+    box-shadow: none;
+}
+
+.o_web_client .o_control_panel .o_cp_searchview .o_searchview_input,
+.o_web_client .o_control_panel .o_cp_searchview .o_searchview_input::placeholder {
+    color: #9ca3af;
+}
+
+.o_web_client .o_control_panel .o_cp_searchview .o_searchview_input {
+    background: transparent;
+    font-size: 14px;
+    color: #374151;
+}
+
+.o_web_client .o_control_panel .o_cp_searchview .o_searchview_icon {
+    color: #9ca3af;
+}
+
+.o_web_client .o_control_panel .o_cp_searchview .o_searchview_dropdown_toggler {
+    background: var(--tt-search-bg);
+    border: 1px solid var(--tt-search-border);
+    border-left: 0;
+    border-radius: 0 999px 999px 0;
+    box-shadow: none;
+    color: #64748b;
+    min-height: 38px;
+    padding: 6px 16px;
+}
+
+.o_web_client .o_control_panel .o_cp_searchview .btn {
+    background: transparent;
+    box-shadow: none;
+}
+
+.o_web_client .o_control_panel .o_cp_searchview .o_searchview_facet {
+    background: #eef2f7;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    padding: 2px 8px;
+}
+
+.o_web_client .o_control_panel .o_cp_searchview .o_searchview_facet_label {
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.o_web_client .o_control_panel .o_cp_searchview .o_facet_value {
+    color: #061f5b;
+}
+
+.o_web_client .o_control_panel .btn {
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 6px 12px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+.o_web_client .btn.btn-primary {
+    background: var(--tt-form-primary, #1e3a8a);
+    border-color: var(--tt-form-primary, #1e3a8a);
+    color: #fff;
+}
+
+.o_web_client .btn.btn-primary:hover,
+.o_web_client .btn.btn-primary:focus {
+    background: color-mix(in srgb, var(--tt-form-primary, #1e3a8a) 85%, #000);
+    border-color: color-mix(in srgb, var(--tt-form-primary, #1e3a8a) 85%, #000);
+    color: #fff;
+}
+
+.o_web_client .btn.btn-primary:disabled,
+.o_web_client .btn.btn-primary.disabled {
+    background: color-mix(in srgb, var(--tt-form-primary, #1e3a8a) 70%, #fff);
+    border-color: color-mix(in srgb, var(--tt-form-primary, #1e3a8a) 70%, #fff);
+    color: #fff;
+}
+
+.o_web_client .o_control_panel .btn.btn-primary {
+    background: var(--tt-form-primary, #1e3a8a);
+    border-color: var(--tt-form-primary, #1e3a8a);
+}
+
+.o_web_client .o_control_panel .btn.btn-secondary {
+    background: #ffffff;
+    border-color: var(--tt-form-border, #e5e7eb);
+    color: #4b5563;
+}
+
+.o_web_client .o_control_panel .btn.btn-link {
+    box-shadow: none;
+    color: var(--tt-form-muted, #6b7280);
+    padding: 4px 8px;
+}
+
+.o_web_client .o_control_panel .o_control_panel_main_buttons .btn {
+    border-radius: 999px;
+    padding: 4px 12px;
+    box-shadow: none;
+}
+
+.o_web_client .o_control_panel .o_control_panel_main_buttons .btn.btn-primary {
+    background: var(--tt-form-primary, #1e3a8a) !important;
+    border-color: var(--tt-form-primary, #1e3a8a) !important;
+    color: #fff;
+}
+
+.o_web_client .o_control_panel .o_control_panel_main_buttons .btn.btn-outline-primary {
+    color: var(--tt-form-primary, #1e3a8a) !important;
+    border-color: var(--tt-form-primary, #1e3a8a) !important;
+    background: transparent;
+}
+
+.o_web_client .o_control_panel .o_control_panel_main_buttons .btn.btn-outline-primary:hover,
+.o_web_client .o_control_panel .o_control_panel_main_buttons .btn.btn-outline-primary:active,
+.o_web_client .o_control_panel .o_control_panel_main_buttons .btn.btn-outline-primary:focus {
+    background: var(--tt-form-primary, #1e3a8a) !important;
+    color: #ffffff !important;
+}
+
+// Apply theme primary color to stat button icons (Smart Buttons).
+.o_web_client .oe_stat_button .o_button_icon {
+    color: var(--tt-form-primary, #1e3a8a) !important;
+}
+
+.o_web_client .o_control_panel .o_control_panel_actions .btn {
+    border-radius: 10px;
+    background: transparent;
+    border-color: var(--tt-form-border, #e5e7eb);
+    color: #4b5563;
+    margin-inline: 2px;
+}
+
+.o_web_client .o_control_panel .o_cp_pager {
+    font-size: 12px;
+    color: var(--tt-form-muted, #6b7280);
+    padding-left: 12px;
+    border-left: 1px solid var(--tt-form-border, #e5e7eb);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.o_web_client .o_control_panel .o_cp_pager .btn {
+    padding: 2px 6px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    color: var(--tt-form-muted, #6b7280);
+}
+
+// Modern popover styling (submenu/dropdown popovers).
+.o_web_client .o_popover {
+    background: linear-gradient(-45deg, color-mix(in srgb, var(--tt-form-primary), transparent 95%), color-mix(in srgb, #ffffff, transparent 10%));
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--tt-form-border, #e5e7eb);
+    border-radius: 8px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+    color: var(--my-theme-text, #0f172a);
+    padding: 6px;
+    // Custom slim scrollbar
+    scrollbar-width: thin;
+    scrollbar-color: var(--tt-form-border, #e5e7eb) transparent;
+
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--tt-form-border, #e5e7eb);
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: var(--tt-form-muted, #6b7280);
+    }
+}
+
+.o_web_client .o_popover .popover-header {
+    background: transparent;
+    border-bottom: 1px solid var(--tt-form-border, #e5e7eb);
+    font-weight: 600;
+    color: var(--my-theme-text, #0f172a);
+    padding: 10px 12px;
+}
+
+.o_web_client .o_popover .popover-body {
+    padding: 6px;
+    // Custom slim scrollbar
+    scrollbar-width: thin;
+    scrollbar-color: var(--tt-form-border, #e5e7eb) transparent;
+
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--tt-form-border, #e5e7eb);
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: var(--tt-form-muted, #6b7280);
+    }
+}
+
+.o_web_client .o_popover .dropdown-item {
+    border-radius: 10px;
+    padding: 8px 10px;
+    color: var(--my-theme-text, #0f172a);
+}
+
+.o_web_client .o_popover .dropdown-item:hover,
+.o_web_client .o_popover .dropdown-item:focus {
+    background: color-mix(in srgb, var(--tt-form-primary, #1e3a8a) 12%, #fff);
+    color: var(--tt-form-primary, #1e3a8a);
+}
+
+.o_web_client .o_popover .dropdown-item:focus:not(:hover),
+.o_web_client .o_popover .dropdown-item:active:not(:hover) {
+    background: transparent;
+    color: var(--my-theme-text, #0f172a);
+}
+
+.o_web_client .o_popover .dropdown-item.active:not(:hover),
+.o_web_client .o_popover .dropdown-item:focus-visible:not(:hover) {
+    background: transparent;
+    color: var(--my-theme-text, #0f172a);
+}
+
+.o_web_client .o_popover .dropdown-item.focus,
+.o_web_client .o_popover .dropdown-toggle.focus {
+    background: transparent;
+    color: var(--my-theme-text, #0f172a);
+}
+
+.o_web_client .o_popover .popover-arrow::before,
+.o_web_client .o_popover .popover-arrow::after {
+    border-color: var(--tt-form-border, #e5e7eb);
+}
+
+.o_web_client .o_popover .popover-arrow::after {
+    border-color: var(--tt-form-surface, #ffffff);
+}
+
+// Apply theme background to all major view containers.
+.o_web_client .o_action_manager,
+.o_web_client .o_action,
+.o_web_client .o_content,
+.o_web_client .o_view,
+.o_web_client .o_view_controller,
+.o_web_client .o_view_container {
+    background: var(--my-theme-bg);
+}
+
+// Styling for view switch buttons (List, Kanban, etc.) in the control panel.
+.o_control_panel .o_cp_switch_buttons {
+    display: inline-flex;
+    gap: 6px;
+}
+
+.o_control_panel .o_cp_switch_buttons .btn,
+.o_control_panel .o_cp_switch_buttons .o_switch_view {
+    border-radius: 10px;
+}
+
+// Rounded corners for Kanban cards.
+.o_kanban_view .o_kanban_record,
+.o_kanban_view .o_kanban_card {
+    border-radius: 16px;
+    box-shadow: 5px 0 10px rgba(66, 66, 66, 0.1);
+    overflow: hidden;
+}
+
+.o_kanban_renderer {
+    background: transparent;
+}
+
+.o_search_panel,
+.o_search_panel_sidebar,
+.o_search_panel .list-group,
+.o_search_panel .list-group-item {
+    background: transparent;
+}
+
+.o_base_settings_view .o_form_renderer {
+    --settings__tab-bg: transparent;
+    --settings__title-bg: transparent;
+}
+
+.o_base_settings_view .o_form_renderer,
+.o_base_settings_view .o_setting_container,
+.o_base_settings_view .o_setting_container .settings_tab,
+.o_base_settings_view .o_setting_container .settings,
+.o_base_settings_view .o_setting_container .settings .o_settings_container,
+.o_base_settings_view .o_setting_container .settings .settingSearchHeader,
+.o_base_settings_view .o_setting_container .settings>.app_settings_block,
+.o_base_settings_view .o_setting_container .settings .o_setting_box,
+.o_base_settings_view .o_setting_container .settings>.app_settings_block h2,
+.o_base_settings_view .o_setting_container .settings>.app_settings_block h3 {
+    background: transparent !important;
+}

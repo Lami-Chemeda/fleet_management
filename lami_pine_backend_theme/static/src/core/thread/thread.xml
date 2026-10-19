@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Template Theme: customize this file for your theme. -->
+
+<templates xml:space="preserve">
+    <!-- Inherit and extend the standard Odoo Thread (Chatter messages) -->
+    <t
+        t-name="lami_pine_backend_theme.Thread"
+        t-inherit="mail.Thread"
+        t-inherit-mode="extension"
+    >
+        <!-- Filter the messages displayed in the thread based on the custom notification visibility state -->
+        <xpath expr="//t[@t-key='msg.id']" position="attributes">
+            <attribute name="t-foreach">displayMessages</attribute>
+        </xpath>
+    </t>
+</templates>

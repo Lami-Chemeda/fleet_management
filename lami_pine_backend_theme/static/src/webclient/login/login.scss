@@ -1,0 +1,362 @@
+// Template Theme: Login Page Styles
+// This file contains styles for the custom login page based on the provided design.
+
+.oe_website_login_container {
+    background: #dfe4ea;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+
+    .card {
+        border: none;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+        max-width: 1080px;
+        width: 100%;
+        min-height: 640px;
+        flex-direction: row;
+        background: #f7f7f7;
+    }
+
+    .card.no-info-panel {
+        max-width: 680px;
+        min-height: 540px;
+    }
+
+    .card.no-info-panel .login-form-panel {
+        width: 100%;
+        flex: 1 1 100%;
+    }
+
+    // Left side info panel
+    .login-info-panel {
+        background: var(--my-theme-login-left-panel-bg, #e0f2fe);
+        background-image: var(--my-theme-login-left-panel-image, none);
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        width: 45%;
+        position: relative;
+        min-height: 100%;
+
+        .login-info-panel-overlay {
+            position: absolute;
+            inset: 0;
+            background: var(--my-theme-login-left-panel-overlay, #0f172a);
+            opacity: var(--my-theme-login-left-panel-overlay-opacity, 0.28);
+        }
+
+        &::before,
+        &::after {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--my-theme-login-left-panel-bg, #e0f2fe);
+            z-index: 1;
+        }
+
+        &::before {
+            top: 24px;
+            left: 24px;
+        }
+
+        &::after {
+            right: 24px;
+            bottom: 24px;
+        }
+    }
+
+    // Right side form panel
+    .login-form-panel {
+        flex: 1;
+        padding: 24px 60px 36px;
+        display: flex;
+        flex-direction: column;
+        background: #f7f7f7;
+
+        .login-branding {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            margin-bottom: 20px;
+
+            img {
+                width: auto;
+                max-width: 128px;
+                max-height: 128px;
+                object-fit: contain;
+                transform: translateX(-25px) !important;
+            }
+
+            p {
+                margin: 0;
+                color: #0b2149;
+                font-size: 24px;
+                font-weight: 800;
+                line-height: 1.35;
+                text-align: center;
+                max-width: 360px;
+            }
+        }
+
+        .form-group, .mb-3 {
+            margin-bottom: 18px;
+            position: relative;
+
+            label {
+                font-size: 14px;
+                font-weight: 700;
+                color: #081f4a;
+                margin-bottom: 10px;
+                display: block;
+            }
+
+            input.form-control {
+                background: #f8fafc;
+                border: 1px solid #f1f5f9 !important;
+                border-radius: 8px !important;
+                padding: 12px 20px !important;
+                font-size: 15px;
+                font-weight: 500;
+                min-height: 48px;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                color: #1e293b;
+
+                &:focus {
+                    background: #ffffff;
+                    border-color: #38bdf8 !important;
+                    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.08), 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+                    outline: none;
+                }
+            }
+
+            .field-label-wrapper {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+
+                label {
+                    margin: 0;
+                }
+
+                .field-link {
+                    font-size: 13px;
+                    color: #38bdf8;
+                    text-decoration: none;
+                    font-weight: 600;
+                    
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+            }
+
+            .input-group {
+                background: #eef1f5;
+                border: 1px solid #e6eaef;
+                border-radius: 10px;
+                padding: 8px 18px;
+                display: flex;
+                align-items: center;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                min-height: 56px;
+                
+                &:focus-within {
+                    background: #ffffff;
+                    border-color: #1f8be6;
+                    box-shadow: 0 0 0 4px rgba(31, 139, 230, 0.08), 0 4px 12px rgba(0, 0, 0, 0.03);
+                }
+
+                .input-group-text {
+                    background: transparent;
+                    border: none;
+                    color: #91a0b8;
+                    padding: 0;
+                    margin-right: 16px;
+                    font-size: 20px;
+                }
+
+                input.form-control {
+                    background: transparent !important;
+                    border: none !important;
+                    box-shadow: none !important;
+                    padding: 0 !important;
+                    height: auto;
+                    min-height: unset;
+                    font-size: 16px;
+                    font-weight: 500;
+                    
+                    &::placeholder {
+                        color: #bac5d3;
+                    }
+
+                    &:-webkit-autofill,
+                    &:-webkit-autofill:hover, 
+                    &:-webkit-autofill:focus {
+                        -webkit-text-fill-color: #1e293b;
+                        transition: background-color 5000s ease-in-out 0s;
+                    }
+                }
+            }
+        }
+
+        .field-actions {
+            margin-top: 12px;
+            margin-bottom: 0;
+        }
+
+        .field-actions .field-link {
+            font-size: 14px;
+            color: var(--my-theme-login-other-button-text, #1e293b);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .field-actions .field-link:hover {
+            text-decoration: underline;
+        }
+
+        .contact-admin-inline {
+            font-size: 14px;
+            color: #111827;
+            font-weight: 500;
+        }
+
+        .contact-admin-inline strong {
+            color: #2766b1;
+            font-weight: 700;
+        }
+
+        // Some inherited login templates inject links inside labels.
+        // Force those hidden so actions appear only in the bottom action row.
+        .field-label-wrapper a,
+        label.form-label a,
+        label[for='password'] a,
+        label[for='login'] a {
+            display: none !important;
+        }
+
+        .login-btn {
+            background: var(--my-theme-login-primary-button, #3058cf) !important;
+            border: 1px solid var(--my-theme-login-primary-button, #3058cf) !important;
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--my-theme-button-text, #ffffff) !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 18px;
+            transition: transform 0.2s, box-shadow 0.2s;
+
+            &:hover {
+                background: var(--my-theme-login-primary-button, #3058cf) !important;
+                border-color: var(--my-theme-login-primary-button, #3058cf) !important;
+                transform: translateY(-2px);
+                color: var(--my-theme-button-text, #ffffff) !important;
+            }
+
+            &:focus,
+            &:active {
+                background: var(--my-theme-login-primary-button, #3058cf) !important;
+                border-color: var(--my-theme-login-primary-button, #3058cf) !important;
+                transform: translateY(0);
+                color: var(--my-theme-button-text, #ffffff) !important;
+            }
+        }
+
+        .oe_login_buttons .btn:not(.login-btn),
+        .oe_login_buttons a.btn:not(.login-btn),
+        a.field-link[role='button'] {
+            background: var(--my-theme-login-other-button, #e2e8f0);
+            color: var(--my-theme-login-other-button-text, #1e293b) !important;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .login-footer {
+            margin-top: auto;
+            text-align: center;
+            padding-top: 34px;
+
+            .bottom-links {
+                margin-top: 0;
+                display: flex;
+                justify-content: center;
+                border-top: 1px solid #f1f5f9;
+                padding-top: 18px;
+                
+                a, span {
+                    font-size: 14px;
+                    color: #8a96ab;
+                    text-decoration: none;
+                }
+                
+                .powered-by strong {
+                    color: #1682f0;
+                    font-weight: 800;
+                }
+            }
+        }
+    }
+}
+
+// LOGIN FORM
+.oe_login_form, .oe_signup_form, .oe_reset_password_form {
+    width: 400px !important;
+    max-width: 400px !important;
+    position: relative;
+    margin: 5px auto !important;
+}
+
+// Responsive adjustments
+@media (max-width: 991.98px) {
+    .oe_website_login_container .card {
+        flex-direction: column;
+        min-height: auto;
+        max-width: 560px;
+    }
+    .oe_website_login_container .login-info-panel {
+        display: none;
+    }
+    .oe_website_login_container .login-form-panel {
+        padding: 22px 26px 30px;
+
+        .login-branding {
+            text-align: center;
+            align-items: center;
+        }
+    }
+}
+
+@media (max-width: 500px) {
+    .oe_website_login_container {
+        padding: 10px;
+
+        .login-form-panel {
+            padding: 18px 18px 24px;
+        }
+
+        .card {
+            border-radius: 8px;
+        }
+
+        .field-actions {
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-start !important;
+        }
+    }
+}

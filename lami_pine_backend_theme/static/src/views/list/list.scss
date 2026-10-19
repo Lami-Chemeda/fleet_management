@@ -1,0 +1,55 @@
+// Template Theme: customize this file for your theme.
+
+.o_list_view .o_list_renderer {
+    --ListRenderer-thead-bg-color: #f9fafb;
+    --ListRenderer-thead-bg-active-color: #f3f4f6;
+    --ListRenderer-thead-border-end-color: #e5e7eb;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    overflow: auto;
+}
+
+.o_list_view .o_list_renderer .o_list_table thead th {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 12px;
+    font-weight: 600;
+    color: #111827;
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+.o_list_view .o_list_renderer .o_list_table thead th .o_list_sortable_caret {
+    color: #94a3b8;
+}
+
+.o_list_view .o_list_renderer .o_list_table tbody td {
+    color: #374151;
+    font-size: 14px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+.o_list_view .o_list_renderer .o_list_table .form-check-input {
+    border-radius: 999px;
+    border-color: #111827;
+}
+
+.o_list_view .o_list_renderer .o_list_table .form-check-input:checked {
+    background-color: #111827;
+    border-color: #111827;
+}
+
+.o_list_view .o_list_renderer .o_list_table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.o_list_view .o_list_renderer .o_list_table tbody tr.o_data_row {
+    border-bottom: 1px solid #edf2f7;
+}
+
+.o_list_view .o_list_renderer .o_list_table tbody tr.o_data_row:last-child {
+    border-bottom: none;
+}

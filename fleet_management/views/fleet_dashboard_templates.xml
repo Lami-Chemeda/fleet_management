@@ -1,0 +1,625 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="fleet_public_dashboard" name="Fleet Management Dashboard">
+        <t t-call="web.frontend_layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&amp;display=swap');
+
+                :root {
+                    --primary: #4f46e5;
+                    --primary-dark: #3730a3;
+                    --secondary: #0ea5e9;
+                    --bg-light: #f8fafc;
+                    --text-dark: #0f172a;
+                    --text-muted: #64748b;
+                    --card-bg: rgba(255, 255, 255, 0.85);
+                }
+                body, html {
+                    font-family: 'Outfit', sans-serif;
+                    background-color: var(--bg-light);
+                    margin: 0;
+                    padding: 0;
+                    overflow-x: hidden;
+                    scroll-behavior: smooth;
+                }
+                
+                /* RTL Specific Enhancements for Arabic Support */
+                html[dir="rtl"] body {
+                    font-family: 'Tajawal', 'Cairo', 'Outfit', sans-serif;
+                }
+                html[dir="rtl"] .fleet-logo {
+                    letter-spacing: normal;
+                }
+                html[dir="rtl"] .ms-2 {
+                    margin-right: 0.5rem !important;
+                    margin-left: 0 !important;
+                    transform: scaleX(-1); /* Flips the arrow for RTL */
+                }
+                html[dir="rtl"] .detail-row {
+                    flex-direction: row-reverse;
+                }
+                html[dir="rtl"] .detail-row:nth-child(even) {
+                    flex-direction: row;
+                }
+                
+                /* Navbar - Glassmorphism */
+                .fleet-navbar {
+                    background: rgba(255, 255, 255, 0.7);
+                    backdrop-filter: blur(15px);
+                    -webkit-backdrop-filter: blur(15px);
+                    border-bottom: 1px solid rgba(255,255,255,0.3);
+                    padding: 1rem 5%;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    position: sticky;
+                    top: 0;
+                    z-index: 1000;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+                    transition: all 0.3s ease;
+                }
+                .fleet-logo {
+                    font-size: 2rem;
+                    font-weight: 900;
+                    background: linear-gradient(135deg, var(--primary), var(--secondary));
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    text-decoration: none;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    letter-spacing: -0.5px;
+                }
+                .fleet-nav-links {
+                    display: flex;
+                    gap: 2.5rem;
+                    align-items: center;
+                }
+                .fleet-nav-links a {
+                    color: var(--text-dark);
+                    text-decoration: none;
+                    font-weight: 600;
+                    font-size: 1.1rem;
+                    transition: color 0.3s;
+                }
+                .fleet-nav-links a:hover {
+                    color: var(--primary);
+                }
+                .fleet-btn-login {
+                    background: linear-gradient(135deg, var(--primary), var(--secondary));
+                    color: white !important;
+                    padding: 0.7rem 2rem;
+                    border-radius: 50px;
+                    font-weight: 800;
+                    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+                    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+                }
+                .fleet-btn-login:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 15px 30px rgba(79, 70, 229, 0.4);
+                }
+                
+                /* Hero Section - Animated Gradient */
+                .hero-section {
+                    background: linear-gradient(-45deg, #4f46e5, #0ea5e9, #2dd4bf, #8b5cf6);
+                    background-size: 400% 400%;
+                    animation: gradientBG 15s ease infinite;
+                    min-height: 90vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    text-align: center;
+                    color: white;
+                    padding: 2rem;
+                    position: relative;
+                }
+
+                @keyframes gradientBG {
+                    0% { background-position: 0% 50%; }
+                    50% { background-position: 100% 50%; }
+                    100% { background-position: 0% 50%; }
+                }
+
+                .hero-content {
+                    max-width: 1000px;
+                    animation: fadeInUp 1s ease-out;
+                    position: relative;
+                    z-index: 2;
+                }
+                .hero-content h1 {
+                    font-size: 5rem;
+                    font-weight: 900;
+                    margin-bottom: 1.5rem;
+                    line-height: 1.1;
+                    letter-spacing: -1px;
+                    text-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                }
+                .hero-content p {
+                    font-size: 1.5rem;
+                    margin-bottom: 3rem;
+                    opacity: 0.95;
+                    line-height: 1.6;
+                    font-weight: 300;
+                }
+                .hero-btn {
+                    display: inline-block;
+                    background: rgba(255, 255, 255, 0.1);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255,255,255,0.5);
+                    color: white;
+                    padding: 1.2rem 3rem;
+                    font-size: 1.2rem;
+                    font-weight: 800;
+                    border-radius: 50px;
+                    text-decoration: none;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                }
+                .hero-btn:hover {
+                    background: white;
+                    color: var(--primary);
+                    transform: translateY(-5px);
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+                }
+                
+                /* Stats Section - Floating Cards */
+                .stats-container {
+                    display: flex;
+                    justify-content: center;
+                    gap: 2rem;
+                    margin-top: -80px;
+                    position: relative;
+                    z-index: 10;
+                    padding: 0 5%;
+                    flex-wrap: wrap;
+                }
+                .stat-card {
+                    background: var(--card-bg);
+                    backdrop-filter: blur(20px);
+                    padding: 3rem 2rem;
+                    border-radius: 24px;
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+                    border: 1px solid rgba(255,255,255,0.6);
+                    text-align: center;
+                    flex: 1;
+                    min-width: 250px;
+                    max-width: 350px;
+                    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                }
+                .stat-card:hover {
+                    transform: translateY(-20px);
+                    border-color: var(--primary);
+                }
+                .stat-number {
+                    font-size: 4rem;
+                    font-weight: 900;
+                    background: linear-gradient(135deg, var(--primary), var(--secondary));
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    margin-bottom: 0.5rem;
+                    line-height: 1;
+                }
+                .stat-label {
+                    color: var(--text-muted);
+                    font-weight: 800;
+                    text-transform: uppercase;
+                    letter-spacing: 2px;
+                    font-size: 0.9rem;
+                }
+
+                /* Section Globals */
+                .section {
+                    padding: 8rem 5%;
+                }
+                .section-header {
+                    text-align: center;
+                    margin-bottom: 5rem;
+                }
+                .section-title {
+                    font-size: 3.5rem;
+                    font-weight: 900;
+                    color: var(--text-dark);
+                    margin-bottom: 1rem;
+                    letter-spacing: -1px;
+                }
+                .section-subtitle {
+                    font-size: 1.3rem;
+                    color: var(--text-muted);
+                    max-width: 800px;
+                    margin: 0 auto;
+                    line-height: 1.6;
+                    font-weight: 300;
+                }
+
+                /* Features Grid - Modern Styling */
+                .features-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+                    gap: 3rem;
+                    max-width: 1400px;
+                    margin: 0 auto;
+                }
+                .feature-card {
+                    padding: 3rem 2rem;
+                    border-radius: 24px;
+                    background: white;
+                    transition: all 0.4s ease;
+                    border: 1px solid rgba(0,0,0,0.04);
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+                    position: relative;
+                    overflow: hidden;
+                    z-index: 1;
+                }
+                .feature-card::before {
+                    content: '';
+                    position: absolute;
+                    top: 0; left: 0; right: 0; bottom: 0;
+                    background: linear-gradient(135deg, rgba(79,70,229,0.03), rgba(14,165,233,0.03));
+                    z-index: -1;
+                    opacity: 0;
+                    transition: opacity 0.4s ease;
+                }
+                .feature-card:hover {
+                    transform: translateY(-10px);
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                    border-color: rgba(79,70,229,0.2);
+                }
+                .feature-card:hover::before {
+                    opacity: 1;
+                }
+                .feature-icon-wrapper {
+                    width: 80px;
+                    height: 80px;
+                    border-radius: 20px;
+                    background: linear-gradient(135deg, var(--primary), var(--secondary));
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-bottom: 2rem;
+                    color: white;
+                    font-size: 2.5rem;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
+                }
+                .feature-card:hover .feature-icon-wrapper {
+                    transform: scale(1.1) rotate(5deg);
+                }
+                .feature-title {
+                    font-size: 1.6rem;
+                    font-weight: 800;
+                    margin-bottom: 1rem;
+                    color: var(--text-dark);
+                }
+                .feature-desc {
+                    color: var(--text-muted);
+                    line-height: 1.7;
+                    font-size: 1.1rem;
+                    font-weight: 400;
+                }
+
+                /* Comprehensive Features List */
+                .detailed-features {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6rem;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                }
+                .detail-row {
+                    display: flex;
+                    gap: 4rem;
+                    align-items: center;
+                }
+                .detail-row:nth-child(even) {
+                    flex-direction: row-reverse;
+                }
+                .detail-text {
+                    flex: 1;
+                }
+                .detail-text h3 {
+                    font-size: 2.5rem;
+                    font-weight: 900;
+                    color: var(--text-dark);
+                    margin-bottom: 1.5rem;
+                    letter-spacing: -0.5px;
+                }
+                .detail-text p {
+                    font-size: 1.2rem;
+                    color: var(--text-muted);
+                    line-height: 1.8;
+                    margin-bottom: 1.5rem;
+                }
+                .detail-text ul {
+                    list-style: none;
+                    padding: 0;
+                }
+                .detail-text ul li {
+                    font-size: 1.15rem;
+                    color: var(--text-dark);
+                    margin-bottom: 1rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    font-weight: 500;
+                }
+                .detail-text ul li i {
+                    color: var(--secondary);
+                    font-size: 1.3rem;
+                }
+                .detail-image {
+                    flex: 1;
+                    background: white;
+                    padding: 2rem;
+                    border-radius: 30px;
+                    box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+                    text-align: center;
+                    font-size: 8rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 400px;
+                    background: linear-gradient(135deg, #ffffff, var(--bg-light));
+                    border: 1px solid rgba(0,0,0,0.05);
+                }
+                .detail-image i {
+                    background: linear-gradient(135deg, var(--primary), var(--secondary));
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    opacity: 0.8;
+                }
+
+                /* Footer */
+                .fleet-footer {
+                    background: #0f172a;
+                    color: white;
+                    padding: 5rem 5% 2rem;
+                }
+                .footer-grid {
+                    display: grid;
+                    grid-template-columns: 2fr 1fr 1fr 1fr;
+                    gap: 4rem;
+                    max-width: 1400px;
+                    margin: 0 auto 4rem;
+                }
+                .footer-brand h2 {
+                    background: linear-gradient(135deg, var(--secondary), var(--primary));
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    font-weight: 900;
+                    margin-bottom: 1.5rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                .footer-brand p {
+                    color: #94a3b8;
+                    line-height: 1.7;
+                    font-size: 1.1rem;
+                }
+                .footer-links h4 {
+                    font-size: 1.2rem;
+                    font-weight: 800;
+                    margin-bottom: 1.5rem;
+                }
+                .footer-links a {
+                    display: block;
+                    color: #94a3b8;
+                    text-decoration: none;
+                    margin-bottom: 0.8rem;
+                    transition: color 0.3s;
+                }
+                .footer-links a:hover {
+                    color: white;
+                    padding-left: 5px;
+                }
+                .copyright {
+                    text-align: center;
+                    color: #475569;
+                    font-size: 1rem;
+                    border-top: 1px solid #1e293b;
+                    padding-top: 2rem;
+                }
+
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(40px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                @media (max-width: 992px) {
+                    .detail-row, .detail-row:nth-child(even) {
+                        flex-direction: column;
+                    }
+                    .footer-grid {
+                        grid-template-columns: 1fr 1fr;
+                    }
+                    .hero-content h1 { font-size: 3.5rem; }
+                }
+                @media (max-width: 768px) {
+                    .fleet-nav-links { display: none; }
+                    .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
+                }
+            </style>
+
+            <!-- Navigation -->
+            <nav class="fleet-navbar">
+                <a href="/fleet" class="fleet-logo">
+                    <i class="fa fa-truck text-primary"></i> FleetPro
+                </a>
+                <div class="fleet-nav-links">
+                    <a href="#home">Home</a>
+                    <a href="#features">Core Features</a>
+                    <a href="#deep-dive">Capabilities</a>
+                    <a href="#about">About Us</a>
+                    <t t-if="request.env.user._is_public()">
+                        <a href="/web/login" class="fleet-btn-login">Login to Portal <i class="fa fa-arrow-right ms-2"></i></a>
+                    </t>
+                    <t t-else="">
+                        <a href="/web" class="fleet-btn-login" style="background: linear-gradient(135deg, #10b981, #059669);">
+                            <i class="fa fa-th-large ms-2" style="margin-right: 8px;"></i> Go to Backend ERP
+                        </a>
+                    </t>
+                </div>
+            </nav>
+
+            <!-- Hero Section -->
+            <section id="home" class="hero-section">
+                <div class="hero-content">
+                    <h1>The Ultimate Enterprise Fleet Management Solution</h1>
+                    <p>Transform your logistics, completely automate maintenance workflows, track strict fuel quotas, and maintain 100% document compliance. Built natively on Odoo 18.</p>
+                    <a href="#features" class="hero-btn">Discover Features</a>
+                </div>
+            </section>
+
+            <!-- Statistics Section -->
+            <section class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-number"><t t-esc="vehicle_count or '200+'"/></div>
+                    <div class="stat-label">Active Vehicles Managed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number"><t t-esc="trip_count or '15k+'"/></div>
+                    <div class="stat-label">Trips Successfully Dispatched</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number"><t t-esc="incident_count or '100%'"/></div>
+                    <div class="stat-label">Compliance &amp; Tracking</div>
+                </div>
+            </section>
+
+            <!-- Core Features Section -->
+            <section id="features" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Everything You Need to Run Your Fleet</h2>
+                    <p class="section-subtitle">Stop relying on spreadsheets. Experience a fully integrated ecosystem designed to cut costs, prevent breakdowns, and monitor every drop of fuel.</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper"><i class="fa fa-map-marker"></i></div>
+                        <h3 class="feature-title">Advanced Trip Dispatching</h3>
+                        <p class="feature-desc">Streamline operations with multi-level approval workflows, seamless vehicle assignments, exact odometer tracking, and real-time status updates.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper"><i class="fa fa-tint"></i></div>
+                        <h3 class="feature-title">Strict Fuel &amp; Quota Control</h3>
+                        <p class="feature-desc">Eliminate fuel theft by enforcing rigid fuel quotas, logging pump station receipts, and analyzing L/100km efficiency dynamically across the fleet.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper"><i class="fa fa-wrench"></i></div>
+                        <h3 class="feature-title">Automated Maintenance</h3>
+                        <p class="feature-desc">Prevent critical breakdowns with predictive service alerts. Link maintenance requests to external garages and track all associated invoices instantly.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper"><i class="fa fa-life-ring"></i></div>
+                        <h3 class="feature-title">Tyre Lifecycle Management</h3>
+                        <p class="feature-desc">Monitor tyre health, track mounting positions, log usage miles, and automate tyre replacement requests before tread wear causes accidents.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper"><i class="fa fa-file-text"></i></div>
+                        <h3 class="feature-title">Zero-Fine Document Compliance</h3>
+                        <p class="feature-desc">Receive automated notifications before vehicle policies, insurance documents, inspections, or driver licenses expire.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper"><i class="fa fa-bar-chart"></i></div>
+                        <h3 class="feature-title">Driver Scorecards &amp; KPIs</h3>
+                        <p class="feature-desc">Automatically evaluate drivers out of 100 based on punctuality, incident reports, and fuel efficiency. Reward top performers instantly.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Deep Dive Capabilities Section -->
+            <section id="deep-dive" class="section" style="background: white;">
+                <div class="section-header">
+                    <h2 class="section-title">Deep-Dive Capabilities</h2>
+                    <p class="section-subtitle">We didn't just build a fleet tracker; we built a financial and operational powerhouse for your business.</p>
+                </div>
+                
+                <div class="detailed-features">
+                    <!-- Detail 1 -->
+                    <div class="detail-row">
+                        <div class="detail-text">
+                            <h3>Financial Budgets &amp; Cost Control</h3>
+                            <p>FleetPro integrates directly into your financial operations, giving you an unprecedented view of where your money is going.</p>
+                            <ul>
+                                <li><i class="fa fa-check-circle"></i> Daily, Monthly, and Yearly Budget Allocations</li>
+                                <li><i class="fa fa-check-circle"></i> Direct linking to Odoo Invoicing and Accounting</li>
+                                <li><i class="fa fa-check-circle"></i> Visual tracking of Budget vs. Actual Expenses</li>
+                                <li><i class="fa fa-check-circle"></i> Maintenance cost forecasting</li>
+                            </ul>
+                        </div>
+                        <div class="detail-image">
+                            <i class="fa fa-pie-chart"></i>
+                        </div>
+                    </div>
+
+                    <!-- Detail 2 -->
+                    <div class="detail-row">
+                        <div class="detail-text">
+                            <h3>Incident &amp; Insurance Claims</h3>
+                            <p>Accidents happen. But handling them shouldn't be chaotic. Log incidents instantly and process insurance claims without leaving the system.</p>
+                            <ul>
+                                <li><i class="fa fa-check-circle"></i> Log photo evidence of vehicle damage</li>
+                                <li><i class="fa fa-check-circle"></i> Track incident severity and driver fault</li>
+                                <li><i class="fa fa-check-circle"></i> Manage the entire insurance claim lifecycle</li>
+                                <li><i class="fa fa-check-circle"></i> Automatically deduct points from Driver Scorecards</li>
+                            </ul>
+                        </div>
+                        <div class="detail-image">
+                            <i class="fa fa-car"></i>
+                        </div>
+                    </div>
+
+                    <!-- Detail 3 -->
+                    <div class="detail-row">
+                        <div class="detail-text">
+                            <h3>Portal Access for Drivers &amp; Managers</h3>
+                            <p>Empower your team with a dedicated web portal where they can submit requests and view their metrics on any device.</p>
+                            <ul>
+                                <li><i class="fa fa-check-circle"></i> Drivers can submit pre-trip inspections</li>
+                                <li><i class="fa fa-check-circle"></i> Upload fuel station receipts via smartphone</li>
+                                <li><i class="fa fa-check-circle"></i> Check assigned trips and destination details</li>
+                                <li><i class="fa fa-check-circle"></i> Managers can approve requests remotely</li>
+                            </ul>
+                        </div>
+                        <div class="detail-image">
+                            <i class="fa fa-mobile-phone"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section id="about" class="section" style="background: var(--bg-light);">
+                <div class="container" style="max-width: 900px; margin: 0 auto; text-align: center;">
+                    <h2 class="section-title">Why Choose FleetPro?</h2>
+                    <p style="font-size: 1.3rem; color: var(--text-muted); line-height: 1.8; margin-bottom: 2rem;">
+                        FleetPro was built by logistics experts specifically for enterprise-level operations running on Odoo. We noticed that standard fleet modules only track basic vehicle data. FleetPro changes the game by introducing complex business logic: quotas, strict approvals, lifecycle tracking, and financial constraints.
+                    </p>
+                    <p style="font-size: 1.3rem; color: var(--text-muted); line-height: 1.8;">
+                        Whether you manage 10 delivery vans or a massive fleet of 500+ heavy trucks, FleetPro provides the scalability, security, and insights needed to boost your ROI from day one.
+                    </p>
+                    
+                    <a href="/web/login" class="hero-btn" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); border: none; color: white; margin-top: 3rem; padding: 1.2rem 3rem;">
+                        Login to the Portal Now
+                    </a>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="fleet-footer">
+                <div class="footer-grid">
+                    <div class="footer-brand">
+                        <h2><i class="fa fa-truck text-secondary"></i> FleetPro</h2>
+                        <p>The leading enterprise fleet management solution for Odoo 18. Automate your dispatch, secure your fuel, and elevate your business.</p>
+                    </div>
+                    
+                </div>
+                <div class="copyright">
+                    &amp;copy; <t t-esc="time.strftime('%Y')"/> FleetPro Enterprise Management. Built natively on Odoo. All rights reserved.
+                </div>
+            </footer>
+        </t>
+    </template>
+</odoo>

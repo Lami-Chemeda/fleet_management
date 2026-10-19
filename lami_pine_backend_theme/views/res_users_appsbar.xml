@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Template Theme: customize this file for your theme. -->
+
+<odoo>
+	
+    <!-- Inherit the user preferences form to add sidebar settings -->
+    <record id="view_res_users_form_appsbar" model="ir.ui.view">
+        <field name="name">res.users.form.appsbar</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form_simple_modif" />
+        <field name="arch" type="xml">
+             <!-- Add the sidebar type field after the timezone field -->
+             <xpath expr="//field[@name='tz']" position="after">
+                <field name="sidebar_type" readonly="0"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

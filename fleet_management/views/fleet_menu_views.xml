@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_fleet_garage_vendors" model="ir.actions.act_window">
+        <field name="name">Garage Vendors</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_garage_vendor', '=', True)]</field>
+        <field name="context">{'default_is_company': True, 'default_is_garage_vendor': True}</field>
+    </record>
+
+    <menuitem id="menu_fleet_management_dashboard"
+              name="Executive Dashboard"
+              parent="menu_fleet_management_root"
+              action="action_fleet_backend_dashboard"
+              sequence="1"/>
+
+    <menuitem id="menu_fleet_management_vehicles"
+              name="Vehicles"
+              parent="menu_fleet_management_root"
+              groups="fleet_management.group_fleet_manager"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_vehicle_records"
+              name="Vehicles"
+              parent="menu_fleet_management_vehicles"
+              action="action_fleet_management_vehicle"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_vehicle_history"
+              name="Vehicle History"
+              parent="menu_fleet_management_vehicles"
+              action="action_fleet_vehicle_history"
+              groups="fleet_management.group_fleet_manager"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_vehicle_gps_logs"
+              name="GPS Logs"
+              parent="menu_fleet_management_vehicles"
+              action="action_fleet_vehicle_gps_log"
+              groups="fleet_management.group_fleet_manager"
+              sequence="25"/>
+
+        <menuitem id="menu_fleet_management_drivers"
+              name="Drivers"
+              parent="menu_fleet_management_root"
+              action="action_fleet_drivers"
+              groups="base.group_system" 
+              sequence="15"/>
+
+
+    <menuitem id="menu_fleet_management_trip"
+              name="Trip Management"
+              parent="menu_fleet_management_root"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_trip_requests"
+              name="Vehicle Requests"
+              parent="menu_fleet_management_trip"
+              action="action_fleet_trip_request"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_assignments"
+              name="Vehicle Assignments"
+              parent="menu_fleet_management_trip"
+              action="action_fleet_vehicle_assignment"
+              groups="fleet_management.group_fleet_manager,fleet_management.group_department_manager,fleet_management.group_fleet_driver"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_fuel"
+              name="Fuel Management"
+              parent="menu_fleet_management_root"
+              groups="fleet_management.group_fleet_manager,fleet_management.group_fleet_driver"
+              sequence="30"/>
+
+    <menuitem id="menu_fleet_management_fuel_requests"
+              name="Fuel Requests"
+              parent="menu_fleet_management_fuel"
+              action="action_fleet_fuel_request"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_fuel_issues"
+              name="Fuel Issues"
+              parent="menu_fleet_management_fuel"
+              action="action_fleet_fuel_issue"
+              groups="fleet_management.group_fleet_manager"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_fuel_configuration"
+              name="Configuration"
+              parent="menu_fleet_management_fuel"
+              groups="fleet_management.group_fleet_manager"
+              sequence="30"/>
+
+    <menuitem id="menu_fleet_management_fuel_quotas"
+              name="Fuel Quotas"
+              parent="menu_fleet_management_fuel_configuration"
+              action="action_fleet_fuel_quota"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_fuel_types"
+              name="Fuel Types"
+              parent="menu_fleet_management_fuel_configuration"
+              action="action_fleet_fuel_type"
+              groups="base.group_system"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_maintenance"
+              name="Maintenance"
+              parent="menu_fleet_management_root"
+              groups="fleet_management.group_fleet_manager,fleet_management.group_fleet_driver"
+              sequence="40"/>
+
+    <menuitem id="menu_fleet_management_maintenance_requests"
+              name="Maintenance Requests"
+              parent="menu_fleet_management_maintenance"
+              action="action_fleet_maintenance_request"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_service_records"
+              name="Service Records"
+              parent="menu_fleet_management_maintenance"
+              action="action_fleet_maintenance_service"
+              groups="fleet_management.group_fleet_manager"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_vehicle_documents"
+              name="Documents &amp; Compliance"
+              parent="menu_fleet_management_vehicles"
+              action="action_fleet_vehicle_document"
+              sequence="30"/>
+
+    <menuitem id="menu_fleet_management_vehicle_insurance"
+              name="Insurance"
+              parent="menu_fleet_management_vehicles"
+              action="action_fleet_vehicle_insurance"
+              sequence="40"/>
+
+    <menuitem id="menu_fleet_management_vehicle_contracts"
+              name="Contracts (Lease/Rental)"
+              parent="menu_fleet_management_vehicles"
+              action="action_fleet_vehicle_contract"
+              sequence="50"/>
+
+    <menuitem id="menu_fleet_management_vehicle_tyres"
+              name="Tyres"
+              parent="menu_fleet_management_vehicles"
+              action="action_fleet_vehicle_tyre"
+              sequence="60"/>
+
+    <menuitem id="menu_fleet_management_inspection"
+              name="Inspections (Pre/Post Trip)"
+              parent="menu_fleet_management_trip"
+              action="action_fleet_vehicle_inspection"
+              sequence="30"/>
+
+    <menuitem id="menu_fleet_management_safety"
+              name="Safety"
+              parent="menu_fleet_management_root"
+              sequence="45"/>
+
+    <menuitem id="menu_fleet_management_incidents"
+              name="Incidents / Accidents"
+              parent="menu_fleet_management_safety"
+              action="action_fleet_incident"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_insurance_claims"
+              name="Insurance Claims"
+              parent="menu_fleet_management_safety"
+              action="action_fleet_insurance_claim"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_driver_score"
+              name="Driver Scorecard"
+              parent="menu_fleet_management_drivers"
+              action="action_fleet_driver_score"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_management_vendors"
+              name="Vendors"
+              parent="menu_fleet_management_root"
+              action="action_fleet_garage_vendors"
+              groups="fleet_management.group_fleet_manager"
+              sequence="50"/>
+
+    <menuitem id="menu_fleet_management_budget_root"
+              name="Budget &amp; Cost Control"
+              parent="menu_fleet_management_root"
+              sequence="60"/>
+
+    <menuitem id="menu_fleet_management_budget"
+              name="Budgets"
+              parent="menu_fleet_management_budget_root"
+              action="action_fleet_budget"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_management_reports"
+              name="Reports &amp; Dashboard"
+              parent="menu_fleet_management_root"
+              sequence="70"/>
+
+    <menuitem id="menu_fleet_management_kpi_dashboard"
+              name="Incident Analysis"
+              parent="menu_fleet_management_reports"
+              action="action_fleet_incident_kpi"
+              sequence="10"/>
+</odoo>

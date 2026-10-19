@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="trip_assignment_template">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.external_layout">
+          <div class="page">
+            <h2 class="text-center mb-4">Trip Assignment Ticket</h2>
+            
+            <table class="table table-bordered mt-4">
+              <tr>
+                <th style="width: 25%; background-color: #f8f9fa;">Vehicle</th>
+                <td style="width: 25%;"><span t-esc="doc.vehicle_id.name"/></td>
+                <th style="width: 25%; background-color: #f8f9fa;">Driver</th>
+                <td style="width: 25%;"><span t-esc="doc.driver_id.name"/></td>
+              </tr>
+              <tr>
+                <th style="background-color: #f8f9fa;">Start Date</th>
+                <td><span t-esc="doc.start_date"/></td>
+                <th style="background-color: #f8f9fa;">End Date</th>
+                <td><span t-esc="doc.end_date"/></td>
+              </tr>
+              <tr>
+                <th style="background-color: #f8f9fa;">Source</th>
+                <td><span t-esc="doc.trip_request_id.source_location"/></td>
+                <th style="background-color: #f8f9fa;">Destination</th>
+                <td><span t-esc="doc.trip_request_id.destination_location"/></td>
+              </tr>
+              <tr>
+                <th style="background-color: #f8f9fa;">Status</th>
+                <td colspan="3"><span t-esc="doc.state"/></td>
+              </tr>
+            </table>
+
+            <div class="row mt-5">
+              <div class="col-4 text-center">
+                <strong>Company Stamp</strong><br/>
+                <t t-if="res_company.company_stamp">
+                    <img t-att-src="image_data_uri(res_company.company_stamp)" style="max-height: 100px; max-width: 150px; margin-top: 10px;" alt="Company Stamp"/>
+                </t>
+              </div>
+              <div class="col-4 text-center">
+              </div>
+              <div class="col-4 text-center">
+                <strong>Approved By (Fleet Manager)</strong><br/>
+                <t t-if="doc.fleet_manager_id">
+                  <span t-esc="doc.fleet_manager_id.name"/><br/>
+                  <t t-if="doc.fleet_manager_id.signature_image">
+                      <img t-att-src="image_data_uri(doc.fleet_manager_id.signature_image)" style="max-height: 80px; max-width: 150px; margin-top: 10px;" alt="Signature"/>
+                  </t>
+                </t>
+              </div>
+            </div>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

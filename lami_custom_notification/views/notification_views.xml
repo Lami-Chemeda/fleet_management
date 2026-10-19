@@ -1,0 +1,14 @@
+<odoo>
+    <record id="view_notification_tree" model="ir.ui.view">
+        <field name="name">notification.tree</field>
+        <field name="model">custom.notification</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="title"/>
+                <field name="user_id"/>
+                <field name="is_read"/>
+                <field name="create_date"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

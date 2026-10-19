@@ -1,0 +1,111 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* fleet_management
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-13 14:00+0000\n"
+"PO-Revision-Date: 2026-08-13 14:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: fleet_management
+#: model_terms:ir.ui.view,arch_db:fleet_management.fleet_public_dashboard
+msgid "Home"
+msgstr "الرئيسية"
+
+#. module: fleet_management
+#: model_terms:ir.ui.view,arch_db:fleet_management.fleet_public_dashboard
+msgid "Core Features"
+msgstr "الميزات الأساسية"
+
+#. module: fleet_management
+#: model_terms:ir.ui.view,arch_db:fleet_management.fleet_public_dashboard
+msgid "Capabilities"
+msgstr "القدرات"
+
+#. module: fleet_management
+#: model_terms:ir.ui.view,arch_db:fleet_management.fleet_public_dashboard
+msgid "Why FleetPro?"
+msgstr "لماذا فليت برو؟"
+
+#. module: fleet_management
+#: model_terms:ir.ui.view,arch_db:fleet_management.fleet_public_dashboard
+msgid "Login to Portal"
+msgstr "تسجيل الدخول"
+
+#. module: fleet_management
+#: model_terms:ir.ui.view,arch_db:fleet_management.fleet_public_dashboard
+msgid "The Ultimate Enterprise Fleet Management Solution"
+msgstr "الحل الشامل لإدارة أسطول المؤسسات"
+
+#. module: fleet_management
+#: model_terms:ir.ui.view,arch_db:fleet_management.fleet_public_dashboard
+msgid "Discover Features"
+msgstr "اكتشف الميزات"
+
+#. module: fleet_management
+#: model_terms:ir.ui.view,arch_db:fleet_management.fleet_public_dashboard
+msgid "Active Vehicles Managed"
+msgstr "المركبات النشطة المدارة"
+
+#. module: fleet_management
+#: model_terms:ir.ui.view,arch_db:fleet_management.fleet_public_dashboard
+msgid "Trips Successfully Dispatched"
+msgstr "الرحلات التي تم إرسالها بنجاح"
+
+#. module: fleet_management
+#: model_terms:ir.ui.view,arch_db:fleet_management.fleet_public_dashboard
+msgid "Everything You Need to Run Your Fleet"
+msgstr "كل ما تحتاجه لإدارة أسطولك"
+
+#. module: fleet_management
+#: model_terms:ir.ui.view,arch_db:fleet_management.fleet_public_dashboard
+msgid "Advanced Trip Dispatching"
+msgstr "إرسال الرحلات المتقدم"
+
+#. module: fleet_management
+#: model_terms:ir.ui.view,arch_db:fleet_management.fleet_public_dashboard
+msgid "Strict Fuel & Quota Control"
+msgstr "رقابة صارمة على الوقود والحصص"
+
+#. module: fleet_management
+#: model_terms:ir.ui.view,arch_db:fleet_management.fleet_public_dashboard
+msgid "Automated Maintenance"
+msgstr "الصيانة الآلية"
+
+#. module: fleet_management
+#: model:ir.ui.menu,name:fleet_management.menu_fleet_management_root
+msgid "Fleet Management"
+msgstr "إدارة الأسطول"
+
+#. module: fleet_management
+#: model:ir.ui.menu,name:fleet_management.menu_fleet_management_vehicles
+msgid "Vehicles"
+msgstr "المركبات"
+
+#. module: fleet_management
+#: model:ir.ui.menu,name:fleet_management.menu_fleet_management_fuel
+msgid "Fuel Management"
+msgstr "إدارة الوقود"
+
+#. module: fleet_management
+#: model:ir.ui.menu,name:fleet_management.menu_fleet_management_trip
+msgid "Trip Management"
+msgstr "إدارة الرحلات"
+
+#. module: fleet_management
+#: model:ir.ui.menu,name:fleet_management.menu_fleet_management_maintenance
+msgid "Maintenance"
+msgstr "الصيانة"
+
+#. module: fleet_management
+#: model:ir.ui.menu,name:fleet_management.menu_fleet_management_reports
+msgid "Reports & Dashboard"
+msgstr "التقارير ولوحة القيادة"

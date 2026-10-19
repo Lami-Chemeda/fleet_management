@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Template Theme: customize this file for your theme. -->
+
+<templates xml:space="preserve">
+
+  <t t-name="lami_pine_backend_theme.Home">
+    <div class="tt_home">
+      <section class="tt_home_hero" t-attf-style="background-image: {{ getHeroBackgroundUrl() }}">
+        <div class="tt_home_hero_overlay"></div>
+        <div class="tt_home_hero_content">
+          <!-- <span class="tt_home_kicker">Overview</spototto or 'Overview'an> -->
+          <span class="tt_home_kicker" t-esc="companyService.currentCompany.name or 'Overview'"/>
+          <h1 class="tt_home_title">
+            <span>Performance &amp; Analytics</span>
+          </h1>
+          <p class="tt_home_lead">
+            <t t-if="state.summary.hasSales">
+              Welcome back, <t t-esc="state.userName"/>. You have
+              <span class="tt_home_accent" t-esc="state.summary.activityCount"/>
+              activities scheduled and
+              <span class="tt_home_positive" t-esc="state.summary.salesCount"/>
+              sales orders in progress.
+            </t>
+            <t t-else="">
+              Welcome back, <t t-esc="state.userName"/>. You have
+              <span class="tt_home_accent" t-esc="state.summary.activityCount"/>
+              activities scheduled today.
+            </t>
+          </p>
+          <!-- <div class="tt_home_actions">
+            <button class="tt_btn tt_btn_primary" type="button">
+              <i class="fa fa-plus" aria-hidden="true"></i>
+              New Transaction
+            </button>
+            <button class="tt_btn tt_btn_ghost" type="button">
+              <i class="fa fa-file-text-o" aria-hidden="true"></i>
+              Generate Report
+            </button>
+          </div> -->
+        </div>
+      </section>
+
+      <section class="tt_home_stats">
+        <t t-if="state.loading">
+          <t t-foreach="[1,2,3,4]" t-as="idx" t-key="idx">
+            <div class="tt_stat_card tt_skeleton_card">
+              <div class="tt_stat_header">
+                <span class="tt_skeleton_line tt_skeleton_text"></span>
+                <span class="tt_stat_icon tt_skeleton_icon"></span>
+              </div>
+              <div class="tt_skeleton_line tt_skeleton_title"></div>
+              <div class="tt_skeleton_line tt_skeleton_subtext"></div>
+            </div>
+          </t>
+        </t>
+        <t t-elif="state.metrics.length">
+          <t t-foreach="state.metrics" t-as="metric" t-key="metric.key">
+            <div class="tt_stat_card" t-att-class="metric.accentClass">
+              <div class="tt_stat_header">
+                <p t-esc="metric.label"/>
+                <span class="tt_stat_icon" t-att-class="metric.iconClassName">
+                  <i t-att-class="metric.iconClass" aria-hidden="true"></i>
+                </span>
+              </div>
+              <h3 t-esc="metric.value"/>
+              <p class="tt_stat_delta" t-if="metric.subtext" t-esc="metric.subtext"/>
+            </div>
+          </t>
+        </t>
+        <div class="tt_home_empty" t-else="">No metrics available yet.</div>
+      </section>
+
+      <section class="tt_home_section">
+        <div class="tt_section_header">
+          <div>
+            <h2>Quick Access</h2>
+            <p>Live snapshots from your most used modules</p>
+          </div>
+        </div>
+
+        <div class="tt_home_grid">
+          <div class="tt_focus_panel">
+            <div class="tt_panel_header">
+              <h3>My Focus</h3>
+              <div class="tt_focus_dropdown" t-ref="focusDropdown">
+                <button class="tt_focus_filter" t-on-click="toggleFocusDropdown" type="button">
+                  <t t-esc="currentFocusLabel"/>
+                </button>
+                <div class="tt_dropdown_list" t-if="state.showFocusDropdown">
+                  <div class="tt_dropdown_item" t-on-click="() => this.onFocusFilterChange('7')">Next 7 days</div>
+                  <div class="tt_dropdown_item" t-on-click="() => this.onFocusFilterChange('today')">Today</div>
+                  <div class="tt_dropdown_item" t-on-click="() => this.onFocusFilterChange('overdue')">Overdue</div>
+                  <div class="tt_dropdown_item" t-on-click="() => this.onFocusFilterChange('14')">Next 14 days</div>
+                  <div class="tt_dropdown_item" t-on-click="() => this.onFocusFilterChange('30')">Next 30 days</div>
+                  <div class="tt_dropdown_item" t-on-click="() => this.onFocusFilterChange('all')">All</div>
+                </div>
+              </div>
+            </div>
+            <div class="tt_focus_skeleton" t-if="state.loading">
+              <div class="tt_skeleton_line tt_skeleton_text"></div>
+              <div class="tt_skeleton_line tt_skeleton_text"></div>
+              <div class="tt_skeleton_line tt_skeleton_text"></div>
+              <div class="tt_skeleton_line tt_skeleton_text"></div>
+            </div>
+            <ul class="tt_focus_list" t-elif="state.focusItems.length">
+              <li
+                class="tt_focus_item"
+                t-att-class="item.isOverdue ? 'is-overdue' : ''"
+                t-foreach="state.focusItems"
+                t-as="item"
+                t-key="item.id"
+                t-on-click="() => this.onFocusItemClick(item)"
+              >
+                <div>
+                  <p class="tt_focus_title" t-esc="item.title"/>
+                  <p class="tt_focus_meta">
+                    <t t-esc="item.type"/>
+                    <t t-if="item.record"> - <t t-esc="item.record"/></t>
+                  </p>
+                </div>
+                <span class="tt_focus_date" t-esc="item.date"/>
+              </li>
+            </ul>
+            <p class="tt_panel_empty" t-else="">No activities assigned yet.</p>
+          </div>
+
+          <div class="tt_card_grid">
+            <t t-if="state.loading">
+              <t t-foreach="[1,2,3,4,5,6]" t-as="idx" t-key="idx">
+                <article class="tt_card tt_skeleton_card">
+                  <div class="tt_card_header tt_skeleton_header"></div>
+                  <div class="tt_card_body">
+                    <div class="tt_skeleton_line tt_skeleton_title"></div>
+                    <div class="tt_skeleton_line tt_skeleton_text"></div>
+                    <div class="tt_skeleton_line tt_skeleton_text"></div>
+                    <div class="tt_card_footer">
+                      <span class="tt_skeleton_badge"></span>
+                    </div>
+                  </div>
+                </article>
+              </t>
+            </t>
+            <t t-else="">
+              <t t-foreach="state.moduleCards" t-as="card" t-key="card.key">
+                <article class="tt_card" t-on-click="() => this.onCardClick(card)">
+                  <div class="tt_card_header" t-att-class="card.headerClass">
+                    <div class="tt_card_watermark">
+                      <i t-att-class="card.watermarkClass" aria-hidden="true"></i>
+                    </div>
+                    <div class="tt_card_header_inner">
+                      <i t-att-class="card.iconClass" aria-hidden="true"></i>
+                      <span t-esc="card.metric"/>
+                    </div>
+                  </div>
+                  <div class="tt_card_body">
+                    <h3 t-esc="card.title"/>
+                    <p t-esc="card.description"/>
+                    
+                    <div class="tt_card_info_list" t-if="card.infoItems and card.infoItems.length">
+                      <t t-foreach="card.infoItems" t-as="item" t-key="item_index">
+                        <div class="tt_card_info_item" t-on-click="(ev) => this.onInfoItemClick(item, ev)">
+                          <span class="tt_info_label" t-esc="item.label"/>
+                          <span class="tt_info_value" t-esc="item.value"/>
+                        </div>
+                      </t>
+                    </div>
+
+                    <div class="tt_card_footer">
+                      <span class="tt_badge" t-att-class="card.badgeClass" t-esc="card.badge"/>
+                      <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                    </div>
+                  </div>
+                </article>
+              </t>
+            </t>
+          </div>
+        </div>
+      </section>
+
+      <footer class="tt_home_footer">
+        <div>
+          <a href="#">Support</a>
+          <a href="#">Documentation</a>
+          <a href="#">Privacy Policy</a>
+        </div>
+      </footer>
+    </div>
+  </t>
+
+</templates>

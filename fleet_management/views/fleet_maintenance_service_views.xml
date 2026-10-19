@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_fleet_maintenance_service_list" model="ir.ui.view">
+        <field name="name">fleet.maintenance.service.list</field>
+        <field name="model">fleet.maintenance.service</field>
+        <field name="arch" type="xml">
+            <list string="Maintenance Services">
+                <field name="maintenance_request_id"/>
+                <field name="vehicle_id"/>
+                <field name="vendor_id"/>
+                <field name="start_date"/>
+                <field name="completion_date"/>
+                <field name="cost"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fleet_maintenance_service_form" model="ir.ui.view">
+        <field name="name">fleet.maintenance.service.form</field>
+        <field name="model">fleet.maintenance.service</field>
+        <field name="arch" type="xml">
+            <form string="Maintenance Service">
+                <header>
+                    <button name="action_mark_completed" type="object" string="Mark Completed" class="btn-primary" groups="fleet_management.group_fleet_manager"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="maintenance_request_id"/>
+                            <field name="vehicle_id"/>
+                            <field name="vendor_id"/>
+                        </group>
+                        <group>
+                            <field name="start_date"/>
+                            <field name="completion_date"/>
+                            <field name="cost"/>
+                            <field name="currency_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="service_description"/>
+                        <field name="notes"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fleet_maintenance_service" model="ir.actions.act_window">
+        <field name="name">Service Records</field>
+        <field name="res_model">fleet.maintenance.service</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

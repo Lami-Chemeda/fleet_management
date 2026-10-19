@@ -1,0 +1,11 @@
+.o_kanban_view.o_modules_kanban .o_kanban_renderer .o_kanban_record main > p.text-muted {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-height: 1.25;
+    min-height: 3.75em;
+    max-height: 3.75em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    overflow-wrap: anywhere;
+}

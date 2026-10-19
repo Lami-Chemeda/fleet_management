@@ -1,0 +1,6 @@
+/* Hide Send message, Log note, and Activities from chatter globally */
+.o-mail-Chatter-sendMessage,
+.o-mail-Chatter-logNote,
+.o-mail-Chatter-activity {
+    display: none !important;
+}

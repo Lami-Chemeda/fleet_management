@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_fleet_incident_tree" model="ir.ui.view">
+        <field name="name">fleet.incident.tree</field>
+        <field name="model">fleet.incident</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="severity in ('severe', 'critical')" decoration-warning="severity == 'moderate'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="vehicle_id"/>
+                <field name="driver_id"/>
+                <field name="incident_type"/>
+                <field name="severity"/>
+                <field name="status" widget="badge" decoration-info="status == 'reported'" decoration-warning="status == 'investigating'" decoration-success="status == 'resolved'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fleet_incident_form" model="ir.ui.view">
+        <field name="name">fleet.incident.form</field>
+        <field name="model">fleet.incident</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="status" widget="statusbar" options="{'clickable': '1'}"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="vehicle_id"/>
+                            <field name="driver_id"/>
+                            <field name="incident_type"/>
+                            <field name="severity"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                            <field name="location"/>
+                            <field name="repair_cost"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description &amp; Evidence">
+                            <field name="description"/>
+                            <field name="photo_ids" widget="many2many_binary"/>
+                        </page>
+                        <page string="Insurance Claims">
+                            <field name="claim_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="claim_date"/>
+                                    <field name="status"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fleet_incident" model="ir.actions.act_window">
+        <field name="name">Incidents</field>
+        <field name="res_model">fleet.incident</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

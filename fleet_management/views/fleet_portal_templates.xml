@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_my_home_menu_fleet" name="Portal layout : fleet menu entries" inherit_id="portal.portal_breadcrumbs" priority="20">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'incident'" t-attf-class="breadcrumb-item #{'active ' if not incident else ''}">
+                <a t-if="incident" t-attf-href="/my/incidents?{{ keep_query() }}">Incidents</a>
+                <t t-else="">Incidents</t>
+            </li>
+            <li t-if="page_name == 'inspection'" t-attf-class="breadcrumb-item #{'active ' if not inspection else ''}">
+                <a t-if="inspection" t-attf-href="/my/inspections?{{ keep_query() }}">Inspections</a>
+                <t t-else="">Inspections</t>
+            </li>
+        </xpath>
+    </template>
+
+    <template id="portal_my_home_fleet" name="Show Fleet" inherit_id="portal.portal_my_home" priority="20">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">Incidents</t>
+                <t t-set="url" t-value="'/my/incidents'"/>
+                <t t-set="placeholder_count" t-value="'incident_count'"/>
+            </t>
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">Inspections</t>
+                <t t-set="url" t-value="'/my/inspections'"/>
+                <t t-set="placeholder_count" t-value="'inspection_count'"/>
+            </t>
+        </xpath>
+    </template>
+
+    <template id="portal_my_incidents" name="My Incidents">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Incidents</t>
+            </t>
+            <t t-if="not incidents">
+                <p>There are currently no incidents for your account.</p>
+            </t>
+            <t t-if="incidents" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>Reference</th>
+                        <th>Date</th>
+                        <th>Vehicle</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="incidents" t-as="incident">
+                        <tr>
+                            <td><span t-field="incident.name"/></td>
+                            <td><span t-field="incident.date"/></td>
+                            <td><span t-field="incident.vehicle_id.name"/></td>
+                            <td><span t-field="incident.incident_type"/></td>
+                            <td><span t-field="incident.status"/></td>
+                        </tr>
+                    </t>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <template id="portal_my_inspections" name="My Inspections">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Inspections</t>
+            </t>
+            <t t-if="not inspections">
+                <p>There are currently no inspections for your account.</p>
+            </t>
+            <t t-if="inspections" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>Reference</th>
+                        <th>Date</th>
+                        <th>Vehicle</th>
+                        <th>Type</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="inspections" t-as="inspection">
+                        <tr>
+                            <td><span t-field="inspection.name"/></td>
+                            <td><span t-field="inspection.date"/></td>
+                            <td><span t-field="inspection.vehicle_id.name"/></td>
+                            <td><span t-field="inspection.inspection_type"/></td>
+                            <td><span t-field="inspection.overall_result"/></td>
+                        </tr>
+                    </t>
+                </tbody>
+            </t>
+        </t>
+    </template>
+</odoo>
